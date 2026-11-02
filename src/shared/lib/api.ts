@@ -6,10 +6,46 @@
  * mengimpor helper dari sini — jangan menyalin `getBaseUrl`/`getHeaders` lagi.
  */
 
+/** Backend produksi. Dipakai kalau `URL` tidak diset sama sekali. */
+export const PRODUCTION_API_URL = "https://api-taslim.duckdns.org";
+
+/** Host yang jelas bukan backend API — pernah terpasang karena env salah isi. */
+const BUKAN_API = ["github.com", "www.github.com", "gitlab.com", "bitbucket.org"];
+
+/**
+ * Normalisasi + validasi base URL.
+ *
+ * Sengaja melempar Error, bukan diam-diam memakai nilai lain: base URL yang
+ * salah membuat semua request dikirim ke host asing dan tampil di browser
+ * sebagai error CORS yang menyesatkan ("No Access-Control-Allow-Origin"),
+ * padahal masalahnya ada di konfigurasi build. `URL` adalah nama yang sangat
+ * umum, jadi nilai yang salah isi tetap harus gagal dengan pesan jelas.
+ */
+function normalizeBaseUrl(raw: string): string {
+	let parsed: globalThis.URL;
+	try {
+		parsed = new globalThis.URL(raw);
+	} catch {
+		throw new Error(
+			`URL bukan URL absolut: "${raw}". Set ke ${PRODUCTION_API_URL} (tanpa trailing slash).`,
+		);
+	}
+	if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+		throw new Error(`URL harus memakai http/https, bukan "${parsed.protocol}".`);
+	}
+	if (BUKAN_API.includes(parsed.hostname)) {
+		throw new Error(
+			`URL menunjuk ke ${parsed.hostname}, bukan backend API. Isi dengan ${PRODUCTION_API_URL}.`,
+		);
+	}
+	return raw.replace(/\/+$/, "");
+}
+
 export const getBaseUrl = () => {
-	const baseUrl =
-		import.meta.env.URL || import.meta.env.VITE_URL || "http://172.168.9.139:3000/";
-	return baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
+	// Satu variabel saja: `URL`.
+	const raw = (import.meta.env.URL ?? "").trim();
+	if (!raw) return PRODUCTION_API_URL;
+	return normalizeBaseUrl(raw);
 };
 
 export const getHeaders = () => {
@@ -85,10 +121,20 @@ const request = (endpoint: string, options: RequestInit = {}) =>
 	fetchParsed(`${getBaseUrl()}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`, options);
 
 export const api = {
-	get: (endpoint: string, options?: RequestInit) => request(endpoint, { method: "GET", ...options }),
+	get: (endpoint: string, options?: RequestInit) =>
+		request(endpoint, { method: "GET", ...options }),
 	post: (endpoint: string, data?: any, options?: RequestInit) =>
-		request(endpoint, { method: "POST", body: data ? JSON.stringify(data) : undefined, ...options }),
+		request(endpoint, {
+			method: "POST",
+			body: data ? JSON.stringify(data) : undefined,
+			...options,
+		}),
 	put: (endpoint: string, data?: any, options?: RequestInit) =>
-		request(endpoint, { method: "PUT", body: data ? JSON.stringify(data) : undefined, ...options }),
-	delete: (endpoint: string, options?: RequestInit) => request(endpoint, { method: "DELETE", ...options }),
+		request(endpoint, {
+			method: "PUT",
+			body: data ? JSON.stringify(data) : undefined,
+			...options,
+		}),
+	delete: (endpoint: string, options?: RequestInit) =>
+		request(endpoint, { method: "DELETE", ...options }),
 };

@@ -1,0 +1,126 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { api, apiFetch, APIError, getBaseUrl, getHeaders } from '../api';
+
+const store = new Map<string, string>();
+
+const jsonResponse = (body: unknown, status = 200) =>
+	new Response(JSON.stringify(body), {
+		status,
+		headers: { 'content-type': 'application/json' },
+	});
+
+beforeEach(() => {
+	store.clear();
+	vi.stubGlobal('localStorage', {
+		getItem: (k: string) => store.get(k) ?? null,
+		setItem: (k: string, v: string) => void store.set(k, v),
+		removeItem: (k: string) => void store.delete(k),
+		clear: () => store.clear(),
+	});
+	vi.stubEnv('URL', '');
+	vi.stubEnv('VITE_URL', 'http://localhost:3000/');
+});
+
+afterEach(() => {
+	vi.unstubAllEnvs();
+	vi.unstubAllGlobals();
+});
+
+describe('getBaseUrl', () => {
+	it('memakai VITE_URL dan memangkas trailing slash', () => {
+		expect(getBaseUrl()).toBe('http://localhost:3000');
+	});
+
+	it('memakai import.meta.env.URL bila ada', () => {
+		vi.stubEnv('URL', 'http://env-url:9000');
+		expect(getBaseUrl()).toBe('http://env-url:9000');
+	});
+
+	it('jatuh ke default bawaan bila env kosong', () => {
+		vi.stubEnv('VITE_URL', '');
+		expect(getBaseUrl()).toBe('http://172.168.9.139:3000');
+	});
+});
+
+describe('getHeaders', () => {
+	it('hanya memuat Content-Type tanpa token', () => {
+		expect(getHeaders()).toEqual({ 'Content-Type': 'application/json' });
+	});
+
+	it('menambahkan Authorization token mentah (tanpa prefix Bearer)', () => {
+		store.set('arxiva-auth-token', 'jwt-abc');
+		expect(getHeaders()).toEqual({
+			'Content-Type': 'application/json',
+			Authorization: 'jwt-abc',
+		});
+	});
+});
+
+describe('apiFetch', () => {
+	it('mengembalikan body JSON apa adanya', async () => {
+		vi.stubGlobal('fetch', vi.fn(async () => jsonResponse({ ok: true, token: 't1' })));
+		const body = await apiFetch<{ ok: boolean; token: string }>('http://localhost:3000/auth/login', {
+			method: 'POST',
+		});
+		expect(body).toEqual({ ok: true, token: 't1' });
+	});
+
+	it('tidak memberi prefix base URL pada URL absolut', async () => {
+		const fetchMock = vi.fn(async () => jsonResponse({ ok: true }));
+		vi.stubGlobal('fetch', fetchMock);
+		await apiFetch('http://other-host/x');
+		expect(fetchMock).toHaveBeenCalledWith('http://other-host/x', expect.any(Object));
+	});
+
+	it('melempar APIError bertipe saat respons tidak ok', async () => {
+		vi.stubGlobal('fetch', vi.fn(async () => jsonResponse({ message: 'Nope' }, 403)));
+		await expect(apiFetch('http://localhost:3000/x')).rejects.toBeInstanceOf(APIError);
+		await expect(apiFetch('http://localhost:3000/x')).rejects.toMatchObject({
+			message: 'Nope',
+			response: { status: 403 },
+		});
+	});
+
+	it('mengembalikan Blob untuk respons application/pdf', async () => {
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(
+				async () =>
+					new Response(new Blob(['%PDF-1.4']), {
+						status: 200,
+						headers: { 'content-type': 'application/pdf' },
+					}),
+			),
+		);
+		const data = await apiFetch('http://localhost:3000/requests/1/pdf');
+		expect(data).toBeInstanceOf(Blob);
+	});
+});
+
+describe('api helper', () => {
+	it('api.get memberi prefix base URL dan menyertakan header', async () => {
+		store.set('arxiva-auth-token', 'jwt-abc');
+		const fetchMock = vi.fn(async () => jsonResponse({ data: [] }));
+		vi.stubGlobal('fetch', fetchMock);
+
+		const result = await api.get('/items');
+
+		expect(fetchMock).toHaveBeenCalledWith('http://localhost:3000/items', {
+			method: 'GET',
+			headers: expect.objectContaining({ Authorization: 'jwt-abc' }),
+		});
+		expect(result).toMatchObject({ status: 200, data: { data: [] } });
+	});
+
+	it('api.post men-stringify body', async () => {
+		const fetchMock = vi.fn(async () => jsonResponse({ ok: true }));
+		vi.stubGlobal('fetch', fetchMock);
+
+		await api.post('/items', { serialNumber: 'SN-1' });
+
+		expect(fetchMock).toHaveBeenCalledWith(
+			'http://localhost:3000/items',
+			expect.objectContaining({ method: 'POST', body: JSON.stringify({ serialNumber: 'SN-1' }) }),
+		);
+	});
+});

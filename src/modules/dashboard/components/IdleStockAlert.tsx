@@ -1,0 +1,30 @@
+import { memo } from "react";
+import { Alert, AlertDescription, AlertTitle } from "@/shared/ui/alert";
+import { AlertTriangle } from "lucide-react";
+import type { MitraPerformanceMetrics } from "@/modules/dashboard/types";
+
+interface IdleStockAlertProps {
+  metrics: MitraPerformanceMetrics[];
+  isLoading: boolean;
+  className?: string;
+}
+
+function IdleStockAlertBase({ metrics, isLoading, className }: IdleStockAlertProps) {
+  if (isLoading) return null;
+
+  const idleMitras = metrics.filter(m => m.isIdleStock);
+
+  if (idleMitras.length === 0) return null;
+
+  return (
+    <Alert variant="destructive" className={className}>
+      <AlertTriangle className="h-4 w-4" />
+      <AlertTitle>Peringatan Potensi Idle Stock!</AlertTitle>
+      <AlertDescription>
+        Terdapat <strong>{idleMitras.length} Mitra</strong> yang belum mengajukan request baru dalam lebih dari 30 hari. Ini mungkin menandakan penumpukan stok.
+      </AlertDescription>
+    </Alert>
+  );
+}
+
+export const IdleStockAlert = memo(IdleStockAlertBase);

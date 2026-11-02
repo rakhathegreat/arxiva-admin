@@ -13,8 +13,8 @@ export default function Layout() {
             defaultOpen={false}
             style={
                 {
-                    "--sidebar-width": "calc(var(--spacing) * 72)",
-                    "--header-height": "calc(var(--spacing) * 12)",
+                    "--sidebar-width": "16rem",
+                    "--header-height": "4rem",
                 } as React.CSSProperties
             }
             className="h-svh overflow-hidden print:h-auto print:overflow-visible print:block print:w-full"

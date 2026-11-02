@@ -30,17 +30,17 @@ interface RequestSectionProps {
 function getStatusBadgeClass(status: string): string {
     switch (status.toUpperCase()) {
         case "MENUNGGU":
-            return "bg-gray-500 text-gray-500"
+            return "bg-muted-foreground text-muted-foreground"
         case "SIAP":
-            return "bg-purple-500 text-purple-500"
+            return "bg-foreground text-foreground"
         case "DITERIMA":
         case "SELESAI":
-            return "bg-emerald-500 text-emerald-500"
+            return "bg-success text-success"
         case "DITOLAK":
         case "DIBATALKAN":
-            return "bg-destructive text-destructive"
+            return "bg-foreground text-foreground"
         default:
-            return "bg-muted-foreground text-muted-foreground"
+            return "bg-ash text-muted-foreground"
     }
 }
 
@@ -87,7 +87,7 @@ function RequestSectionBase({ requests, counts, isLoading, className }: RequestS
     const displayedRequests = requests.filter(req => req.status.toUpperCase() === "MENUNGGU")
 
     return (
-        <Card className={cn("flex flex-col h-full shadow-sm", className)}>
+        <Card className={cn("flex flex-col h-full ", className)}>
             <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="text-base">
                     {"Request Masuk"}
@@ -111,7 +111,7 @@ function RequestSectionBase({ requests, counts, isLoading, className }: RequestS
                             key={kpi.label}
                             onClick={() => navigate(`/request?tab=${kpi.label}`)}
                             className={cn(
-                                "flex items-center gap-3 p-3 rounded-xl border border-input bg-muted/20 hover:bg-muted/40 cursor-pointer transition-all"
+                                "flex cursor-pointer items-center gap-3 rounded-md border border-border bg-muted/30 p-3 transition-colors hover:bg-muted/60"
                             )}
                         >
                             <div className="rounded-full p-2 bg-muted text-muted-foreground shrink-0">
@@ -119,7 +119,7 @@ function RequestSectionBase({ requests, counts, isLoading, className }: RequestS
                             </div>
                             <div className="flex flex-col min-w-0">
                                 <span className="text-xs text-muted-foreground">{kpi.label}</span>
-                                <span className="text-xl font-bold tracking-tight mt-0.5 tabular-nums">
+                                <span className="text-xl font-[450] tracking-tight mt-0.5 tabular-nums">
                                     {isLoading ? "-" : kpi.count}
                                 </span>
                             </div>
@@ -145,7 +145,7 @@ function RequestSectionBase({ requests, counts, isLoading, className }: RequestS
                             </p>
                         </div>
                     ) : (
-                        <div className="rounded-lg border overflow-hidden">
+                        <div className="rounded-md border overflow-hidden">
                             <Table>
                                 <TableHeader className="bg-muted">
                                     <TableRow className="hover:bg-transparent">

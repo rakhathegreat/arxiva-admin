@@ -74,7 +74,7 @@ export function RequestDetailDrawer({
 				</DrawerHeader>
 
 				<div className="flex flex-col gap-4 overflow-y-auto px-4 pb-4 text-sm">
-					<div className="grid grid-cols-2 gap-x-4 gap-y-2 rounded-lg border bg-muted/40 p-4">
+					<div className="grid grid-cols-2 gap-x-4 gap-y-2 rounded-md border bg-muted/40 p-4">
 						<div>
 							<p className="text-xs text-muted-foreground">Mitra Peminta</p>
 							<p className="font-medium">{request.requesterName || "-"}</p>
@@ -98,12 +98,12 @@ export function RequestDetailDrawer({
 						{["DITOLAK", "DIBATALKAN"].includes(request.status.toUpperCase()) && request.rejectionNotes && (
 							<div className="col-span-2">
 								<p className="text-xs text-muted-foreground">Catatan Penolakan</p>
-								<p className="font-medium text-rose-600">{request.rejectionNotes}</p>
+								<p className="font-medium text-foreground">{request.rejectionNotes}</p>
 							</div>
 						)}
 					</div>
 
-					<div className="rounded-lg border overflow-hidden">
+					<div className="rounded-md border overflow-hidden">
 						<Table>
 							<TableHeader className="bg-muted/60">
 								<TableRow className="hover:bg-transparent">
@@ -137,7 +137,7 @@ export function RequestDetailDrawer({
 							href={`${getBaseUrl()}/requests/${request.id}/bast-pdf`}
 							target="_blank"
 							rel="noreferrer"
-							className="flex items-center justify-center gap-2 rounded-lg border bg-muted/40 px-3 py-2 text-xs font-medium text-primary transition-colors hover:bg-muted"
+							className="flex items-center justify-center gap-2 rounded-md border bg-muted/40 px-3 py-2 text-xs font-medium text-primary transition-colors hover:bg-muted"
 						>
 							<FileText className="size-4" /> Unduh BAST
 						</a>

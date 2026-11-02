@@ -92,10 +92,18 @@ export default function DataTransaksiPage() {
   } = useRequests(activeTab as RequestTab)
 
   return (
-    <div className="flex flex-col gap-6 p-4 md:p-6 lg:p-8 animate-fade-in">
+    <div className="flex flex-col gap-5 p-4 md:p-6">
+      <header className="flex flex-col gap-1">
+        <p className="eyebrow text-stone">Operasional</p>
+        <h1 className="page-title">Request Material</h1>
+        <p className="text-sm text-muted-foreground">
+          Kelola permintaan material dari mitra dan status pengambilannya.
+        </p>
+      </header>
+
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between mb-4">
-          <div className="flex items-center w-full overflow-x-auto pb-1 scrollbar-hide">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex items-center w-full overflow-x-auto pb-1">
             <TabsList className="inline-flex h-auto w-full lg:w-auto">
               {NAV_TABS.map((tab) => {
                 const count = counts[tab] ?? 0
@@ -110,7 +118,7 @@ export default function DataTransaksiPage() {
           </div>
           <div className="flex flex-row items-center gap-2 w-full lg:w-auto">
             <div className="relative flex-1 lg:w-64">
-              <Search className="absolute top-[9px] left-3 size-4 text-muted-foreground" />
+              <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 placeholder="Cari transaksi..."
                 className="pl-9 w-full"
@@ -125,7 +133,7 @@ export default function DataTransaksiPage() {
                   className={cn(
                     "shrink-0 gap-1.5 px-3 cursor-pointer",
                     (filterCategories.length > 0 || dateRange?.from || dateRange?.to) &&
-                      "border-gray-400 text-primary",
+                      "border-foreground/30 bg-foreground/[0.04] text-foreground",
                   )}
                 >
                   <ListFilter className="size-4" />

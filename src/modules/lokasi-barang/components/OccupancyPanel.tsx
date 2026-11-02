@@ -30,7 +30,7 @@ export function OccupancyPanel({ stats }: { stats: LokasiStats }) {
 			<div className="flex h-full flex-col gap-4 sm:flex-row sm:items-center">
 				{/* Angka utama */}
 				<div className="shrink-0">
-					<p className="text-3xl font-semibold tabular-nums leading-tight tracking-tight text-foreground">
+					<p className="text-[30px] font-[450] tabular-nums leading-none tracking-tight text-foreground">
 						{stats.utilizationPct}%
 					</p>
 					<p className="mt-0.5 text-xs text-muted-foreground">terpakai</p>
@@ -56,11 +56,11 @@ export function OccupancyPanel({ stats }: { stats: LokasiStats }) {
 										className={cn(
 											"flex h-full items-center justify-center overflow-hidden transition-[width] duration-300 ease-out motion-reduce:transition-none",
 											s.barClass,
-											s.key === "Rak" && "rounded-l-lg",
+											s.key === "Rak" && "rounded-l-md",
 										)}
 										style={{ width: `${s.pct}%` }}>
 										{s.pct >= SEGMENT_MIN_LABEL_PCT && (
-											<span className="truncate px-2 text-[11px] font-medium tabular-nums text-white">
+											<span className="truncate px-2 text-[11px] font-medium tabular-nums text-background">
 												{s.key} {s.pct}%
 											</span>
 										)}
@@ -90,7 +90,7 @@ export function OccupancyPanel({ stats }: { stats: LokasiStats }) {
 						].map(([label, value]) => (
 							<div key={label as string} className="flex items-center gap-1.5">
 								<dt className="text-muted-foreground">{label}</dt>
-								<dd className="font-semibold tabular-nums text-foreground">
+								<dd className="font-medium tabular-nums text-foreground">
 									{value.toLocaleString("id-ID")} unit
 								</dd>
 							</div>
@@ -103,8 +103,8 @@ export function OccupancyPanel({ stats }: { stats: LokasiStats }) {
 }
 
 function segmentColor(key: string) {
-	if (key === "Kardus") return "bg-amber-500";
-	if (key === "Pallet") return "bg-emerald-500";
+	if (key === "Kardus") return "bg-chart-2";
+	if (key === "Pallet") return "bg-chart-3";
 	if (key === "Kosong") return "bg-muted";
-	return "bg-blue-500";
+	return "bg-chart-1";
 }

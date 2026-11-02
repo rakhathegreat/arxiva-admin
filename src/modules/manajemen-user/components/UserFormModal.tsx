@@ -204,9 +204,9 @@ export function UserFormModal({
 											aria-checked={form.partnerType === type}
 											onClick={() => setField("partnerType", type)}
 											className={cn(
-												"cursor-pointer rounded-lg border px-3 py-3 text-sm transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+												"cursor-pointer rounded-md border px-3 py-3 text-sm transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground/30",
 												form.partnerType === type
-													? "border-primary/50 bg-primary/10 font-semibold text-foreground"
+													? "border-primary/50 bg-primary/10 font-medium text-foreground"
 													: "text-muted-foreground hover:border-muted-foreground/40 hover:bg-muted/50",
 											)}>
 											{type.charAt(0) + type.slice(1).toLowerCase()}

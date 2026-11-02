@@ -39,7 +39,7 @@ const DialogOverlay = React.forwardRef<
     ref={ref}
     data-slot="dialog-overlay"
     className={cn(
-      "fixed inset-0 z-50 bg-black/60 backdrop-blur-xs transition-all duration-200 ease-out data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
+      "fixed inset-0 z-50 bg-foreground/25 backdrop-blur-[2px] transition-all duration-200 ease-out data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
       className
     )}
     {...props}
@@ -60,7 +60,7 @@ const DialogContent = React.forwardRef<
         ref={ref}
         data-slot="dialog-content"
         className={cn(
-          "relative z-50 grid w-full max-w-lg gap-4 border bg-background p-6 shadow-2xl transition-all duration-200 ease-out data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-open:slide-in-from-bottom-2 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 data-closed:slide-out-to-bottom-2 sm:rounded-xl",
+          "relative z-50 grid w-full max-w-lg gap-4 rounded-md border border-border bg-card p-5 shadow-none transition-all duration-200 ease-out data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-open:slide-in-from-bottom-2 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 data-closed:slide-out-to-bottom-2",
           className
         )}
         {...props}
@@ -70,7 +70,8 @@ const DialogContent = React.forwardRef<
           <DialogPrimitive.Close data-slot="dialog-close" asChild>
             <Button
               variant="ghost"
-              className="absolute top-4 right-4 h-8 w-8 p-0 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-400 border border-slate-200/50 dark:border-slate-700/50 flex items-center justify-center cursor-pointer"
+              size="icon-sm"
+              className="absolute top-3 right-3 text-muted-foreground hover:text-foreground"
             >
               <XIcon className="size-4" />
               <span className="sr-only">Close</span>
@@ -103,7 +104,7 @@ const DialogFooter = React.forwardRef<
   <div
     ref={ref}
     data-slot="dialog-footer"
-    className={cn("flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2", className)}
+    className={cn("flex flex-col-reverse gap-2 sm:flex-row sm:justify-end", className)}
     {...props}
   />
 ))
@@ -117,7 +118,7 @@ const DialogTitle = React.forwardRef<
     ref={ref}
     data-slot="dialog-title"
     className={cn(
-      "text-lg font-semibold leading-none tracking-tight text-foreground",
+      "text-base font-medium leading-none tracking-tight text-foreground",
       className
     )}
     {...props}

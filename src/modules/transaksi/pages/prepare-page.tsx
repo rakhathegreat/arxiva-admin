@@ -443,12 +443,12 @@ export default function PreparePage() {
                   placeholder="Masukkan serial number"
                   className="absolute opacity-0 -z-10 w-0 h-0"
                 />
-                <div className="flex flex-1 flex-col items-center justify-center gap-4 rounded-lg border border-dashed bg-muted/20 px-6 py-10 text-center">
+                <div className="flex flex-1 flex-col items-center justify-center gap-4 rounded-md border border-dashed bg-muted/20 px-6 py-10 text-center">
                   <div className="flex size-16 items-center justify-center rounded-full bg-primary/10 text-primary">
                     <ScanLine className="size-8 animate-pulse" />
                   </div>
                   <div className="space-y-1.5">
-                    <p className="text-base font-semibold text-foreground">
+                    <p className="text-base font-medium text-foreground">
                       Silakan scan menggunakan scanner
                     </p>
                     <p className="text-sm leading-relaxed text-muted-foreground">

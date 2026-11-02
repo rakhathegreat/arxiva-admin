@@ -24,34 +24,21 @@ export default function DashboardPage() {
 	} = useDashboard();
 
 	return (
-		<div className="@container/main flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+		<div className="@container/main flex flex-col gap-4 py-4">
 			{/* Row 1: Inventory KPI cards */}
-			<SectionCards
-				stats={inventoryStats}
-				totalLabel="Total Material"
-			/>
+			<SectionCards stats={inventoryStats} totalLabel="Total Material" />
 
 			{/* Idle Stock Alert */}
-			<div className="px-4 lg:px-6">
-				<IdleStockAlert
-					metrics={mitraPerformanceMetrics}
-					isLoading={isLoading}
-				/>
-			</div>
+			{/* <div className="px-4 lg:px-6">
+				<IdleStockAlert metrics={mitraPerformanceMetrics} isLoading={isLoading} />
+			</div> */}
 
 			{/* Mitra Performance */}
-			<MitraPerformanceSection
-				metrics={mitraPerformanceMetrics}
-				isLoading={isLoading}
-			/>
+			<MitraPerformanceSection metrics={mitraPerformanceMetrics} isLoading={isLoading} />
 
 			{/* Row 2: Charts (50/50) */}
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 px-4 lg:px-6">
-				<ChartBarMixed
-					data={mitraDistribution}
-					isLoading={isLoading}
-					className="h-full"
-				/>
+				<ChartBarMixed data={mitraDistribution} isLoading={isLoading} className="h-full" />
 				<ChartInboundOutbound
 					data={transactionSeries}
 					timeRange={timeRange}

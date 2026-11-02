@@ -76,7 +76,7 @@ function ScrollShadowWrapper({ children }: { children: React.ReactNode }) {
   }, [children])
 
   return (
-    <div className="rounded-lg border overflow-hidden relative">
+    <div className="rounded-md border overflow-hidden relative">
       <div
         ref={scrollRef}
         className="overflow-auto max-h-62 xl:max-h-92 overscroll-contain [&>div]:overflow-visible [&>div]:static"
@@ -91,7 +91,7 @@ function ScrollShadowWrapper({ children }: { children: React.ReactNode }) {
         />
       )}
       {canScrollBottom && (
-        <div className="absolute bottom-0 left-0 right-0 h-8 bg-linear-to-t from-card to-transparent pointer-events-none rounded-b-lg z-30" />
+        <div className="absolute bottom-0 left-0 right-0 h-8 bg-linear-to-t from-card to-transparent pointer-events-none rounded-b-md z-30" />
       )}
     </div>
   )
@@ -233,7 +233,7 @@ export function RequestDetailDrawer({
                   href={displayItem.deliveryDocument.driveViewUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center justify-center gap-2 rounded-lg border bg-muted/40 px-3 py-2 text-xs font-medium text-primary transition-colors hover:bg-muted"
+                  className="flex items-center justify-center gap-2 rounded-md border bg-muted/40 px-3 py-2 text-xs font-medium text-primary transition-colors hover:bg-muted"
                 >
                   <FileText className="size-4" /> Lihat dokumen BAST di Google Drive
                 </a>
@@ -241,7 +241,7 @@ export function RequestDetailDrawer({
               {['SIAP', 'SELESAI', 'DITERIMA'].includes(displayItem.status?.toUpperCase() || "") ? (
                 <ScrollShadowWrapper>
                   <Table className="whitespace-nowrap">
-                    <TableHeader className="sticky top-0 z-20 bg-muted shadow-md">
+                    <TableHeader className="sticky top-0 z-20 bg-muted ">
                       <TableRow className="hover:bg-transparent">
                         <TableHead className="w-12">No</TableHead>
                         <TableHead>Kategori</TableHead>
@@ -285,7 +285,7 @@ export function RequestDetailDrawer({
                 <>
                   <ScrollShadowWrapper>
                     <Table>
-                      <TableHeader className="sticky top-0 z-20 bg-muted shadow-md">
+                      <TableHeader className="sticky top-0 z-20 bg-muted ">
                         <TableRow className="hover:bg-transparent">
                           <TableHead className="w-12 px-4">No</TableHead>
                           <TableHead>Kategori</TableHead>

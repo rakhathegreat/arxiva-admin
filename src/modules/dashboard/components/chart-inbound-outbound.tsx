@@ -67,7 +67,7 @@ function ChartInboundOutboundBase({
     )
 
     return (
-        <Card className={`@container/card flex flex-col shadow-sm ${className || ""}`}>
+        <Card className={`@container/card flex flex-col  ${className || ""}`}>
             <CardHeader className="">
                 <div className="flex justify-between items-start">
                     <div>
@@ -97,7 +97,7 @@ function ChartInboundOutboundBase({
                             >
                                 <SelectValue placeholder="30 Hari" />
                             </SelectTrigger>
-                            <SelectContent className="rounded-xl">
+                            <SelectContent className="rounded-md">
                                 <SelectItem value="7d" className="text-xs">7 Hari</SelectItem>
                                 <SelectItem value="30d" className="text-xs">30 Hari</SelectItem>
                                 <SelectItem value="90d" className="text-xs">90 Hari</SelectItem>

@@ -69,7 +69,7 @@ function ActivityFeedCardBase({ activities, isLoading, className }: ActivityFeed
   }, [activities])
 
   return (
-    <Card className={cn("flex flex-col h-full shadow-sm", className)}>
+    <Card className={cn("flex flex-col h-full ", className)}>
       <CardHeader className="flex flex-row justify-between">
         <div className="flex flex-col gap-1">
           <CardTitle className="text-base">Aktivitas Terkini</CardTitle>
@@ -124,12 +124,14 @@ function ActivityFeedCardBase({ activities, isLoading, className }: ActivityFeed
               {activities.map((activity) => {
                 return (
                   <div key={activity.id} className="flex items-center gap-4 pb-4">
-                    <div className="size-8 rounded-full bg-muted-foreground" />
+                    <div className="flex size-8 shrink-0 items-center justify-center rounded-full border border-border bg-muted font-mono text-[10px] tracking-[0.04em] text-muted-foreground uppercase">
+                      {activity.mitra?.slice(0, 2)}
+                    </div>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex flex-col min-w-0">
-                          <span className="text-xs font-semibold text-foreground leading-tight truncate">
+                          <span className="text-xs font-medium text-foreground leading-tight truncate">
                             {activity.mitra}
                           </span>
                           <span className="text-xs text-muted-foreground mt-2">

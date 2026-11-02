@@ -46,7 +46,7 @@ export function RequestTable({
 	}
 
 	return (
-		<div className="rounded-lg border overflow-hidden">
+		<div className="rounded-md border overflow-hidden">
 			<div className="overflow-x-auto">
 				<Table className="whitespace-nowrap">
 					<TableHeader className="bg-muted/60">

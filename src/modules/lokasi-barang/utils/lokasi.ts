@@ -160,16 +160,16 @@ export function getNextLevelShelfName(locations: StorageLocation[], parentId?: s
 
 /** Kelas warna progress bar sesuai tingkat pemakaian. */
 export function getProgressStyles(used: number, cap: number, baseColor: string) {
-	if (cap <= 0) return { barClass: "bg-neutral-800", textClass: "text-neutral-500", label: "0%", pct: 0 };
+	if (cap <= 0) return { barClass: "bg-muted-foreground", textClass: "text-muted-foreground", label: "0%", pct: 0 };
 	const pct = Math.min(100, Math.round((used / cap) * 100));
 	let barClass = baseColor;
-	let textClass = "text-neutral-300";
+	let textClass = "text-muted-foreground";
 	if (pct >= 100) {
-		barClass = "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]";
-		textClass = "text-red-400 font-bold";
+		barClass = "bg-foreground";
+		textClass = "text-foreground font-semibold";
 	} else if (pct > 70) {
-		barClass = "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]";
-		textClass = "text-amber-400 font-semibold";
+		barClass = "bg-charcoal";
+		textClass = "text-charcoal font-medium";
 	}
 	return { barClass, textClass, pct, label: `${pct}%` };
 }

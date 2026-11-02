@@ -177,8 +177,16 @@ export function GoogleDriveTab() {
 
 	return (
 		<div className="flex flex-col gap-6">
+			<header className="flex flex-col gap-1">
+				<p className="eyebrow text-stone">Integrasi</p>
+				<h1 className="page-title">Google Drive</h1>
+				<p className="text-sm text-muted-foreground">
+					Hubungkan akun Google untuk spreadsheet lokasi material dan QR code.
+				</p>
+			</header>
+
 			{/* Card 1: Status Koneksi OAuth */}
-			<Card className="mt-10">
+			<Card>
 				<CardHeader>
 					<CardTitle className="text-base">Koneksi Google Drive</CardTitle>
 					<CardDescription className="text-xs">
@@ -207,7 +215,7 @@ export function GoogleDriveTab() {
 						</div>
 					) : isConnected ? (
 						<div className="flex items-start gap-3">
-							<CheckCircle2 className="mt-0.5 size-5 shrink-0 text-emerald-500" />
+							<CheckCircle2 className="mt-0.5 size-5 shrink-0 text-success" />
 							<div>
 								<p className="text-sm font-medium text-foreground">Terhubung</p>
 								<p className="text-xs text-muted-foreground">{googleEmail}</p>
@@ -283,7 +291,7 @@ export function GoogleDriveTab() {
 				</CardHeader>
 				<CardContent className="flex flex-col gap-3">
 					{!isConnected && (
-						<p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-400">
+						<p className="rounded-md border border-border bg-muted/60 px-3 py-2 text-xs text-foreground">
 							Hubungkan akun Google terlebih dahulu untuk mengatur Folder ID.
 						</p>
 					)}
@@ -332,7 +340,7 @@ export function GoogleDriveTab() {
 			{/* Card 3: Info */}
 			<Card>
 				<CardHeader>
-					<CardTitle className="text-sm font-semibold text-foreground">
+					<CardTitle className="text-sm font-medium text-foreground">
 						Yang perlu diketahui
 					</CardTitle>
 				</CardHeader>

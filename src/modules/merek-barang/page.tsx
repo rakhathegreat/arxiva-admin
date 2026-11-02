@@ -112,16 +112,16 @@ export default function MerekBarangPage() {
 	);
 
 	return (
-    <div className="p-6 h-full flex flex-col gap-6 text-neutral-100 mx-auto w-full">
+    <div className="mx-auto flex h-full w-full flex-col gap-5 p-4 md:p-6">
 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex flex-1 items-center gap-4 w-full sm:w-auto">
           <div className="relative w-full sm:w-72">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
               placeholder="Cari merek atau identifier..."
-              className="w-full pl-9 bg-card border-border focus-visible:ring-1 focus-visible:ring-neutral-700 placeholder:text-sm"
+              className="w-full pl-9 bg-card border-border placeholder:text-sm"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -133,7 +133,7 @@ export default function MerekBarangPage() {
               variant={viewMode === "grid" ? "secondary" : "ghost"}
               size="sm"
               onClick={() => handleViewModeChange("grid")}
-              className={`h-8 px-2.5 rounded-sm active:translate-y-0 active:not-aria-[haspopup]:translate-y-0 transition-none ${viewMode === "grid" ? "bg-neutral-800 text-neutral-100" : "text-muted-foreground hover:text-foreground"}`}
+              className={`h-8 px-2.5 rounded-md active:translate-y-0 active:not-aria-[haspopup]:translate-y-0 transition-none ${viewMode === "grid" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}
             >
               <LayoutGrid className="size-3.5" />
             </Button>
@@ -141,24 +141,24 @@ export default function MerekBarangPage() {
               variant={viewMode === "table" ? "secondary" : "ghost"}
               size="sm"
               onClick={() => handleViewModeChange("table")}
-              className={`h-8 px-2.5 rounded-sm active:translate-y-0 active:not-aria-[haspopup]:translate-y-0 transition-none ${viewMode === "table" ? "bg-neutral-800 text-neutral-100" : "text-muted-foreground hover:text-foreground"}`}
+              className={`h-8 px-2.5 rounded-md active:translate-y-0 active:not-aria-[haspopup]:translate-y-0 transition-none ${viewMode === "table" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}
             >
               <List className="size-3.5" />
             </Button>
           </div>
-          <Button className="h-8 gap-2 rounded-sm" onClick={() => handleOpenSheet()}>
+          <Button className="h-8 gap-2 rounded-md" onClick={() => handleOpenSheet()}>
             <Plus className="w-4 h-4" /> Tambah Merek
           </Button>
         </div>
       </div>
 
       {/* Mobile view toggle */}
-      <div className="sm:hidden flex items-center p-1 rounded-lg border border-border bg-muted/50 w-full">
+      <div className="sm:hidden flex items-center p-1 rounded-md border border-border bg-muted/50 w-full">
         <Button
           variant={viewMode === "grid" ? "secondary" : "ghost"}
           size="sm"
           onClick={() => handleViewModeChange("grid")}
-          className={`flex-1 h-8 active:translate-y-0 active:not-aria-[haspopup]:translate-y-0 transition-none ${viewMode === "grid" ? "bg-neutral-800 text-neutral-100" : "text-muted-foreground hover:text-foreground"}`}
+          className={`flex-1 h-8 active:translate-y-0 active:not-aria-[haspopup]:translate-y-0 transition-none ${viewMode === "grid" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}
         >
           <LayoutGrid className="size-4 mr-1.5" />
           Grid
@@ -167,7 +167,7 @@ export default function MerekBarangPage() {
           variant={viewMode === "table" ? "secondary" : "ghost"}
           size="sm"
           onClick={() => handleViewModeChange("table")}
-          className={`flex-1 h-8 active:translate-y-0 active:not-aria-[haspopup]:translate-y-0 transition-none ${viewMode === "table" ? "bg-neutral-800 text-neutral-100" : "text-muted-foreground hover:text-foreground"}`}
+          className={`flex-1 h-8 active:translate-y-0 active:not-aria-[haspopup]:translate-y-0 transition-none ${viewMode === "table" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}
         >
           <List className="size-4 mr-1.5" />
           Table
@@ -180,20 +180,20 @@ export default function MerekBarangPage() {
             <Card key={brand.id} className="overflow-hidden relative group transition-all duration-300 hover:border-border/80 hover:bg-muted/60">
               <CardContent className="px-5 flex flex-col gap-4">
                 <div className="flex justify-between items-start">
-                  <div className="p-2.5 bg-orange-500/10 rounded-xl shrink-0">
-                    <CircleStar className="w-6 h-6 text-orange-400" />
+                  <div className="shrink-0 rounded-md bg-foreground/5 p-2.5">
+                    <CircleStar className="h-6 w-6 text-foreground" />
                   </div>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-neutral-800 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-muted text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
                         <MoreVertical className="w-4 h-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="bg-neutral-950 border-border text-foreground">
-                      <DropdownMenuItem className="cursor-pointer focus:bg-neutral-800" onClick={() => handleOpenSheet(brand.id)}>
+                    <DropdownMenuContent align="end" className="bg-card border-border text-foreground">
+                      <DropdownMenuItem className="cursor-pointer focus:bg-accent" onClick={() => handleOpenSheet(brand.id)}>
                         <Edit className="w-4 h-4 mr-2" /> Edit Merek
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="text-red-400 focus:bg-red-950/50 focus:text-red-400 cursor-pointer" onClick={() => requestDelete(brand.id, brand.nama)}>
+                      <DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer" onClick={() => requestDelete(brand.id, brand.nama)}>
                         <Trash2 className="w-4 h-4 mr-2" /> Hapus Merek
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -201,12 +201,12 @@ export default function MerekBarangPage() {
                 </div>
 
                 <div>
-                  <h3 className="font-semibold text-lg text-neutral-100 mb-1">{brand.nama}</h3>
-                  <p className="text-sm text-neutral-500 line-clamp-1">{brand.identifier}</p>
+                  <h3 className="mb-1 text-[15px] font-medium text-foreground">{brand.nama}</h3>
+                  <p className="text-sm text-muted-foreground line-clamp-1">{brand.identifier}</p>
                 </div>
 
                 <div className="mt-auto pt-4 border-t border-border/60 flex justify-between items-center">
-                  <span className="text-xs font-medium text-neutral-500">Total Material</span>
+                  <span className="text-xs font-medium text-muted-foreground">Total Material</span>
                   <span className="text-sm font-medium text-foreground">{brand.totalItems} Unit</span>
                 </div>
               </CardContent>
@@ -216,10 +216,10 @@ export default function MerekBarangPage() {
           {filteredBrands.length === 0 && (
             <div className="col-span-full py-16 flex flex-col items-center justify-center text-center">
               <div className="w-16 h-16 bg-card rounded-full flex items-center justify-center mb-4">
-                <Search className="w-8 h-8 text-neutral-600" />
+                <Search className="w-8 h-8 text-muted-foreground" />
               </div>
-              <h3 className="text-lg font-medium text-foreground mb-1">Merek Tidak Ditemukan</h3>
-              <p className="text-sm text-neutral-500 max-w-sm">Coba gunakan kata kunci lain atau tambahkan merek baru.</p>
+              <h3 className="mb-1 text-[15px] font-medium text-foreground">Merek Tidak Ditemukan</h3>
+              <p className="text-sm text-muted-foreground max-w-sm">Coba gunakan kata kunci lain atau tambahkan merek baru.</p>
             </div>
           )}
         </div>
@@ -259,9 +259,9 @@ export default function MerekBarangPage() {
       )}
 
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-        <SheetContent className="sm:max-w-md border-border bg-neutral-950 p-0 flex flex-col text-foreground">
+        <SheetContent className="sm:max-w-md border-border bg-card p-0 flex flex-col text-foreground">
           <SheetHeader className="p-6 border-b border-border/60 bg-muted/20">
-            <SheetTitle className="text-xl text-neutral-100">{editId ? "Edit Merek" : "Tambah Merek Baru"}</SheetTitle>
+            <SheetTitle>{editId ? "Edit Merek" : "Tambah Merek Baru"}</SheetTitle>
             <SheetDescription className="text-muted-foreground">
               Isi formulir di bawah ini untuk mengelola informasi merek material.
             </SheetDescription>
@@ -326,7 +326,7 @@ export default function MerekBarangPage() {
             </div>
           </div>
           <SheetFooter className="p-6 border-t border-border/60 bg-muted/20 flex sm:justify-end gap-3 sm:gap-2">
-            <Button variant="outline" onClick={() => setIsSheetOpen(false)} className="hover:bg-neutral-800 text-foreground" disabled={isSaving}>Batal</Button>
+            <Button variant="outline" onClick={() => setIsSheetOpen(false)} className="hover:bg-muted text-foreground" disabled={isSaving}>Batal</Button>
             <Button onClick={handleSave} disabled={isSaving}>
               {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
               Simpan Perubahan

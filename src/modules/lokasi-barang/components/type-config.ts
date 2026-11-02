@@ -21,21 +21,21 @@ export interface StorageTypeConfig {
 export const TYPE_CONFIG: Record<StorageType, StorageTypeConfig> = {
 	Rak: {
 		icon: Layers,
-		text: "text-blue-500",
-		chipBg: "bg-blue-500/10",
-		bar: "bg-blue-500",
+		text: "text-foreground",
+		chipBg: "bg-foreground/5",
+		bar: "bg-chart-1",
 	},
 	Kardus: {
 		icon: Archive,
-		text: "text-amber-500",
-		chipBg: "bg-amber-500/10",
-		bar: "bg-amber-500",
+		text: "text-charcoal",
+		chipBg: "bg-foreground/[0.04]",
+		bar: "bg-chart-2",
 	},
 	Pallet: {
 		icon: Package,
-		text: "text-emerald-500",
-		chipBg: "bg-emerald-500/10",
-		bar: "bg-emerald-500",
+		text: "text-stone",
+		chipBg: "bg-muted",
+		bar: "bg-chart-3",
 	},
 };
 

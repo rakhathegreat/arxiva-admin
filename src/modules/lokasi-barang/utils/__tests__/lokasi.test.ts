@@ -95,10 +95,10 @@ describe("penamaan shelf", () => {
 
 describe("getProgressStyles", () => {
 	it("<=70% memakai warna dasar", () => {
-		expect(getProgressStyles(5, 10, "bg-blue-500").barClass).toBe("bg-blue-500");
+		expect(getProgressStyles(5, 10, "bg-chart-1").barClass).toBe("bg-chart-1");
 	});
-	it(">70% amber, >=100% merah", () => {
-		expect(getProgressStyles(8, 10, "").barClass).toContain("amber");
-		expect(getProgressStyles(10, 10, "").barClass).toContain("red");
+	it(">70% charcoal, >=100% ink", () => {
+		expect(getProgressStyles(8, 10, "").barClass).toBe("bg-charcoal");
+		expect(getProgressStyles(10, 10, "").barClass).toBe("bg-foreground");
 	});
 });

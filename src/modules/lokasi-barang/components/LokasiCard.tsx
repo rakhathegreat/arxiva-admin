@@ -87,11 +87,11 @@ export function LokasiCard({
 	const header = (
 		<div className="flex items-start justify-between gap-2">
 			<div className="flex min-w-0 items-center gap-2.5">
-				<span className={cn("shrink-0 rounded-lg p-1.5", config.chipBg)}>
+				<span className={cn("shrink-0 rounded-md p-1.5", config.chipBg)}>
 					<Icon className={cn("size-4", config.text)} />
 				</span>
 				<div className="min-w-0">
-					<CardTitle className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+					<CardTitle className="flex items-center gap-1.5 text-sm font-medium text-foreground">
 						<span className="truncate">{loc.name}</span>
 						{!loc.isActive && (
 <Badge variant="secondary" className="text-muted-foreground">
@@ -172,7 +172,7 @@ export function LokasiCard({
 					!(loc.isActive && lvl.isActive) && "opacity-55",
 				)}>
 				<div className="mb-2 flex items-center justify-between gap-2">
-					<span className="text-xs font-semibold text-foreground">{lvl.name}</span>
+					<span className="text-xs font-medium text-foreground">{lvl.name}</span>
 					<div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
 						<BrandRuleBadge rule={lvl.brandRule} />
 						<DropdownMenu>
@@ -268,7 +268,7 @@ export function LokasiCard({
 					{loc.levels?.map((lvl) => <LevelRow key={lvl.id} lvl={lvl} />)}
 				</ul>
 				{(!loc.levels || loc.levels.length === 0) && (
-					<div className="m-3 flex flex-col items-center gap-1.5 rounded-lg border border-dashed py-8 text-center">
+					<div className="m-3 flex flex-col items-center gap-1.5 rounded-md border border-dashed py-8 text-center">
 						<p className="text-xs text-muted-foreground">Rak ini belum memiliki level.</p>
 						<Button
 							variant="link"

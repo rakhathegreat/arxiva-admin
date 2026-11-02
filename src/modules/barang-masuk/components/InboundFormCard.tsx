@@ -96,10 +96,10 @@ export function InboundFormCard({
 									}
 								}}
 								placeholder="Scan barcode atau ketik manual di sini..."
-								className="rounded-sm h-8"
+								className="rounded-md h-8"
 							/>
 							<CollapsibleTrigger asChild>
-								<Button size="sm" className="h-8 rounded-sm cursor-pointer">
+								<Button size="sm" className="h-8 rounded-md cursor-pointer">
 									{isOpen ? "Simpan" : "Edit"}
 									<ChevronDown
 										className={`size-4 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
@@ -130,13 +130,13 @@ export function InboundFormCard({
 										searchPlaceholder="Cari asal material..."
 										emptyText="Asal material tidak ditemukan"
 										recentKey="asal"
-										className="rounded-sm!"
+										className="rounded-md!"
 									/>
 									{asalBarangManual ? (
 										<div className="flex items-center justify-between gap-2 -mt-1"></div>
 									) : (
 										detectMitraFromSN(kodeBarang, dbPartners) && (
-											<p className="-mt-1 text-xs text-sky-600 dark:text-sky-400">
+											<p className="-mt-1 text-xs text-muted-foreground">
 												Terdeteksi otomatis dari SN
 											</p>
 										)

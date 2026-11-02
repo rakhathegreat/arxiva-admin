@@ -134,10 +134,10 @@ export function BarangDetailDrawer({
 							<div className="absolute -left-5 top-2.5 -bottom-4 w-0.5 bg-border/60" />
 						)}
 
-						<div className="space-y-1.5 rounded-lg">
+						<div className="space-y-1.5 rounded-md">
 							<div className="flex items-center justify-between gap-2 flex-wrap">
 								<div className="flex flex-col items-start gap-1.5">
-									<div className="font-semibold text-xs">{tipeLabel}</div>
+									<div className="font-medium text-xs">{tipeLabel}</div>
 									<span className="font-medium text-muted-foreground text-xs">
 										{nomorSurat}
 									</span>
@@ -180,7 +180,7 @@ export function BarangDetailDrawer({
 					<DialogHeader className="border-b pb-3 shrink-0">
 						<div className="flex items-center justify-between gap-3">
 							<div className="flex items-center gap-3 min-w-0">
-								<DialogTitle className="text-lg font-medium text-foreground shrink-0">
+								<DialogTitle className="shrink-0 text-base font-medium text-foreground">
 									Detail Material
 								</DialogTitle>
 							</div>
@@ -367,7 +367,7 @@ export function BarangDetailDrawer({
 				<DrawerHeader className="border-b shrink-0 pb-3">
 					<div className="flex items-center justify-between gap-2">
 						<div className="flex items-center gap-2 min-w-0">
-							<DrawerTitle className="text-base font-bold text-foreground truncate">
+							<DrawerTitle className="text-base font-medium text-foreground truncate">
 								Detail Material
 							</DrawerTitle>
 						</div>
@@ -411,14 +411,14 @@ export function BarangDetailDrawer({
 
 						{/* TAB 1: Spesifikasi Material */}
 						<TabsContent value="spesifikasi" className="space-y-3 pt-1">
-							<Card className="p-4 border border-border/40 rounded-lg bg-card/60">
+							<Card className="p-4 border border-border/40 rounded-md bg-card/60">
 								<div className="grid grid-cols-2 gap-3 text-xs">
 									<div>
 										<p className="text-muted-foreground font-medium">
 											Serial Number (SN)
 										</p>
 										<div className="flex items-center gap-2">
-											<p className="font-mono font-bold text-foreground mt-0.5">
+											<p className="font-mono font-medium text-foreground mt-0.5">
 												{detailBarang.serialNumber}
 											</p>
 											<Button
@@ -428,7 +428,7 @@ export function BarangDetailDrawer({
 													copyToClipboard(detailBarang.serialNumber)
 												}>
 												{isCopied ? (
-													<Check className="size-3.5 text-green-500 scale-110 transition-transform duration-300" />
+													<Check className="size-3.5 text-success scale-110 transition-transform duration-300" />
 												) : (
 													<Copy className="size-3.5 transition-transform duration-300" />
 												)}

@@ -59,7 +59,7 @@ export function BarangMobileCards({
                   </div>
                 )}
                 <div>
-                  <p className="font-mono font-bold text-sm text-foreground">{item.serialNumber}</p>
+                  <p className="font-mono font-medium text-sm text-foreground">{item.serialNumber}</p>
                   <p className="text-xs text-muted-foreground">
                     {item.merek} &bull; {item.kategori} {item.tipe ? `(${item.tipe})` : ""}
                   </p>

@@ -184,9 +184,9 @@ export function ChartAreaInteractive({
                             >
                                 <SelectValue placeholder="Semua Mitra" />
                             </SelectTrigger>
-                            <SelectContent className="rounded-xl">
+                            <SelectContent className="rounded-md">
                                 {mitraOptions.map((mitra) => (
-                                    <SelectItem key={mitra} value={mitra} className="rounded-lg">
+                                    <SelectItem key={mitra} value={mitra} className="rounded-md">
                                         {mitra === "all" ? "Semua Mitra" : mitra}
                                     </SelectItem>
                                 ))}
@@ -215,14 +215,14 @@ export function ChartAreaInteractive({
                         >
                             <SelectValue placeholder="3 bulan" />
                         </SelectTrigger>
-                        <SelectContent className="rounded-xl">
-                            <SelectItem value="7d" className="rounded-lg">
+                        <SelectContent className="rounded-md">
+                            <SelectItem value="7d" className="rounded-md">
                                 7 hari
                             </SelectItem>
-                            <SelectItem value="30d" className="rounded-lg">
+                            <SelectItem value="30d" className="rounded-md">
                                 30 hari
                             </SelectItem>
-                            <SelectItem value="90d" className="rounded-lg">
+                            <SelectItem value="90d" className="rounded-md">
                                 3 bulan
                             </SelectItem>
                         </SelectContent>

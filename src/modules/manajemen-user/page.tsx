@@ -175,7 +175,7 @@ export default function ManajemenUserPage() {
 				meta: { className: "w-24 text-center" },
 				cell: ({ row }) =>
 					row.original.isAktif ? (
-						<Badge variant="secondary" size="sm" className="bg-emerald-500/10 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
+						<Badge variant="success" size="sm">
 							Aktif
 						</Badge>
 					) : (
@@ -212,7 +212,7 @@ export default function ManajemenUserPage() {
 	if (error && !isLoading) {
 		return (
 			<div className="mx-auto flex h-full w-full max-w-7xl items-center justify-center p-6">
-				<div className="rounded-xl border border-dashed px-8 py-12 text-center">
+				<div className="rounded-md border border-dashed px-8 py-12 text-center">
 					<p className="text-sm font-medium text-foreground">Daftar user gagal dimuat</p>
 					<p className="mt-1 max-w-sm text-xs text-muted-foreground">{error}</p>
 					<Button variant="outline" size="sm" className="mt-4 cursor-pointer gap-2 text-xs" onClick={() => reload()}>
@@ -224,11 +224,12 @@ export default function ManajemenUserPage() {
 	}
 
 	return (
-		<div className="mx-auto flex h-full w-full max-w-7xl flex-col gap-5 overflow-y-auto p-6">
+		<div className="mx-auto flex h-full w-full max-w-7xl flex-col gap-5 overflow-y-auto p-4 md:p-6">
 			<header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-				<div>
-					<h1 className="text-xl font-semibold tracking-tight text-foreground">Manajemen User</h1>
-					<p className="mt-1 max-w-xl text-sm text-muted-foreground">
+				<div className="flex flex-col gap-1">
+					<p className="eyebrow text-stone">Administrasi</p>
+					<h1 className="page-title">Manajemen User</h1>
+					<p className="max-w-xl text-sm text-muted-foreground">
 						Kelola akun admin, staf internal, dan mitra beserta status aktifnya.
 					</p>
 				</div>
@@ -249,7 +250,7 @@ export default function ManajemenUserPage() {
 									{count > 0 && (
 										<span
 											className={cn(
-												"inline-flex h-4.5 min-w-4.5 items-center justify-center rounded-full px-1 text-[10px] font-semibold tabular-nums",
+												"inline-flex h-4.5 min-w-4.5 items-center justify-center rounded-full px-1 text-[10px] font-medium tabular-nums",
 												key === "all"
 													? "bg-muted text-muted-foreground"
 													: activePalette(ROLE_META[key as BackendRole]),
@@ -265,7 +266,7 @@ export default function ManajemenUserPage() {
 			</div>
 
 			{/* Toolbar: pencarian + status filter */}
-			<div className="flex flex-col gap-3 rounded-xl border bg-card p-3 lg:flex-row lg:items-center">
+			<div className="flex flex-col gap-3 rounded-md border bg-card p-3 lg:flex-row lg:items-center">
 				<div className="relative w-full lg:max-w-sm lg:flex-1">
 					<Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
 					<Input
@@ -280,7 +281,7 @@ export default function ManajemenUserPage() {
 							type="button"
 							onClick={() => setSearchQuery("")}
 							aria-label="Bersihkan pencarian"
-							className="absolute right-2.5 top-1/2 -translate-y-1/2 cursor-pointer rounded p-0.5 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring">
+							className="absolute right-2.5 top-1/2 -translate-y-1/2 cursor-pointer rounded p-0.5 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-foreground/30">
 							<X className="size-3.5" />
 						</button>
 					)}
@@ -427,7 +428,7 @@ onClick={() => {
 								if (bulkDeleteIds) handleBulkDelete(bulkDeleteIds);
 								setBulkDeleteIds(null);
 							}}
-							className="cursor-pointer bg-destructive text-xs text-white hover:bg-destructive/90">
+							className="cursor-pointer bg-destructive text-xs text-background hover:bg-destructive/90">
 							Hapus Akun
 						</AlertDialogAction>
 					</AlertDialogFooter>
@@ -452,7 +453,7 @@ onClick={() => {
 								if (deleteTarget) handleDelete(deleteTarget);
 								setDeleteTarget(null);
 							}}
-							className="cursor-pointer bg-destructive text-xs text-white hover:bg-destructive/90">
+							className="cursor-pointer bg-destructive text-xs text-background hover:bg-destructive/90">
 							Hapus Akun
 						</AlertDialogAction>
 					</AlertDialogFooter>

@@ -6,21 +6,8 @@ import { Button } from "@/shared/ui/button";
 import { Card, CardContent } from "@/shared/ui/card";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/shared/ui/select";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/shared/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
 import { formatItemStatus } from "@/shared/lib/status-helper";
 import { useBarangKeluar } from "./hooks/useBarangKeluar";
 import { EmptyScanTableState } from "./components/EmptyScanTableState";
@@ -46,11 +33,11 @@ export default function BarangKeluarPage() {
 		<div className="@container/main flex h-full select-none flex-col gap-4 py-4 md:gap-6 md:py-6">
 			<div className="flex h-full flex-col gap-4 px-4 lg:px-6">
 				{/* Smart Input Bar */}
-				<Card className="shrink-0 border-primary/20 shadow-sm">
+				<Card className="shrink-0">
 					<CardContent className="flex flex-col gap-4 px-4 sm:px-5">
 						<div className="flex flex-col items-end gap-4 sm:flex-row">
 							<div className="w-full flex-1 space-y-1.5">
-								<Label htmlFor="smart-input" className="text-sm font-semibold">
+								<Label htmlFor="smart-input" className="meta-label">
 									Scan Barcode / SN
 								</Label>
 								<div className="relative">
@@ -58,7 +45,7 @@ export default function BarangKeluarPage() {
 									<Input
 										ref={inputRef}
 										id="smart-input"
-										className="h-8 pl-9 text-base shadow-inner focus-visible:ring-primary/50"
+										className="h-9 pl-9"
 										placeholder="Scan atau masukkan serial number disini..."
 										value={kodeBarang}
 										onChange={(event) => updateKodeBarang(event.target.value)}
@@ -72,11 +59,9 @@ export default function BarangKeluarPage() {
 								</div>
 							</div>
 
-							{(
+							{
 								<div className="w-full space-y-1.5 sm:w-64">
-									<Label
-										htmlFor="mitra-tujuan"
-										className="text-sm font-semibold">
+									<Label htmlFor="mitra-tujuan" className="meta-label">
 										Tujuan (Mitra)
 									</Label>
 									<Select
@@ -84,8 +69,9 @@ export default function BarangKeluarPage() {
 										onValueChange={(value) => {
 											setSelectedPartnerId(value);
 											focusKodeBarangInput();
-										}}>
-										<SelectTrigger id="mitra-tujuan" className="h-11">
+										}}
+									>
+										<SelectTrigger id="mitra-tujuan" className="h-9">
 											<SelectValue placeholder="Pilih mitra..." />
 										</SelectTrigger>
 										<SelectContent>
@@ -103,11 +89,12 @@ export default function BarangKeluarPage() {
 										</SelectContent>
 									</Select>
 								</div>
-							)}
+							}
 
 							<Button
-								className="h-8 w-full gap-2 sm:w-32"
-								onClick={() => handleSubmit(kodeBarangRef.current)}>
+								className="w-full gap-2 sm:w-32"
+								onClick={() => handleSubmit(kodeBarangRef.current)}
+							>
 								<PackageMinus className="size-4" />
 								Tambah
 							</Button>
@@ -124,7 +111,8 @@ export default function BarangKeluarPage() {
 					<Button
 						className="shrink-0 gap-2 cursor-pointer"
 						onClick={handleValidateAll}
-						disabled={barangKeluar.length === 0 || isSaving}>
+						disabled={barangKeluar.length === 0 || isSaving}
+					>
 						{isSaving ? (
 							<Loader2 className="size-4 animate-spin" />
 						) : (
@@ -135,9 +123,9 @@ export default function BarangKeluarPage() {
 				</div>
 
 				{/* Tabel Layar Penuh */}
-				<div className="flex-1 overflow-auto rounded-lg border">
+				<div className="flex-1 overflow-auto rounded-md border border-border bg-card">
 					<Table className="min-w-[900px]">
-						<TableHeader className="sticky top-0 z-10 bg-muted/50 backdrop-blur-md">
+						<TableHeader className="sticky top-0 z-10 bg-muted">
 							<TableRow className="hover:bg-transparent">
 								<TableHead className="w-12 pl-4">No</TableHead>
 								<TableHead>Serial Number</TableHead>
@@ -168,9 +156,7 @@ export default function BarangKeluarPage() {
 										</TableCell>
 										<TableCell className="text-sm">{item.merek}</TableCell>
 										<TableCell>
-											<Badge
-												variant="secondary"
-												size="sm">
+											<Badge variant="secondary" size="sm">
 												{item.kategori}
 											</Badge>
 										</TableCell>
@@ -189,7 +175,8 @@ export default function BarangKeluarPage() {
 												variant="ghost"
 												size="icon-sm"
 												className="text-muted-foreground hover:text-destructive"
-												onClick={() => handleDeleteItem(item.id)}>
+												onClick={() => handleDeleteItem(item.id)}
+											>
 												<X className="size-4" />
 												<span className="sr-only">Hapus item</span>
 											</Button>

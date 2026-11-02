@@ -183,15 +183,15 @@ export default function TipeMaterialPage() {
 	);
 
 	return (
-		<div className="p-6 h-full flex flex-col gap-6 text-neutral-100 mx-auto w-full">
+		<div className="mx-auto flex h-full w-full flex-col gap-5 p-4 md:p-6">
 			<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
 				<div className="flex flex-1 items-center gap-4 w-full sm:w-auto">
 					<div className="relative w-full sm:w-72">
-						<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500" />
+						<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
 						<Input
 							type="search"
 							placeholder="Cari model material..."
-							className="w-full pl-9 bg-card border-border focus-visible:ring-1 focus-visible:ring-neutral-700 placeholder:text-sm"
+							className="w-full pl-9 bg-card border-border placeholder:text-sm"
 							value={searchQuery}
 							onChange={(e) => setSearchQuery(e.target.value)}
 						/>
@@ -203,19 +203,19 @@ export default function TipeMaterialPage() {
 							variant={viewMode === "grid" ? "secondary" : "ghost"}
 							size="sm"
 							onClick={() => handleViewModeChange("grid")}
-							className={`h-8 px-2.5 rounded-sm active:translate-y-0 active:not-aria-[haspopup]:translate-y-0 transition-none ${viewMode === "grid" ? "bg-neutral-800 text-neutral-100" : "text-muted-foreground hover:text-foreground"}`}>
+							className={`h-8 px-2.5 rounded-md active:translate-y-0 active:not-aria-[haspopup]:translate-y-0 transition-none ${viewMode === "grid" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}>
 							<LayoutGrid className="size-3.5" />
 						</Button>
 						<Button
 							variant={viewMode === "table" ? "secondary" : "ghost"}
 							size="sm"
 							onClick={() => handleViewModeChange("table")}
-							className={`h-8 px-2.5 rounded-sm active:translate-y-0 active:not-aria-[haspopup]:translate-y-0 transition-none ${viewMode === "table" ? "bg-neutral-800 text-neutral-100" : "text-muted-foreground hover:text-foreground"}`}>
+							className={`h-8 px-2.5 rounded-md active:translate-y-0 active:not-aria-[haspopup]:translate-y-0 transition-none ${viewMode === "table" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}>
 							<List className="size-3.5" />
 						</Button>
 					</div>
 					<Button
-						className="h-8 gap-2 rounded-sm"
+						className="h-8 gap-2 rounded-md"
 						onClick={() => handleOpenSheet()}>
 						<Plus className="w-4 h-4" /> Tambah Model Material
 					</Button>
@@ -223,12 +223,12 @@ export default function TipeMaterialPage() {
 			</div>
 
 			{/* Mobile view toggle */}
-			<div className="sm:hidden flex items-center p-1 rounded-lg border border-border bg-muted/50 w-full">
+			<div className="sm:hidden flex items-center p-1 rounded-md border border-border bg-muted/50 w-full">
 				<Button
 					variant={viewMode === "grid" ? "secondary" : "ghost"}
 					size="sm"
 					onClick={() => handleViewModeChange("grid")}
-					className={`flex-1 h-8 active:translate-y-0 active:not-aria-[haspopup]:translate-y-0 transition-none ${viewMode === "grid" ? "bg-neutral-800 text-neutral-100" : "text-muted-foreground hover:text-foreground"}`}>
+					className={`flex-1 h-8 active:translate-y-0 active:not-aria-[haspopup]:translate-y-0 transition-none ${viewMode === "grid" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}>
 					<LayoutGrid className="size-4 mr-1.5" />
 					Grid
 				</Button>
@@ -236,7 +236,7 @@ export default function TipeMaterialPage() {
 					variant={viewMode === "table" ? "secondary" : "ghost"}
 					size="sm"
 					onClick={() => handleViewModeChange("table")}
-					className={`flex-1 h-8 active:translate-y-0 active:not-aria-[haspopup]:translate-y-0 transition-none ${viewMode === "table" ? "bg-neutral-800 text-neutral-100" : "text-muted-foreground hover:text-foreground"}`}>
+					className={`flex-1 h-8 active:translate-y-0 active:not-aria-[haspopup]:translate-y-0 transition-none ${viewMode === "table" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}>
 					<List className="size-4 mr-1.5" />
 					Table
 				</Button>
@@ -256,7 +256,7 @@ export default function TipeMaterialPage() {
 										</h3>
 										<p className="text-xs text-muted-foreground">
 											{t.brand?.nama || "-"}{" "}
-											<span className="text-neutral-600 mx-1">|</span>{" "}
+											<span className="text-muted-foreground mx-1">|</span>{" "}
 											{t.materialCategory?.nama || "-"}
 										</p>
 									</div>
@@ -265,20 +265,20 @@ export default function TipeMaterialPage() {
 											<Button
 												variant="ghost"
 												size="icon"
-												className="h-7 w-7 rounded-md hover:bg-neutral-800 text-muted-foreground -mr-2 -mt-1">
+												className="h-7 w-7 rounded-md hover:bg-muted text-muted-foreground -mr-2 -mt-1">
 												<MoreVertical className="w-4 h-4" />
 											</Button>
 										</DropdownMenuTrigger>
 										<DropdownMenuContent
 											align="end"
-											className="bg-neutral-950 border-border text-foreground">
+											className="bg-card border-border text-foreground">
 											<DropdownMenuItem
-												className="cursor-pointer focus:bg-neutral-800"
+												className="cursor-pointer focus:bg-accent"
 												onClick={() => handleOpenSheet(t.id)}>
 												<Edit className="w-4 h-4 mr-2" /> Edit Model
 											</DropdownMenuItem>
 											<DropdownMenuItem
-												className="text-red-400 focus:bg-red-950/50 focus:text-red-400 cursor-pointer"
+												className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
 												onClick={() =>
 													setDeleteAlertData({
 														isOpen: true,
@@ -310,12 +310,12 @@ export default function TipeMaterialPage() {
 					{filteredTypes.length === 0 && (
 						<div className="col-span-full py-16 flex flex-col items-center justify-center text-center">
 							<div className="w-16 h-16 bg-card rounded-full flex items-center justify-center mb-4">
-								<Search className="w-8 h-8 text-neutral-600" />
+								<Search className="w-8 h-8 text-muted-foreground" />
 							</div>
-							<h3 className="text-lg font-medium text-foreground mb-1">
+							<h3 className="mb-1 text-[15px] font-medium text-foreground">
 								Model Material Tidak Ditemukan
 							</h3>
-							<p className="text-sm text-neutral-500 max-w-sm">
+							<p className="text-sm text-muted-foreground max-w-sm">
 								Coba gunakan kata kunci lain atau tambahkan model material baru.
 							</p>
 						</div>
@@ -362,9 +362,9 @@ export default function TipeMaterialPage() {
 			)}
 
 			<Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-				<SheetContent className="sm:max-w-md border-border bg-neutral-950 p-0 flex flex-col text-foreground">
+				<SheetContent className="sm:max-w-md border-border bg-card p-0 flex flex-col text-foreground">
 					<SheetHeader className="p-6 border-b border-border/60 bg-muted/20">
-						<SheetTitle className="text-xl text-neutral-100">
+						<SheetTitle>
 							{editId ? "Edit Model Material" : "Tambah Model Material"}
 						</SheetTitle>
 						<SheetDescription className="text-muted-foreground">
@@ -409,7 +409,7 @@ export default function TipeMaterialPage() {
 									onChange={(e) => setDeskripsi(e.target.value)}
 									placeholder="Keterangan singkat tentang model material ini"
 									rows={3}
-									className="flex w-full rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+									className="flex w-full rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground/30"
 								/>
 							</div>
 
@@ -425,7 +425,7 @@ export default function TipeMaterialPage() {
 										className={`bg-card ${brandError ? "border-destructive" : "border-border"}`}>
 										<SelectValue placeholder="Pilih Merek Material" />
 									</SelectTrigger>
-									<SelectContent className="bg-neutral-950 border-border">
+									<SelectContent className="bg-card border-border">
 										{brands.map((b) => (
 											<SelectItem key={b.id} value={String(b.id)}>
 												{b.nama}
@@ -450,7 +450,7 @@ export default function TipeMaterialPage() {
 										className={`bg-card ${categoryError ? "border-destructive" : "border-border"}`}>
 										<SelectValue placeholder="Pilih Kategori Material" />
 									</SelectTrigger>
-									<SelectContent className="bg-neutral-950 border-border">
+									<SelectContent className="bg-card border-border">
 										{categories.map((c) => (
 											<SelectItem key={c.id} value={String(c.id)}>
 												{c.nama}

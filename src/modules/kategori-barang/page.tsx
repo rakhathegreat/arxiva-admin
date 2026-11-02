@@ -132,15 +132,15 @@ export default function KategoriBarangPage() {
 	);
 
 	return (
-		<div className="p-6 h-full flex flex-col gap-6 text-neutral-100 mx-auto w-full">
+		<div className="mx-auto flex h-full w-full flex-col gap-5 p-4 md:p-6">
 			<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
 				<div className="flex flex-1 items-center gap-4 w-full sm:w-auto">
 					<div className="relative w-full sm:w-72">
-						<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500" />
+						<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
 						<Input
 							type="search"
 							placeholder="Cari kategori..."
-							className="w-full pl-9 bg-card border-border focus-visible:ring-1 focus-visible:ring-neutral-700 placeholder:text-sm"
+							className="w-full pl-9 bg-card border-border placeholder:text-sm"
 							value={searchQuery}
 							onChange={(e) => setSearchQuery(e.target.value)}
 						/>
@@ -152,19 +152,19 @@ export default function KategoriBarangPage() {
 							variant={viewMode === "grid" ? "secondary" : "ghost"}
 							size="sm"
 							onClick={() => handleViewModeChange("grid")}
-							className={`h-8 px-2.5 rounded-sm active:translate-y-0 active:not-aria-[haspopup]:translate-y-0 transition-none ${viewMode === "grid" ? "bg-neutral-800 text-neutral-100" : "text-muted-foreground hover:text-foreground"}`}>
+							className={`h-8 px-2.5 rounded-md active:translate-y-0 active:not-aria-[haspopup]:translate-y-0 transition-none ${viewMode === "grid" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}>
 							<LayoutGrid className="size-3.5" />
 						</Button>
 						<Button
 							variant={viewMode === "table" ? "secondary" : "ghost"}
 							size="sm"
 							onClick={() => handleViewModeChange("table")}
-							className={`h-8 px-2.5 rounded-sm active:translate-y-0 active:not-aria-[haspopup]:translate-y-0 transition-none ${viewMode === "table" ? "bg-neutral-800 text-neutral-100" : "text-muted-foreground hover:text-foreground"}`}>
+							className={`h-8 px-2.5 rounded-md active:translate-y-0 active:not-aria-[haspopup]:translate-y-0 transition-none ${viewMode === "table" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}>
 							<List className="size-3.5" />
 						</Button>
 					</div>
 					<Button
-						className="h-8 gap-2 rounded-sm"
+						className="h-8 gap-2 rounded-md"
 						onClick={() => handleOpenSheet()}>
 						<Plus className="w-4 h-4" /> Tambah Kategori
 					</Button>
@@ -172,12 +172,12 @@ export default function KategoriBarangPage() {
 			</div>
 
 			{/* Mobile view toggle */}
-			<div className="sm:hidden flex items-center p-1 rounded-lg border border-border bg-muted/50 w-full">
+			<div className="sm:hidden flex items-center p-1 rounded-md border border-border bg-muted/50 w-full">
 				<Button
 					variant={viewMode === "grid" ? "secondary" : "ghost"}
 					size="sm"
 					onClick={() => handleViewModeChange("grid")}
-					className={`flex-1 h-8 active:translate-y-0 active:not-aria-[haspopup]:translate-y-0 transition-none ${viewMode === "grid" ? "bg-neutral-800 text-neutral-100" : "text-muted-foreground hover:text-foreground"}`}>
+					className={`flex-1 h-8 active:translate-y-0 active:not-aria-[haspopup]:translate-y-0 transition-none ${viewMode === "grid" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}>
 					<LayoutGrid className="size-4 mr-1.5" />
 					Grid
 				</Button>
@@ -185,7 +185,7 @@ export default function KategoriBarangPage() {
 					variant={viewMode === "table" ? "secondary" : "ghost"}
 					size="sm"
 					onClick={() => handleViewModeChange("table")}
-					className={`flex-1 h-8 active:translate-y-0 active:not-aria-[haspopup]:translate-y-0 transition-none ${viewMode === "table" ? "bg-neutral-800 text-neutral-100" : "text-muted-foreground hover:text-foreground"}`}>
+					className={`flex-1 h-8 active:translate-y-0 active:not-aria-[haspopup]:translate-y-0 transition-none ${viewMode === "table" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}>
 					<List className="size-4 mr-1.5" />
 					Table
 				</Button>
@@ -199,28 +199,28 @@ export default function KategoriBarangPage() {
 							className="overflow-hidden relative group transition-all duration-300 hover:border-border/80 hover:bg-muted/60">
 							<CardContent className="px-5 flex flex-col gap-4">
 								<div className="flex justify-between items-start">
-									<div className="p-2.5 bg-blue-500/10 rounded-xl shrink-0">
-										<Shapes className="w-6 h-6 text-blue-400" />
+									<div className="shrink-0 rounded-md bg-foreground/5 p-2.5">
+										<Shapes className="h-6 w-6 text-foreground" />
 									</div>
 									<DropdownMenu>
 										<DropdownMenuTrigger asChild>
 											<Button
 												variant="ghost"
 												size="icon"
-												className="h-8 w-8 rounded-full hover:bg-neutral-800 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
+												className="h-8 w-8 rounded-full hover:bg-muted text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
 												<MoreVertical className="w-4 h-4" />
 											</Button>
 										</DropdownMenuTrigger>
 										<DropdownMenuContent
 											align="end"
-											className="bg-neutral-950 border-border text-foreground">
+											className="bg-card border-border text-foreground">
 											<DropdownMenuItem
-												className="cursor-pointer focus:bg-neutral-800"
+												className="cursor-pointer focus:bg-accent"
 												onClick={() => handleOpenSheet(cat.id)}>
 												<Edit className="w-4 h-4 mr-2" /> Edit Kategori
 											</DropdownMenuItem>
 											<DropdownMenuItem
-												className="text-red-400 focus:bg-red-950/50 focus:text-red-400 cursor-pointer"
+												className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
 												onClick={() => requestDelete(cat.id, cat.name)}>
 												<Trash2 className="w-4 h-4 mr-2" /> Hapus Kategori
 											</DropdownMenuItem>
@@ -229,16 +229,16 @@ export default function KategoriBarangPage() {
 								</div>
 
 								<div>
-									<h3 className="font-semibold text-lg text-neutral-100 mb-1">
+									<h3 className="mb-1 text-[15px] font-medium text-foreground">
 										{cat.name}
 									</h3>
-									<p className="text-sm text-neutral-500 line-clamp-2">
+									<p className="text-sm text-muted-foreground line-clamp-2">
 										{cat.description}
 									</p>
 								</div>
 
 								<div className="mt-auto pt-4 border-t border-border/60 flex justify-between items-center">
-									<div className="flex items-center gap-2 text-xs font-medium text-neutral-500">
+									<div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
 										Total Unit
 									</div>
 									<span className="text-sm font-medium text-foreground">
@@ -252,12 +252,12 @@ export default function KategoriBarangPage() {
 					{filteredCategories.length === 0 && (
 						<div className="col-span-full py-16 flex flex-col items-center justify-center text-center">
 							<div className="w-16 h-16 bg-card rounded-full flex items-center justify-center mb-4">
-								<Search className="w-8 h-8 text-neutral-600" />
+								<Search className="w-8 h-8 text-muted-foreground" />
 							</div>
-							<h3 className="text-lg font-medium text-foreground mb-1">
+							<h3 className="mb-1 text-[15px] font-medium text-foreground">
 								Kategori Tidak Ditemukan
 							</h3>
-							<p className="text-sm text-neutral-500 max-w-sm">
+							<p className="text-sm text-muted-foreground max-w-sm">
 								Coba gunakan kata kunci lain atau tambahkan kategori baru.
 							</p>
 						</div>
@@ -304,9 +304,9 @@ export default function KategoriBarangPage() {
 			)}
 
 			<Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-				<SheetContent className="sm:max-w-md border-border bg-neutral-950 p-0 flex flex-col text-foreground">
+				<SheetContent className="sm:max-w-md border-border bg-card p-0 flex flex-col text-foreground">
 					<SheetHeader className="p-6 border-b border-border/60 bg-muted/20">
-						<SheetTitle className="text-xl text-neutral-100">
+						<SheetTitle>
 							{editId ? "Edit Kategori" : "Tambah Kategori Baru"}
 						</SheetTitle>
 						<SheetDescription className="text-muted-foreground">
@@ -336,7 +336,7 @@ export default function KategoriBarangPage() {
 									<SelectTrigger className="bg-card border-border">
 										<SelectValue placeholder="Pilih Model Material" />
 									</SelectTrigger>
-									<SelectContent className="bg-neutral-950 border-border">
+									<SelectContent className="bg-card border-border">
 										{materialTypes.map((mt) => (
 											<SelectItem key={mt.id} value={String(mt.id)}>
 												{mt.nama}
@@ -351,7 +351,7 @@ export default function KategoriBarangPage() {
 						<Button
 							variant="outline"
 							onClick={() => setIsSheetOpen(false)}
-							className="hover:bg-neutral-800 text-foreground"
+							className="hover:bg-muted text-foreground"
 							disabled={isSaving}>
 							Batal
 						</Button>

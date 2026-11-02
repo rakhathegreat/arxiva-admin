@@ -1,7 +1,7 @@
 export const ROLE_META = {
-	ADMIN: { label: "Admin", badge: "bg-blue-500/10 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400" },
-	INTERNAL: { label: "Internal", badge: "bg-violet-500/10 text-violet-700 dark:bg-violet-950/40 dark:text-violet-400" },
-	MITRA: { label: "Mitra", badge: "bg-emerald-500/10 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400" },
+	ADMIN: { label: "Admin", badge: "border-border bg-foreground/5 text-foreground" },
+	INTERNAL: { label: "Internal", badge: "border-border bg-muted text-charcoal" },
+	MITRA: { label: "Mitra", badge: "border-success/25 bg-success/10 text-success" },
 } as const;
 
 export type BackendRole = keyof typeof ROLE_META;

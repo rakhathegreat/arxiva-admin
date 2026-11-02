@@ -14,18 +14,19 @@ export default function ManajemenDataPage() {
 	return (
 		<div className="mx-auto flex h-full w-full flex-col overflow-hidden">
 			<div className="flex flex-1 flex-col overflow-hidden lg:flex-row">
-				<aside className="shrink-0 overflow-x-auto border-b pb-2 lg:w-1/5 lg:overflow-y-auto lg:border-b-0 lg:border-r lg:pb-10">
-					<div className="border-b px-6 py-3 space-y-1">
-						<h1 className="text-md font-medium">Manajemen Data</h1>
+				<aside className="shrink-0 overflow-x-auto border-b border-border lg:w-60 lg:overflow-y-auto lg:border-r lg:border-b-0">
+					<div className="flex flex-col gap-1 border-b border-border px-4 py-4">
+						<p className="eyebrow text-stone">Referensi</p>
+						<h1 className="text-[15px] font-medium tracking-tight">Manajemen Data</h1>
 						<p className="text-xs text-muted-foreground">
 							Referensi material untuk modul inventori
 						</p>
 					</div>
 
-					<div className="flex flex-col px-3 pt-4 pb-3">
-						<h4 className="px-3 pb-2 text-xs uppercase font-medium text-muted-foreground/70">
+					<div className="flex flex-col gap-1 p-3">
+						<h2 className="meta-label px-2 pb-1">
 							Registri Material
-						</h4>
+						</h2>
 						<nav className="flex flex-wrap gap-1 lg:flex-col lg:flex-nowrap">
 							{TABS.map((tab) => {
 								const Icon = tab.icon;
@@ -35,14 +36,14 @@ export default function ManajemenDataPage() {
 										to={`/manajemen-data/${tab.value}`}
 										className={({ isActive }) =>
 											cn(
-												"flex h-8 min-w-40 cursor-pointer items-center justify-start gap-2 rounded-md px-3 transition-colors",
+												"flex h-8 min-w-40 cursor-pointer items-center justify-start gap-2 rounded-md px-2 text-[13px] transition-colors lg:min-w-0",
 												isActive
-													? "bg-muted/50 text-foreground"
-													: "text-muted-foreground hover:bg-muted/30 hover:text-foreground",
+													? "bg-foreground/[0.06] font-medium text-foreground"
+													: "font-normal text-muted-foreground hover:bg-muted/60 hover:text-foreground",
 											)
 										}>
 										<Icon className="size-4 shrink-0 opacity-70" />
-										<span className="text-xs font-medium">{tab.label}</span>
+										<span className="truncate">{tab.label}</span>
 									</NavLink>
 								);
 							})}

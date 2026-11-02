@@ -226,15 +226,15 @@ export default function DataBarangPage() {
 	);
 
 	return (
-		<div className="p-6 h-full flex flex-col gap-6 text-neutral-100 mx-auto w-full">
+		<div className="mx-auto flex h-full w-full flex-col gap-5 p-4 md:p-6">
 			<div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
 				<div className="flex flex-col gap-3 sm:flex-row sm:items-center w-full lg:w-auto">
 					<div className="relative w-full sm:w-72">
-						<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500" />
+						<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
 						<Input
 							type="search"
 							placeholder="Cari SN atau material..."
-							className="w-full pl-9 bg-card border-border focus-visible:ring-1 focus-visible:ring-neutral-700 placeholder:text-sm"
+							className="w-full pl-9 bg-card border-border placeholder:text-sm"
 							value={searchTerm}
 							onChange={(e) => setSearchTerm(e.target.value)}
 						/>
@@ -277,12 +277,12 @@ export default function DataBarangPage() {
 						<>
 							<Button
 								variant="outline"
-								className="h-8 gap-2 rounded-sm bg-card border-border text-foreground cursor-pointer"
+								className="h-8 gap-2 rounded-md bg-card border-border text-foreground cursor-pointer"
 								onClick={() => setIsExportModalOpen(true)}>
 								<Download className="w-4 h-4" /> Export Excel
 							</Button>
 							<Button
-								className="h-8 gap-2 rounded-sm cursor-pointer"
+								className="h-8 gap-2 rounded-md cursor-pointer"
 								onClick={() => navigate("/barang-masuk")}>
 								<Plus className="w-4 h-4" /> Tambah Material
 							</Button>

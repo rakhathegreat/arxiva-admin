@@ -94,7 +94,7 @@ export function ExportExcelModal({
     <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
       <AlertDialogContent className="min-w-lg max-w-xl">
         <AlertDialogHeader>
-          <AlertDialogTitle className="text-base font-bold flex items-center gap-2">
+          <AlertDialogTitle className="text-base font-medium flex items-center gap-2">
             <Download className="w-4 h-4" />
             Export Data ke Excel
           </AlertDialogTitle>
@@ -107,7 +107,7 @@ export function ExportExcelModal({
           {/* Columns Selection */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label className="text-xs font-semibold text-foreground">Kolom Ditampilkan</Label>
+              <Label className="text-xs font-medium text-foreground">Kolom Ditampilkan</Label>
               <div className="flex items-center gap-2">
                 <Button variant="ghost" size="sm" className="h-6 text-[10px] px-2" onClick={handleSelectAll}>
                   Pilih Semua

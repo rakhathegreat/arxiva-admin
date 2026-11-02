@@ -154,7 +154,7 @@ export default function ManajemenLokasiTab() {
 	return (
 		<div className="flex flex-col gap-4 pb-10">
 			{/* Toolbar pencarian, filter & aksi */}
-			<div className="flex flex-col gap-3 rounded-xl border bg-card p-3 lg:flex-row lg:items-center">
+			<div className="flex flex-col gap-3 rounded-md border bg-card p-3 lg:flex-row lg:items-center">
 				<div className="relative w-full lg:w-80">
 					<Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
 					<Input
@@ -167,7 +167,7 @@ export default function ManajemenLokasiTab() {
 				</div>
 
 				<div className="flex flex-wrap items-center gap-3">
-					<div role="group" aria-label="Filter tipe penyimpanan" className="flex flex-wrap items-center gap-1 rounded-lg border p-1">
+					<div role="group" aria-label="Filter tipe penyimpanan" className="flex flex-wrap items-center gap-1 rounded-md border border-border bg-muted/60 p-1">
 						{FILTERS.map(({ key, label }) => (
 							<button
 								key={key}
@@ -175,10 +175,10 @@ export default function ManajemenLokasiTab() {
 								aria-pressed={filterType === key}
 								onClick={() => setFilterType(key)}
 								className={cn(
-									"cursor-pointer rounded-md px-3 py-1 text-xs transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+									"cursor-pointer rounded-md px-3 py-1 text-xs transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground/30",
 									filterType === key
-										? "bg-primary/10 font-semibold text-foreground"
-										: "font-medium text-muted-foreground hover:bg-muted hover:text-foreground",
+										? "bg-card font-medium text-foreground"
+										: "font-normal text-muted-foreground hover:text-foreground",
 								)}>
 								{label}
 							</button>
@@ -235,7 +235,7 @@ export default function ManajemenLokasiTab() {
 			{isLoading ? (
 				<div className="grid gap-4 pb-10 md:grid-cols-2 xl:grid-cols-3">
 					{[1, 2, 3, 4, 5, 6].map((i) => (
-						<Skeleton key={i} className="h-44 rounded-xl" />
+						<Skeleton key={i} className="h-44 rounded-md" />
 					))}
 				</div>
 			) : filteredAndSortedLocations.length > 0 ? (
@@ -255,11 +255,11 @@ export default function ManajemenLokasiTab() {
 			) : null}
 
 			{!isLoading && filteredAndSortedLocations.length === 0 && (
-				<div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed py-20 text-center">
-					<div className="mb-2 flex size-14 items-center justify-center rounded-xl bg-muted">
+				<div className="flex flex-col items-center justify-center gap-2 rounded-md border border-dashed py-20 text-center">
+					<div className="mb-2 flex size-14 items-center justify-center rounded-md bg-muted">
 						<Search className="size-6 text-muted-foreground" />
 					</div>
-					<h2 className="text-base font-semibold text-foreground">
+					<h2 className="text-base font-medium text-foreground">
 						Tidak ada lokasi {hasActiveFilter ? "yang cocok" : `tipe ${FILTERS.find((f) => f.key === filterType)?.label}`}
 					</h2>
 					<p className="max-w-sm text-xs text-muted-foreground">
@@ -357,7 +357,7 @@ export default function ManajemenLokasiTab() {
 						<AlertDialogAction
 							onClick={(e) => confirmDelete(e)}
 							disabled={isDeleting}
-							className="cursor-pointer bg-destructive text-xs text-white hover:bg-destructive/90">
+							className="cursor-pointer bg-destructive text-xs text-background hover:bg-destructive/90">
 							{isDeleting ? (
 								<>
 									<Loader2 className="mr-2 size-4 animate-spin motion-reduce:animate-none" /> Menghapus...

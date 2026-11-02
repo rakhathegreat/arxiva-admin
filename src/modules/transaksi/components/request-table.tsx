@@ -175,9 +175,8 @@ function BastActions({
 
 				{isSigned && !isSelesai && (
 					<Badge
-						variant="secondary"
-						size="sm"
-						className="bg-emerald-500/10 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
+						variant="success"
+						size="sm">
 						<Pencil />
 						Signed
 					</Badge>
@@ -282,7 +281,7 @@ function ActionMenu({
 						<Button
 							variant="ghost"
 							size="icon-lg"
-							className="text-xs font-medium text-muted-foreground hover:text-emerald-600 cursor-pointer"
+							className="text-xs font-medium text-muted-foreground hover:text-success cursor-pointer"
 							onClick={(e) => {
 								e.stopPropagation();
 								meta?.onApprove?.(row.original);
@@ -294,7 +293,7 @@ function ActionMenu({
 						<Button
 							variant="ghost"
 							size="icon-lg"
-							className="text-xs font-medium text-muted-foreground hover:text-amber-600 cursor-pointer"
+							className="text-xs font-medium text-muted-foreground hover:text-foreground cursor-pointer"
 							onClick={handleNavigateToPrepare}
 							title="Siapkan Material">
 							<IconPackage size={18} />
@@ -319,7 +318,7 @@ function ActionMenu({
 					<Button
 						variant="ghost"
 						size="icon-lg"
-						className="text-xs font-medium text-muted-foreground hover:text-blue-600 cursor-pointer"
+						className="text-xs font-medium text-muted-foreground hover:text-foreground cursor-pointer"
 						onClick={handleNavigateToPrepare}
 						title="Edit Alokasi">
 						<Edit strokeWidth={2} />
@@ -378,8 +377,8 @@ function createColumns(
 							size="sm"
 							className={
 								rusak
-									? "bg-rose-500/10 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400"
-									: "bg-sky-500/10 text-sky-700 dark:bg-sky-950/40 dark:text-sky-400"
+									? "border-transparent bg-inverted text-inverted-foreground"
+									: "border-border bg-muted text-charcoal"
 							}>
 							{rusak ? "Material Rusak" : "Permintaan"}
 						</Badge>

@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from "react"
-import { Eye, EyeOff, PackageSearch, Loader2 } from "lucide-react"
+import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { Navigate, useNavigate } from "react-router-dom"
 
+import { Alert, AlertDescription } from "@/shared/ui/alert"
 import { Button } from "@/shared/ui/button"
 import {
   Card,
@@ -16,7 +17,7 @@ import { useAuth } from "@/modules/auth/auth"
 
 /**
  * Halaman Utama Login (LoginPage)
- * 
+ *
  * Komponen ini menangani antarmuka autentikasi pengguna. Menghubungkan form login
  * ke fungsi `login` dari context autentikasi global (`useAuth`).
  *
@@ -38,7 +39,7 @@ export default function LoginPage() {
   /**
    * Menangani aksi submit pada form login.
    * Melakukan validasi input dasar, menampilkan loading state, dan memanggil fungsi autentikasi.
-   * 
+   *
    * @param {FormEvent<HTMLFormElement>} event - Event default dari form HTML
    */
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -71,41 +72,60 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="relative flex min-h-svh items-center justify-center overflow-hidden bg-background p-4">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,var(--color-primary)_0,transparent_28%)] opacity-15" />
-      <div className="absolute -right-24 -top-24 size-80 rounded-full bg-primary/10 blur-3xl" />
-      <div className="absolute -bottom-32 -left-20 size-96 rounded-full bg-primary/10 blur-3xl" />
-
-      <div className="relative grid w-full max-w-110 overflow-hidden rounded-xl border bg-card shadow-2xl">
-        <Card className="rounded-none border-0 bg-transparent py-8 shadow-none sm:py-12">
-          <CardHeader className="px-6 sm:px-10 pb-8">
-            <div className="mb-3 flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary md:hidden">
-              <PackageSearch className="size-6" />
+    <main className="relative flex min-h-svh items-center justify-center bg-background p-4 sm:p-6">
+      <div className="grid w-full max-w-[400px] gap-8">
+        <header className="flex flex-col gap-4">
+          <div className="flex items-center gap-3">
+            <span
+              aria-hidden="true"
+              className="flex size-8 items-center justify-center rounded-md border border-border bg-white text-[13px] leading-none text-black"
+            >
+              ▲
+            </span>
+            <div className="flex flex-col">
+              <span className="text-[13px] font-medium tracking-tight">Arxiva</span>
+              <span className="meta-label">Inventory System</span>
             </div>
-            <CardTitle className="text-2xl">Masuk ke Arxiva</CardTitle>
-            <CardDescription>
+          </div>
+          <div className="space-y-2">
+            <p className="eyebrow text-stone">Masuk ke akun</p>
+            <h1 className="text-heading font-[450] text-foreground">
+              Masuk ke Arxiva
+            </h1>
+            <p className="text-caption text-muted-foreground">
               Gunakan akun Admin atau Mitra yang telah terdaftar.
+            </p>
+          </div>
+        </header>
+
+        <Card className="gap-5 py-5">
+          <CardHeader className="px-5">
+            <CardTitle className="text-sm">Kredensial</CardTitle>
+            <CardDescription className="meta-label">
+              Akses terbatas
             </CardDescription>
           </CardHeader>
-          <CardContent className="px-6 sm:px-10">
-            <form className="space-y-5" onSubmit={handleSubmit}>
-              <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
-                <div className="relative">
-                  <Input
-                    id="username"
-                    value={username}
-                    onChange={(event) => setUsername(event.target.value)}
-                    autoComplete="username"
-                    autoFocus
-                    placeholder="Masukkan username"
-                    className="h-9 rounded-sm"
-                  />
-                </div>
+          <CardContent className="px-5">
+            <form className="grid gap-4" onSubmit={handleSubmit}>
+              <div className="grid gap-1.5">
+                <Label htmlFor="username" className="meta-label">
+                  Username
+                </Label>
+                <Input
+                  id="username"
+                  value={username}
+                  onChange={(event) => setUsername(event.target.value)}
+                  autoComplete="username"
+                  autoFocus
+                  placeholder="Masukkan username"
+                  className="h-9"
+                />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+              <div className="grid gap-1.5">
+                <Label htmlFor="password" className="meta-label">
+                  Password
+                </Label>
                 <div className="relative">
                   <Input
                     id="password"
@@ -114,11 +134,13 @@ export default function LoginPage() {
                     onChange={(event) => setPassword(event.target.value)}
                     autoComplete="current-password"
                     placeholder="Masukkan password"
-                    className="h-9 rounded-sm pl-3 pr-10 [&::-ms-reveal]:hidden [&::-ms-clear]:hidden [&::-webkit-credentials-auto-fill-button]:hidden"
+                    className="h-9 pr-9 [&::-ms-reveal]:hidden [&::-ms-clear]:hidden [&::-webkit-credentials-auto-fill-button]:hidden"
                   />
-                  <button
+                  <Button
                     type="button"
-                    className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center justify-center rounded-sm p-1.5 text-muted-foreground transition-colors duration-200 focus-visible:outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring border border-border cursor-pointer"
+                    variant="ghost"
+                    size="icon-xs"
+                    className="absolute top-1/2 right-1.5 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                     onClick={() => setShowPassword((current) => !current)}
                     aria-label={
                       showPassword ? "Sembunyikan password" : "Tampilkan password"
@@ -129,34 +151,37 @@ export default function LoginPage() {
                     ) : (
                       <Eye className="size-3.5" />
                     )}
-                  </button>
+                  </Button>
                 </div>
               </div>
 
               {errorMessage && (
-                <p className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                  {errorMessage}
-                </p>
+                <Alert variant="destructive">
+                  <AlertDescription className="text-caption">
+                    {errorMessage}
+                  </AlertDescription>
+                </Alert>
               )}
 
-              <Button className="h-11 w-full cursor-pointer transition-colors duration-200 rounded-sm" disabled={isSubmitting}>
+              <Button className="mt-1 h-9 w-full" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="mr-2 size-4 animate-spin" />
+                    <Loader2 className="size-4 animate-spin" />
                     Memeriksa akun...
                   </>
                 ) : (
                   "Masuk"
                 )}
               </Button>
-
-              <p className="text-center text-xs leading-5 text-muted-foreground">
-                Tidak tersedia pendaftaran mandiri. Akun hanya dapat dibuat
-                oleh administrator.
-              </p>
             </form>
           </CardContent>
         </Card>
+
+        <p className="text-center font-mono text-[10px] leading-relaxed tracking-[0.071em] text-muted-foreground uppercase">
+          Pendaftaran mandiri tidak tersedia.
+          <br />
+          Akun dibuat oleh administrator.
+        </p>
       </div>
     </main>
   )

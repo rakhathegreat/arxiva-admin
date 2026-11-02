@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/shared/ui/dialog";
 import { Button } from "@/shared/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 import { PenTool, Smartphone, Loader2, Eraser, Sparkles, RefreshCw, Clock } from "lucide-react";
 import SignatureCanvas from "react-signature-canvas";
 import { toast } from "sonner";
@@ -198,59 +199,51 @@ export function DigitalSignatureDialog({
       }}>
       <DialogContent className="sm:max-w-md gap-4">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-base font-semibold">
-            <PenTool className="size-4 text-emerald-500" />
+          <DialogTitle className="flex items-center gap-2 text-base font-medium">
+            <PenTool className="size-4 text-success" />
             {title}
           </DialogTitle>
           <DialogDescription className="text-xs">{description}</DialogDescription>
         </DialogHeader>
 
         {/* Mode Selector Segmented Tabs */}
-        <div className="grid grid-cols-2 gap-1 bg-muted p-1 rounded-lg text-xs font-medium">
-          <button
-            type="button"
-            onClick={() => setActiveTab("canvas")}
-            className={`py-1.5 px-3 rounded-md transition-all flex items-center justify-center gap-1.5 ${
-              activeTab === "canvas" ? "bg-background text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
-            }`}>
-            <PenTool className="size-3.5" />
-            <span>TTD di Layar</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("qr")}
-            className={`py-1.5 px-3 rounded-md transition-all flex items-center justify-center gap-1.5 ${
-              activeTab === "qr" ? "bg-background text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
-            }`}>
-            <Smartphone className="size-3.5" />
-            <span>Scan via HP</span>
-          </button>
-        </div>
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "canvas" | "qr")}>
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="canvas" className="gap-1.5">
+              <PenTool className="size-3.5" />
+              <span>TTD di Layar</span>
+            </TabsTrigger>
+            <TabsTrigger value="qr" className="gap-1.5">
+              <Smartphone className="size-3.5" />
+              <span>Scan via HP</span>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
 
         {activeTab === "qr" ? (
           <div className="flex flex-col items-center justify-center py-2 space-y-3">
             {qrLoading ? (
               <div className="w-48 h-48 flex flex-col items-center justify-center gap-2">
-                <Loader2 className="size-8 animate-spin text-emerald-500" />
+                <Loader2 className="size-8 animate-spin text-foreground" />
                 <span className="text-xs text-muted-foreground">Menyiapkan QR Code...</span>
               </div>
             ) : (
               <>
-                <div className="p-3 bg-white rounded-2xl shadow-sm border">
-                  <img src={qrCodeUrl} alt="QR Code" className="w-48 h-48 rounded-xl" />
+                <div className="rounded-md border border-border bg-white p-3">
+                  <img src={qrCodeUrl} alt="QR Code" className="h-48 w-48 rounded-md" />
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
+                  <div className="flex items-center gap-1.5 rounded-full border border-success/25 bg-success/10 px-3 py-1 font-mono text-[10px] font-medium tracking-[0.06em] text-success uppercase">
                     <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success/50 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-success" />
                     </span>
                     <span>Sesi Aktif</span>
                   </div>
 
                   <div className="flex items-center gap-1 text-xs text-muted-foreground font-mono bg-muted px-2.5 py-1 rounded-full border">
-                    <Clock className="size-3 text-amber-500" />
+                    <Clock className="size-3 text-muted-foreground" />
                     <span>{formatTime(timeLeft)}</span>
                   </div>
                 </div>
@@ -273,14 +266,14 @@ export function DigitalSignatureDialog({
           <div className="flex flex-col gap-3 py-1">
             {/* 1-Click Profile Signature Fill Button */}
             {hasProfileSignature && (
-              <div className="flex items-center justify-between bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-3 py-2 text-xs">
-                <span className="text-emerald-700 dark:text-emerald-300 font-medium">TTD Default Profil Tersedia</span>
+              <div className="flex items-center justify-between rounded-md border border-success/20 bg-success/10 px-3 py-2 text-xs">
+                <span className="text-success font-medium">TTD Default Profil Tersedia</span>
                 <Button
                   type="button"
                   variant="secondary"
                   size="sm"
                   onClick={handleUseProfileSignature}
-                  className="h-7 text-[11px] gap-1 bg-emerald-600 text-white hover:bg-emerald-700 font-medium">
+                  className="h-7 gap-1 text-[11px] font-medium">
                   <Sparkles className="size-3" />
                   Gunakan TTD Profil
                 </Button>
@@ -295,7 +288,7 @@ export function DigitalSignatureDialog({
             </div>
 
             {/* Desktop Canvas Container with Baseline Guide */}
-            <div className="rounded-xl border bg-white dark:bg-zinc-950 overflow-hidden h-[190px] relative shadow-inner">
+            <div className="relative h-[190px] overflow-hidden rounded-md border border-border bg-white dark:bg-background">
               <SignatureCanvas
                 ref={sigPad}
                 penColor="black"
@@ -306,8 +299,8 @@ export function DigitalSignatureDialog({
                   className: "cursor-crosshair",
                 }}
               />
-              <div className="absolute inset-x-6 bottom-8 pointer-events-none border-b border-dashed border-zinc-300 dark:border-zinc-700 pb-1 flex items-center justify-center">
-                <span className="text-zinc-300 dark:text-zinc-700 select-none uppercase tracking-widest text-[11px] font-semibold opacity-60">
+              <div className="absolute inset-x-6 bottom-8 pointer-events-none border-b border-dashed border-border pb-1 flex items-center justify-center">
+                <span className="font-mono text-[10px] tracking-[0.071em] text-muted-foreground uppercase select-none opacity-60">
                   Garis Panduan Tanda Tangan
                 </span>
               </div>
@@ -325,7 +318,7 @@ export function DigitalSignatureDialog({
           <Button
             onClick={handleSubmit}
             disabled={isSigning || activeTab === "qr"}
-            className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold">
+            className="gap-2 text-xs font-medium">
             {isSigning ? <Loader2 className="size-3.5 animate-spin" /> : <PenTool className="size-3.5" />}
             Konfirmasi Tanda Tangan
           </Button>

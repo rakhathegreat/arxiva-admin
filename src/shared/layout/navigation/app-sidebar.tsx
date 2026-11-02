@@ -23,7 +23,6 @@ import {
   PackagePlus,
   Settings,
   Users,
-  Zap,
   ArrowLeftRight,
 } from "lucide-react"
 
@@ -141,12 +140,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               tooltip="Arxiva Inventory"
               className="pointer-events-none"
             >
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-blue-600 text-yellow-300">
-                <Zap className="size-4" fill="currentColor" />
+              <div className="flex aspect-square size-8 items-center justify-center rounded-sm border border-border bg-white">
+                <span aria-hidden="true" className="text-[13px] leading-none text-black">▲</span>
               </div>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold text-foreground">PT ICON Plus Tasikmalaya</span>
-                <span className="truncate text-xs">Inventory Management</span>
+              <div className="grid flex-1 text-left leading-tight">
+                <span className="truncate text-[13px] font-medium tracking-tight text-foreground">PT ICON Plus</span>
+                <span className="meta-label truncate">Inventory System</span>
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>

@@ -35,7 +35,7 @@ export function CapacityBar({ used, capacity, baseBarClass, className }: Capacit
 			</div>
 			<span className="shrink-0 text-xs tabular-nums text-muted-foreground">
 				<span className="font-medium text-foreground">{used}</span>/{capacity}
-				<span className={cn("ml-1 font-medium", pct >= 100 ? "text-destructive" : pct > 70 ? "text-amber-500" : "")}>
+				<span className={cn("ml-1 font-medium", pct >= 100 ? "text-foreground font-medium" : pct > 70 ? "text-charcoal" : "")}>
 					{pct}%
 				</span>
 			</span>

@@ -8,7 +8,7 @@ export function EmptyScanTableState() {
 					<PackageMinus className="size-7" strokeWidth={1.8} />
 				</div>
 				<div className="space-y-1.5">
-					<p className="text-base font-semibold text-foreground">
+					<p className="text-base font-medium text-foreground">
 						Belum ada material keluar
 					</p>
 					<p className="text-sm leading-relaxed text-muted-foreground">

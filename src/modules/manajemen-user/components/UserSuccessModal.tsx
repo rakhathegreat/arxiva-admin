@@ -56,22 +56,22 @@ export function UserSuccessModal({
 						<div className="relative flex size-28 items-center justify-center">
 							<span
 								aria-hidden="true"
-								className="success-ripple absolute inset-0 rounded-full border-2 border-emerald-500/40"
+								className="success-ripple absolute inset-0 rounded-full border-2 border-success/40"
 							/>
 							<span
 								aria-hidden="true"
-								className="success-ripple-delayed absolute inset-0 rounded-full border-2 border-emerald-500/30"
+								className="success-ripple-delayed absolute inset-0 rounded-full border-2 border-success/30"
 							/>
-							<span className="relative flex size-28 items-center justify-center rounded-full bg-emerald-500/15">
-								<Check className="size-14 text-emerald-500" strokeWidth={2.5} />
+							<span className="relative flex size-28 items-center justify-center rounded-full bg-success/15">
+								<Check className="size-14 text-success" strokeWidth={2.5} />
 							</span>
 						</div>
-						{/* <p className="text-base font-semibold text-emerald-600 dark:text-emerald-400">Berhasil!</p> */}
+						{/* <p className="text-base font-medium text-emerald-600 dark:text-emerald-400">Berhasil!</p> */}
 					</div>
 
 					{/* Panel receipt */}
 					<div className="flex min-w-0 flex-col p-6 sm:p-8">
-						<h2 className="text-lg font-semibold text-foreground">
+						<h2 className="text-base font-medium text-foreground">
 							Akun siap digunakan
 						</h2>
 						<p className="mt-1 text-xs text-muted-foreground">
@@ -79,7 +79,7 @@ export function UserSuccessModal({
 							login.
 						</p>
 
-						<dl className="mt-5 rounded-xl border border-dashed p-4">
+						<dl className="mt-5 rounded-md border border-dashed p-4">
 							{rows.map(({ label, value }) => (
 								<div
 									key={label}
@@ -109,7 +109,7 @@ export function UserSuccessModal({
 										aria-label={
 											showPassword ? "Sembunyikan password" : "Lihat password"
 										}
-										className="cursor-pointer rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring">
+										className="cursor-pointer rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-foreground/30">
 										{showPassword ? (
 											<EyeOff className="size-3.5" />
 										) : (
@@ -120,7 +120,7 @@ export function UserSuccessModal({
 										type="button"
 										onClick={() => copyText(credential.password, "Password")}
 										aria-label="Salin password"
-										className="cursor-pointer rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring">
+										className="cursor-pointer rounded p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-foreground/30">
 										<Copy className="size-3.5" />
 									</button>
 								</dd>

@@ -5,33 +5,28 @@ import { Slot } from "radix-ui";
 import { cn } from "@/shared/lib/utils";
 
 const badgeVariants = cva(
-	"group/badge inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-sm font-medium leading-none whitespace-nowrap transition-all focus-visible:ring-[3px] focus-visible:ring-ring/25 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&>svg]:pointer-events-none",
+	"group/badge inline-flex items-center gap-1.5 rounded-sm border font-mono leading-none font-medium tracking-[0.06em] whitespace-nowrap uppercase transition-colors focus-visible:ring-2 focus-visible:ring-ring/20 focus-visible:outline-none [&>svg]:pointer-events-none",
 	{
 		variants: {
 			variant: {
-				default: "bg-primary/10 text-primary [a]:hover:bg-primary/15",
+				default: "border-transparent bg-primary text-primary-foreground",
 				secondary:
-					"bg-zinc-500/10 text-zinc-600 dark:bg-zinc-800/40 dark:text-zinc-400",
+					"border-transparent bg-secondary text-secondary-foreground",
 				destructive:
-					"bg-rose-500/10 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400 [a]:hover:bg-rose-500/15",
-				outline:
-					"bg-muted/20 text-foreground [a]:hover:bg-muted/40 [a]:hover:text-muted-foreground",
-				ghost:
-					"text-foreground hover:bg-muted hover:text-muted-foreground dark:hover:bg-muted/50",
-				link: "text-primary underline-offset-4 hover:underline",
-				success:
-					"bg-emerald-500/10 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400",
-				info: "bg-blue-500/10 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400",
-				warning:
-					"bg-amber-500/10 text-amber-700 dark:bg-amber-950/40 dark:text-amber-500",
-				danger:
-					"bg-red-500/10 text-red-700 dark:bg-red-950/40 dark:text-red-400",
-				neutral: "bg-zinc-500/10 text-zinc-600 dark:bg-zinc-800/40 dark:text-zinc-400",
+					"border-transparent bg-inverted text-inverted-foreground",
+				outline: "border-border bg-transparent text-charcoal",
+				ghost: "border-transparent text-charcoal",
+				link: "border-transparent text-foreground underline-offset-4 hover:underline",
+				success: "border-success/25 bg-success/10 text-success",
+				info: "border-border bg-muted text-charcoal",
+				warning: "border-border bg-foreground/5 text-foreground",
+				danger: "border-transparent bg-inverted text-inverted-foreground",
+				neutral: "border-border bg-muted text-stone",
 			},
 			size: {
-				sm: "text-xs px-2 py-1.5 gap-1.5 rounded-md [&>svg]:size-3.5!",
-				md: "text-sm px-2.5 py-1 gap-1.5 [&>svg]:size-4!",
-				lg: "text-base px-3 py-1.5 gap-2 [&>svg]:size-5!",
+				sm: "gap-1 px-1.5 py-1 text-[10px] [&>svg]:size-3!",
+				md: "gap-1.5 px-2 py-1 text-[11px] [&>svg]:size-3.5!",
+				lg: "gap-2 px-2.5 py-1.5 text-xs [&>svg]:size-4!",
 			},
 		},
 		defaultVariants: {

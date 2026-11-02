@@ -48,26 +48,25 @@ export function ProfileTab() {
   };
 
   return (
-    <div className="px-2 pt-14">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-medium">Profil Anda</h1>
-          <span className="text-sm text-muted-foreground">Kelola informasi identitas Anda</span>
-        </div>
-      </div>
+    <div className="flex flex-col gap-6">
+      <header className="flex flex-col gap-1">
+        <p className="eyebrow text-stone">Akun</p>
+        <h1 className="page-title">Profil Anda</h1>
+        <p className="text-sm text-muted-foreground">Kelola informasi identitas Anda</p>
+      </header>
 
-      <div className="mt-6 space-y-6">
-        <h1 className="text-lg font-medium">Informasi Akun</h1>
-        <Card className="rounded-sm p-0!">
+      <div className="space-y-4">
+        <h2 className="text-sm font-medium">Informasi Akun</h2>
+        <Card className="rounded-md p-0!">
           <CardContent className="p-0!">
             <div className="flex flex-wrap justify-between p-4">
               <h2 className="font-medium text-sm">Username</h2>
-              <Input type="text" value={username} className="max-w-md h-9 rounded-sm" onChange={(e) => setUsername(e.target.value)} />
+              <Input type="text" value={username} className="max-w-md h-9 rounded-md" onChange={(e) => setUsername(e.target.value)} />
             </div>
             <Separator />
             <div className="flex flex-wrap justify-between p-4">
               <h2 className="font-medium text-sm">Nama / Person In Charge</h2>
-              <Input type="text" value={picName} className="max-w-md h-9 rounded-sm" onChange={(e) => setPicName(e.target.value)} />
+              <Input type="text" value={picName} className="max-w-md h-9 rounded-md" onChange={(e) => setPicName(e.target.value)} />
             </div>
             <div className="w-full flex items-center justify-end gap-2 p-4 border-t border-border/50">
               <Button className="active:translate-y-0!" size="sm" variant="outline" onClick={() => { setPicName(originalPicName); setUsername(originalUsername); }} disabled={!hasChanges || isSaving}>

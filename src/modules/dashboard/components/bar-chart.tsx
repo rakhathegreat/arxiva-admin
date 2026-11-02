@@ -24,11 +24,11 @@ import { cn } from "@/shared/lib/utils"
 const chartConfig = {
   tersedia: {
     label: "Tersedia",
-    color: "hsl(var(--foreground))",
+    color: "var(--foreground)",
   },
   terpakai: {
     label: "Terpakai",
-    color: "hsl(var(--muted-foreground))",
+    color: "var(--muted-foreground)",
   }
 } satisfies ChartConfig
 
@@ -56,7 +56,7 @@ function ChartBarMixedBase({ className, data, isLoading }: ChartBarMixedProps) {
   // }
 
   return (
-    <Card className={cn("flex flex-col shadow-sm", className)}>
+    <Card className={cn("flex flex-col ", className)}>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div className="flex flex-col gap-1">
           <CardTitle className="text-base">Distribusi Aset</CardTitle>
@@ -77,7 +77,7 @@ function ChartBarMixedBase({ className, data, isLoading }: ChartBarMixedProps) {
             {[1, 2, 3, 4, 5].map((i) => (
               <div key={i} className="flex items-center gap-3 w-full">
                 <Skeleton className="h-3 w-16 shrink-0" />
-                <Skeleton className="h-5 flex-1 rounded-sm" />
+                <Skeleton className="h-5 flex-1 rounded-md" />
               </div>
             ))}
           </div>
@@ -157,7 +157,7 @@ function ChartBarMixedBase({ className, data, isLoading }: ChartBarMixedProps) {
                       dataKey="total"
                       position="right"
                       offset={8}
-                      className="fill-foreground font-semibold"
+                      className="fill-foreground font-medium"
                       fontSize={11}
                     />
                   </Bar>

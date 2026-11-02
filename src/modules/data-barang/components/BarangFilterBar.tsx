@@ -58,12 +58,12 @@ export function BarangFilterBar({
     filterBrand !== "all"
 
   return (
-    <Card className="shrink-0 p-4 shadow-sm border-border/60 bg-card/50 backdrop-blur-sm">
+    <Card className="shrink-0 border-border bg-card p-4">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         {/* Search & Select Filters */}
         <div className="flex flex-wrap items-center gap-2.5 flex-1">
           <div className="relative flex-1 min-w-[220px] max-w-xs">
-            <Search className="absolute top-2.5 left-3 size-4 text-muted-foreground" />
+            <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Cari SN, merek, tipe, lokasi..."
               className="pl-9 h-9 text-xs md:text-sm"
@@ -153,7 +153,7 @@ export function BarangFilterBar({
           {userRole === "admin" && (
             <Button
               size="sm"
-              className="h-9 gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-sm"
+              className="h-9 gap-1.5 font-medium"
               asChild
             >
               <Link to="/barang-masuk">

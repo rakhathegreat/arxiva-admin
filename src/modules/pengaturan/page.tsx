@@ -51,13 +51,9 @@ export default function PengaturanPage() {
   ]
 
   return (
-    <div className="@container/main flex h-full select-none flex-col gap-6 w-full mx-auto overflow-hidden">
-      {/* Main Content Layout */}
-      <div className="flex flex-col lg:flex-row lg:space-y-0 flex-1 overflow-hidden">
-        <aside className="lg:w-1/5 shrink-0 overflow-y-auto pb-10 border-r">
-          <div className="border-b px-6 py-3">
-            <span className="text-md font-medium">Settings</span>
-          </div>
+    <div className="@container/main flex h-full w-full flex-col overflow-hidden">
+      <div className="flex flex-1 flex-col overflow-hidden lg:flex-row">
+        <aside className="w-full shrink-0 overflow-y-auto border-b border-border lg:w-60 lg:border-r lg:border-b-0">
           <SidebarNav
             groups={sidebarGroups}
             activeId={activeCategory}
@@ -66,30 +62,13 @@ export default function PengaturanPage() {
           />
         </aside>
 
-        <div className="flex-1 w-full overflow-y-auto pb-10 px-8">
-          {activeCategory === "profil" && (
-            <div className="flex flex-col gap-6">
-              <ProfileTab />
-            </div>
-          )}
-
-          {activeCategory === "keamanan" && (
-            <div className="flex flex-col gap-6">
-              <SecurityTab />
-            </div>
-          )}
-
-          {activeCategory === "ttd-digital" && (
-            <div className="flex flex-col gap-6">
-              <SignatureTab />
-            </div>
-          )}
-
-          {activeCategory === "google-drive" && (
-            <div className="flex flex-col gap-6">
-              <GoogleDriveTab />
-            </div>
-          )}
+        <div className="flex-1 overflow-y-auto px-4 pb-12 md:px-6">
+          <div className="mx-auto w-full max-w-3xl pt-6">
+            {activeCategory === "profil" && <ProfileTab />}
+            {activeCategory === "keamanan" && <SecurityTab />}
+            {activeCategory === "ttd-digital" && <SignatureTab />}
+            {activeCategory === "google-drive" && <GoogleDriveTab />}
+          </div>
         </div>
       </div>
     </div>

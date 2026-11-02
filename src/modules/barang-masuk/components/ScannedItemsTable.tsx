@@ -51,7 +51,7 @@ export function ScannedItemsTable({
       </CardHeader>
 
       <CardContent className="flex flex-1 flex-col gap-4">
-        <div className="relative flex-1 overflow-auto rounded-lg border max-h-[calc(100svh-5rem)] [&_div[data-slot=table-container]]:overflow-visible [&_table]:mb-0">
+        <div className="relative flex-1 overflow-auto rounded-md border border-border bg-card max-h-[calc(100svh-6rem)] [&_div[data-slot=table-container]]:overflow-visible [&_table]:mb-0">
           <Table>
             <TableHeader className="sticky top-0 z-20 bg-accent border-b">
               <TableRow>

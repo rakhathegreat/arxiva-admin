@@ -127,7 +127,7 @@ function AdaptiveRowActions<TData>({
 								disabled={action.disabled}
 								className={
 									action.destructive
-										? "text-red-400 focus:bg-red-950/50 focus:text-red-400 cursor-pointer"
+										? "text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer font-medium"
 										: "cursor-pointer"
 								}
 								onClick={() => action.onClick(row)}>
@@ -433,8 +433,8 @@ export function DataTable<TData>({
 				<div
 					role="toolbar"
 					aria-label="Aksi massal"
-					className="flex flex-wrap items-center gap-2 rounded-lg border bg-muted/40 px-3 py-2">
-					<span className="text-xs font-semibold text-foreground">
+					className="flex flex-wrap items-center gap-2 rounded-md border border-border bg-muted/40 px-3 py-2">
+					<span className="text-xs font-medium text-foreground">
 						{selectedIds.length} dipilih
 					</span>
 					<span className="h-4 w-px bg-border" />
@@ -469,7 +469,7 @@ export function DataTable<TData>({
 			)}
 			<ScrollShadowWrapper>
 				<Table>
-					<TableHeader className="sticky top-0 z-20 bg-muted shadow-sm">
+					<TableHeader className="sticky top-0 z-20 bg-muted">
 						{table.getHeaderGroups().map((headerGroup) => (
 							<TableRow key={headerGroup.id} className="hover:bg-transparent">
 								{headerGroup.headers.map((header) => (

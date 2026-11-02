@@ -26,7 +26,7 @@ function DistributionCard({
 	return (
 		<Card>
 			<CardHeader className="pb-2">
-				<CardTitle className="text-sm font-semibold text-foreground">{title}</CardTitle>
+				<CardTitle className="text-sm font-medium text-foreground">{title}</CardTitle>
 				<CardDescription className="text-xs">{description}</CardDescription>
 			</CardHeader>
 			<CardContent>
@@ -35,7 +35,7 @@ function DistributionCard({
 						{[1, 2, 3, 4].map((i) => (
 							<div key={i} className="flex items-center gap-3">
 								<Skeleton className="h-3 w-16 shrink-0" />
-								<Skeleton className="h-5 flex-1 rounded-sm" />
+								<Skeleton className="h-5 flex-1 rounded-md" />
 							</div>
 						))}
 					</div>
@@ -88,11 +88,11 @@ export default function StatistikTab() {
 
 	if (error && !isLoading) {
 		return (
-			<div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed py-24 text-center">
-				<div className="mb-2 flex size-14 items-center justify-center rounded-xl bg-muted">
+			<div className="flex flex-col items-center justify-center gap-3 rounded-md border border-dashed py-24 text-center">
+				<div className="mb-2 flex size-14 items-center justify-center rounded-md bg-muted">
 					<AlertTriangle className="size-6 text-muted-foreground" />
 				</div>
-				<h2 className="text-base font-semibold text-foreground">Statistik gagal dimuat</h2>
+				<h2 className="text-base font-medium text-foreground">Statistik gagal dimuat</h2>
 				<p className="max-w-sm text-xs text-muted-foreground">{error}</p>
 				<Button variant="outline" size="sm" className="mt-1 cursor-pointer gap-2 text-xs" onClick={() => reload()}>
 					<RefreshCw className="size-3.5" /> Coba lagi
@@ -107,13 +107,13 @@ export default function StatistikTab() {
 		<div className="flex flex-col gap-4 pb-10">
 			{/* Baris 1: total material + okupansi */}
 			<div className="grid gap-4 lg:grid-cols-3">
-				<Card className="border-primary/25 bg-primary/5">
+				<Card className="border-foreground/15 bg-foreground/[0.03]">
 					<CardContent className="flex h-full flex-col justify-center p-5">
 						<p className="text-xs font-medium text-muted-foreground">Total Material</p>
 						{isLoading ? (
 							<Skeleton className="mt-2 h-10 w-28" />
 						) : (
-							<p className="mt-1 text-4xl font-semibold tabular-nums tracking-tight text-primary">
+							<p className="mt-1 text-[30px] font-[450] tabular-nums tracking-tight text-foreground">
 								{(materialStats?.total ?? 0).toLocaleString("id-ID")}
 							</p>
 						)}
@@ -122,19 +122,19 @@ export default function StatistikTab() {
 				</Card>
 
 				<div className="lg:col-span-2">
-					{isLoading ? <Skeleton className="h-full min-h-40 w-full rounded-xl" /> : <OccupancyPanel stats={stats} />}
+					{isLoading ? <Skeleton className="h-full min-h-40 w-full rounded-md" /> : <OccupancyPanel stats={stats} />}
 				</div>
 			</div>
 
 			{/* Baris 2: ringkasan per status */}
 			<section aria-label="Ringkasan status material" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 				{isLoading
-					? [1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-[104px] rounded-xl" />)
+					? [1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-[104px] rounded-md" />)
 					: statusCards.map(({ name, jumlah }) => (
 							<Card key={name}>
 								<CardContent className="flex h-full flex-col justify-center p-5">
 									<p className="truncate text-xs font-medium text-muted-foreground">{name}</p>
-									<p className="mt-1 text-2xl font-semibold tabular-nums tracking-tight text-foreground">
+									<p className="mt-1 text-xl font-[450] tabular-nums tracking-tight text-foreground">
 										{jumlah.toLocaleString("id-ID")}
 									</p>
 									<p className="mt-0.5 text-xs text-muted-foreground">unit</p>
@@ -160,7 +160,7 @@ export default function StatistikTab() {
 			</section>
 
 			{!isLoading && (materialStats?.total ?? 0) === 0 && (
-				<div className="flex items-center justify-center gap-2 rounded-xl border border-dashed py-10 text-xs text-muted-foreground">
+				<div className="flex items-center justify-center gap-2 rounded-md border border-dashed py-10 text-xs text-muted-foreground">
 					<Boxes className="size-4" /> Belum ada material tercatat. Tambahkan lewat modul Material Masuk.
 				</div>
 			)}

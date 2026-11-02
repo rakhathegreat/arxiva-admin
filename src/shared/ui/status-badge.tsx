@@ -28,187 +28,81 @@ interface StatusBadgeProps {
 }
 
 /**
- * Central configuration: each status maps to a display label, a lucide icon,
- * and a capsule class. Light mode uses a soft 10% tint fill with a darker ink;
- * dark mode uses the low-opacity 950 fill tinted to match the text/icon.
+ * Status tones stay inside the monochrome system: value shifts for neutral
+ * states, an inverted ink chip for terminal states, and Terminal Green only
+ * for confirmed/positive outcomes.
  */
+const TONE = {
+	positive: "border-success/25 bg-success/10 text-success",
+	active: "border-foreground/15 bg-foreground/[0.06] text-foreground",
+	pending: "border-border bg-muted/60 text-charcoal",
+	outlined: "border-border bg-card text-foreground",
+	negative: "border-foreground bg-foreground text-background",
+	muted: "border-border bg-muted text-stone",
+} as const;
+
 const STATUS_CONFIG: Record<
 	string,
 	{ label: string; icon: LucideIcon; className: string }
 > = {
 	// ── Primary workflow statuses ──
-	pending: {
-		label: "Pending",
-		icon: AlertTriangle,
-		className:
-			"bg-amber-500/10 text-amber-700 dark:bg-amber-950/40 dark:text-amber-500",
-	},
+	pending: { label: "Pending", icon: AlertTriangle, className: TONE.pending },
 	"in progress": {
 		label: "In Progress",
 		icon: CircleDashed,
-		className:
-			"bg-blue-500/10 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400",
+		className: TONE.active,
 	},
 	submitted: {
 		label: "Submitted",
 		icon: Navigation,
-		className:
-			"bg-purple-500/10 text-purple-700 dark:bg-purple-950/40 dark:text-purple-400",
+		className: TONE.outlined,
 	},
-	"in review": {
-		label: "In Review",
-		icon: Search,
-		className:
-			"bg-yellow-500/10 text-yellow-700 dark:bg-yellow-950/40 dark:text-yellow-500",
-	},
-	success: {
-		label: "Success",
-		icon: CheckCircle2,
-		className:
-			"bg-emerald-500/10 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400",
-	},
-	failed: {
-		label: "Failed",
-		icon: XCircle,
-		className:
-			"bg-rose-500/10 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400",
-	},
-	expired: {
-		label: "Expired",
-		icon: Clock,
-		className:
-			"bg-zinc-500/10 text-zinc-600 dark:bg-zinc-800/40 dark:text-zinc-400",
-	},
+	"in review": { label: "In Review", icon: Search, className: TONE.pending },
+	success: { label: "Success", icon: CheckCircle2, className: TONE.positive },
+	failed: { label: "Failed", icon: XCircle, className: TONE.negative },
+	expired: { label: "Expired", icon: Clock, className: TONE.muted },
 
 	// ── Inventory aliases (keep existing usages resolving) ──
-	menunggu: {
-		label: "Menunggu",
-		icon: AlertTriangle,
-		className:
-			"bg-amber-500/10 text-amber-700 dark:bg-amber-950/40 dark:text-amber-500",
-	},
-	siap: {
-		label: "Siap",
-		icon: Search,
-		className:
-			"bg-yellow-500/10 text-yellow-700 dark:bg-yellow-950/40 dark:text-yellow-500",
-	},
-	tersedia: {
-		label: "Tersedia",
-		icon: CheckCircle2,
-		className:
-			"bg-emerald-500/10 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400",
-	},
-	selesai: {
-		label: "Selesai",
-		icon: CheckCircle2,
-		className:
-			"bg-emerald-500/10 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400",
-	},
-	diterima: {
-		label: "Diterima",
-		icon: CheckCircle2,
-		className:
-			"bg-emerald-500/10 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400",
-	},
-	bekas: {
-		label: "Bekas",
-		icon: CheckCircle2,
-		className:
-			"bg-emerald-500/10 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400",
-	},
-	aktif: {
-		label: "Aktif",
-		icon: CheckCircle2,
-		className:
-			"bg-emerald-500/10 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400",
-	},
+	menunggu: { label: "Menunggu", icon: AlertTriangle, className: TONE.pending },
+	siap: { label: "Siap", icon: Search, className: TONE.pending },
+	tersedia: { label: "Tersedia", icon: CheckCircle2, className: TONE.positive },
+	selesai: { label: "Selesai", icon: CheckCircle2, className: TONE.positive },
+	diterima: { label: "Diterima", icon: CheckCircle2, className: TONE.positive },
+	bekas: { label: "Bekas", icon: CheckCircle2, className: TONE.positive },
+	aktif: { label: "Aktif", icon: CheckCircle2, className: TONE.positive },
 	terdistribusi: {
 		label: "Terdistribusi",
 		icon: CircleDashed,
-		className:
-			"bg-blue-500/10 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400",
+		className: TONE.active,
 	},
-	digunakan: {
-		label: "Digunakan",
-		icon: CircleDashed,
-		className:
-			"bg-blue-500/10 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400",
-	},
-	baru: {
-		label: "Baru",
-		icon: Navigation,
-		className:
-			"bg-purple-500/10 text-purple-700 dark:bg-purple-950/40 dark:text-purple-400",
-	},
-	hilang: {
-		label: "Hilang",
-		icon: XCircle,
-		className:
-			"bg-rose-500/10 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400",
-	},
-	rusak: {
-		label: "Rusak",
-		icon: XCircle,
-		className:
-			"bg-rose-500/10 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400",
-	},
-	ditolak: {
-		label: "Ditolak",
-		icon: XCircle,
-		className:
-			"bg-rose-500/10 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400",
-	},
-	dibatalkan: {
-		label: "Dibatalkan",
-		icon: XCircle,
-		className:
-			"bg-rose-500/10 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400",
-	},
-	disetujui: {
-		label: "Disetujui",
-		icon: CheckCircle2,
-		className:
-			"bg-emerald-500/10 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400",
-	},
-	serah: {
-		label: "Serah",
-		icon: Navigation,
-		className:
-			"bg-purple-500/10 text-purple-700 dark:bg-purple-950/40 dark:text-purple-400",
-	},
+	digunakan: { label: "Digunakan", icon: CircleDashed, className: TONE.active },
+	baru: { label: "Baru", icon: Navigation, className: TONE.outlined },
+	hilang: { label: "Hilang", icon: XCircle, className: TONE.negative },
+	rusak: { label: "Rusak", icon: XCircle, className: TONE.negative },
+	ditolak: { label: "Ditolak", icon: XCircle, className: TONE.negative },
+	dibatalkan: { label: "Dibatalkan", icon: XCircle, className: TONE.negative },
+	disetujui: { label: "Disetujui", icon: CheckCircle2, className: TONE.positive },
+	serah: { label: "Serah", icon: Navigation, className: TONE.outlined },
 	// Kunci memakai format hasil `normalize()` (spasi) agar lookup tidak gagal
 	"menunggu scan penerima": {
 		label: "Menunggu Scan Penerima",
 		icon: Clock,
-		className:
-			"bg-purple-500/10 text-purple-700 dark:bg-purple-950/40 dark:text-purple-400",
+		className: TONE.active,
 	},
-	tolak: {
-		label: "Ditolak",
-		icon: XCircle,
-		className:
-			"bg-rose-500/10 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400",
-	},
-	nonaktif: {
-		label: "Nonaktif",
-		icon: Clock,
-		className:
-			"bg-zinc-500/10 text-zinc-600 dark:bg-zinc-800/40 dark:text-zinc-400",
-	},
+	tolak: { label: "Ditolak", icon: XCircle, className: TONE.negative },
+	nonaktif: { label: "Nonaktif", icon: Clock, className: TONE.muted },
 };
 
 const NEUTRAL: { label: string; icon: LucideIcon; className: string } = {
 	label: "Unknown",
 	icon: HelpCircle,
-	className:
-		"bg-zinc-500/10 text-zinc-600 dark:bg-zinc-800/40 dark:text-zinc-400",
+	className: TONE.muted,
 };
 
 const SIZE_CLASS: Record<StatusSize, { wrap: string; icon: string }> = {
-	sm: { wrap: "text-xs px-2 py-1.5 gap-1.5 rounded-md", icon: "size-3.5" },
-	md: { wrap: "text-sm px-2.5 py-1 gap-1.5", icon: "size-4" },
-	lg: { wrap: "text-base px-3 py-1.5 gap-2", icon: "size-5" },
+	sm: { wrap: "text-[10px] px-1.5 py-1 gap-1 rounded-sm", icon: "size-3" },
+	md: { wrap: "text-[11px] px-2 py-1 gap-1.5 rounded-sm", icon: "size-3.5" },
+	lg: { wrap: "text-xs px-2.5 py-1.5 gap-1.5 rounded-sm", icon: "size-4" },
 };
 
 const normalize = (value: string) =>
@@ -242,7 +136,7 @@ export function StatusBadge({
 	return (
 		<span
 			className={cn(
-				"inline-flex items-center rounded-lg font-medium whitespace-nowrap leading-none",
+				"inline-flex items-center rounded-sm border font-mono font-medium tracking-[0.06em] whitespace-nowrap uppercase leading-none",
 				config.className,
 				sizing.wrap,
 				className,
@@ -280,7 +174,7 @@ export function StatusBadgeDemo() {
 	];
 
 	return (
-		<div className="flex flex-wrap items-center gap-3 bg-zinc-100 p-6 rounded-xl dark:bg-zinc-950">
+		<div className="flex flex-wrap items-center gap-3 rounded-md border border-border bg-card p-6">
 			{samples.map((sample, index) => (
 				<StatusBadge key={index} {...sample} />
 			))}

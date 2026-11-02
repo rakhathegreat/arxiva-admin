@@ -22,10 +22,7 @@ interface SidebarNavProps extends Omit<React.HTMLAttributes<HTMLElement>, 'onSel
 export function SidebarNav({ className, groups, activeId, onSelect, isAdmin, ...props }: SidebarNavProps) {
   return (
     <nav
-      className={cn(
-        "flex flex-col",
-        className
-      )}
+      className={cn("flex flex-col gap-5 p-3", className)}
       {...props}
     >
       {groups.map((group, groupIdx) => {
@@ -34,28 +31,28 @@ export function SidebarNav({ className, groups, activeId, onSelect, isAdmin, ...
         if (visibleItems.length === 0) return null;
 
         return (
-          <div key={groupIdx} className="flex flex-col space-y-2 px-3 pt-5 pb-3 border-b">
+          <div key={groupIdx} className="flex flex-col gap-1">
             {group.groupLabel && (
-              <h4 className="px-3 text-xs font-medium flex-col space-y-6 text-muted-foreground/70 uppercase">
+              <h4 className="meta-label px-2 pb-1">
                 {group.groupLabel}
               </h4>
             )}
-            <div className="flex flex-wrap lg:flex-col">
+            <div className="flex flex-wrap gap-1 lg:flex-col lg:flex-nowrap">
               {visibleItems.map((item) => (
                 <Button
                   key={item.id}
                   variant="ghost"
+                  size="sm"
                   className={cn(
-                    "justify-start px-1 h-7 rounded-md active:translate-y-0! cursor-pointer",
+                    "h-8 justify-start rounded-md px-2 text-left text-[13px] active:translate-y-0!",
                     activeId === item.id
-                      ? "bg-muted/50 text-foreground hover:bg-muted/50"
-                      : "hover:bg-muted/30! hover:text-foreground text-muted-foreground"
+                      ? "bg-foreground/[0.06] font-medium text-foreground hover:bg-foreground/[0.08]"
+                      : "font-normal text-muted-foreground hover:bg-muted/60! hover:text-foreground"
                   )}
                   onClick={() => onSelect(item.id)}
                 >
-                  <span className="ml-2 text-xs font-medium">{item.title}</span>
+                  <span className="truncate">{item.title}</span>
                 </Button>
-
               ))}
             </div>
           </div>

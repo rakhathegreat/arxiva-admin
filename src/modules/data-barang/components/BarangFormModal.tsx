@@ -115,7 +115,7 @@ export function BarangFormModal({
 				<form onSubmit={onSubmit} className="flex flex-col min-h-0">
 					<AlertDialogHeader className="shrink-0">
 						<div className="flex flex-col items-center gap-0.5 sm:items-start">
-							<AlertDialogTitle className="text-lg font-medium">
+							<AlertDialogTitle className="text-base font-medium">
 								{formMode === "add" ? "Tambah Unit Baru" : "Edit Data Unit"}
 							</AlertDialogTitle>
 							<AlertDialogDescription className="text-sm text-muted-foreground">
@@ -162,7 +162,7 @@ export function BarangFormModal({
 										placeholder="Pilih Kategori"
 										searchPlaceholder="Cari kategori..."
 										recentKey="kategori"
-										className="rounded-sm!"
+										className="rounded-md!"
 									/>
 								</Field>
 
@@ -177,7 +177,7 @@ export function BarangFormModal({
 										searchPlaceholder="Cari merek..."
 										emptyText="Merek tidak ditemukan"
 										recentKey="merek"
-										className="rounded-sm!"
+										className="rounded-md!"
 									/>
 								</Field>
 
@@ -192,7 +192,7 @@ export function BarangFormModal({
 										searchPlaceholder="Cari model..."
 										emptyText="Model tidak ditemukan"
 										recentKey="model"
-										className="rounded-sm!"
+										className="rounded-md!"
 									/>
 								</Field>
 							</div>
@@ -214,7 +214,7 @@ export function BarangFormModal({
 												status: val as StatusUnit,
 											}))
 										}>
-										<SelectTrigger className="h-8 text-sm rounded-sm!">
+										<SelectTrigger className="h-8 text-sm rounded-md!">
 											<SelectValue placeholder="Pilih Status" />
 										</SelectTrigger>
 										<SelectContent>
@@ -233,7 +233,7 @@ export function BarangFormModal({
 										onValueChange={(val) =>
 											setFormData((prev) => ({ ...prev, kondisi: val }))
 										}>
-										<SelectTrigger className="h-8 text-sm rounded-sm!">
+										<SelectTrigger className="h-8 text-sm rounded-md!">
 											<SelectValue placeholder="Pilih Kondisi" />
 										</SelectTrigger>
 										<SelectContent>
@@ -302,7 +302,7 @@ export function BarangFormModal({
 										emptyText="Lokasi tidak ditemukan"
 										recentKey="lokasi"
 										disabled={formData.status === "Terdistribusi"}
-										className="rounded-sm!"
+										className="rounded-md!"
 									/>
 								</Field>
 							</div>

@@ -114,7 +114,7 @@ export function MigrateDialog({
 					{/* Sumber */}
 					<div className="grid gap-1.5">
 						<Label className="text-sm font-medium">Dari</Label>
-						<div className="rounded-lg border bg-muted/40 px-3 py-2">
+						<div className="rounded-md border bg-muted/40 px-3 py-2">
 							<p className="text-sm font-medium text-foreground">{sourceLabel}</p>
 							<p className="text-xs tabular-nums text-muted-foreground">
 								{itemCount} item akan dipindahkan

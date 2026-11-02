@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from "@/shared/ui/dialog";
 import { Button } from "@/shared/ui/button";
+import { Badge } from "@/shared/ui/badge";
 import { api, getBaseUrl } from "@/shared/lib/api";
 import type { DashboardRequest } from "@/modules/transaksi/types";
 
@@ -168,10 +169,10 @@ export function PengambilanQrModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md flex flex-col items-center text-center p-6 gap-4">
-        <DialogHeader className="w-full text-center space-y-1">
-          <DialogTitle className="flex items-center justify-center gap-2 text-lg font-bold">
-            <PackageCheck className="size-5 text-emerald-500" />
+      <DialogContent className="flex flex-col items-center gap-4 p-5 text-center sm:max-w-md">
+        <DialogHeader className="w-full space-y-1 text-center">
+          <DialogTitle className="flex items-center justify-center gap-2 text-base font-medium">
+            <PackageCheck className="size-5 text-success" />
             Pengambilan Material
           </DialogTitle>
           <DialogDescription className="text-xs text-muted-foreground">
@@ -181,20 +182,20 @@ export function PengambilanQrModal({
 
         {/* Request Context Summary Card */}
         {request && (
-          <div className="w-full bg-muted/50 rounded-xl p-3 border text-xs space-y-1.5 text-left">
-            <div className="flex items-center justify-between font-semibold border-b pb-1.5">
-              <span className="text-primary">{request.requestNumber}</span>
-              <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full text-[10px]">
+          <div className="w-full space-y-1.5 rounded-md border border-border bg-muted/40 p-3 text-left text-xs">
+            <div className="flex items-center justify-between border-b border-border pb-1.5">
+              <span className="font-mono text-[11px] font-medium">{request.requestNumber}</span>
+              <Badge variant="success" size="sm">
                 {request.status}
-              </span>
+              </Badge>
             </div>
-            <div className="grid grid-cols-2 gap-2 text-muted-foreground pt-0.5">
+            <div className="grid grid-cols-2 gap-2 pt-0.5 text-muted-foreground">
               <div className="flex items-center gap-1.5">
-                <Building2 className="size-3.5 text-emerald-500 shrink-0" />
+                <Building2 className="size-3.5 shrink-0 text-muted-foreground" />
                 <span className="truncate font-medium text-foreground">{request.requesterName || "Mitra"}</span>
               </div>
-              <div className="flex items-center gap-1.5 justify-end">
-                <Layers className="size-3.5 text-blue-500 shrink-0" />
+              <div className="flex items-center justify-end gap-1.5">
+                <Layers className="size-3.5 shrink-0 text-muted-foreground" />
                 <span className="font-medium text-foreground">
                   {request.itemsCount || request.requestItems?.length || 0} Item Material
                 </span>
@@ -205,36 +206,33 @@ export function PengambilanQrModal({
 
         {isLoading ? (
           <div className="my-6 flex flex-col items-center justify-center space-y-3">
-            <Loader2 className="size-10 animate-spin text-emerald-500" />
-            <p className="text-xs text-muted-foreground font-medium">Membuat Sesi QR Code Baru...</p>
+            <Loader2 className="size-10 animate-spin text-foreground" />
+            <p className="text-xs font-medium text-muted-foreground">Membuat Sesi QR Code Baru...</p>
           </div>
         ) : (
-          <div className="flex flex-col items-center space-y-3 w-full">
-            {/* QR Code Container with Pulsing Ring Indicator */}
-            <div className="relative group">
-              <div className="absolute -inset-1 rounded-3xl group-hover:opacity-50 transition-all" />
-              <div className="relative p-3.5 bg-white rounded-2xl border shadow-md border-zinc-200">
-                <img src={qrCodeDataUrl} alt="QR Code Pengambilan BAST" className="w-52 h-52 rounded-xl" />
-              </div>
+          <div className="flex w-full flex-col items-center space-y-3">
+            {/* QR Code Container */}
+            <div className="rounded-md border border-border bg-white p-3.5">
+              <img src={qrCodeDataUrl} alt="QR Code Pengambilan BAST" className="h-52 w-52 rounded-md" />
             </div>
 
             {/* Live Connection Status & Countdown Timer */}
             <div className="flex items-center justify-center gap-3">
-              <div className="flex items-center gap-1.5 h-6 px-3 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
+              <div className="flex h-6 items-center gap-1.5 rounded-full border border-success/25 bg-success/10 px-3 font-mono text-[10px] font-medium tracking-[0.06em] text-success uppercase">
                 <span className="relative flex h-2 w-2 shrink-0">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success/50 opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
                 </span>
                 <span className="leading-none">Sesi Aktif</span>
               </div>
-              <div className="flex items-center gap-1 h-6 text-xs text-muted-foreground bg-muted px-2.5 rounded-full border">
-                <Clock className="size-3 text-amber-500 shrink-0" />
-                <span className="leading-none tabular-nums">{formatTime(timeLeft)}</span>
+              <div className="flex h-6 items-center gap-1 rounded-full border border-border bg-muted px-2.5 font-mono text-[10px] tabular-nums text-muted-foreground">
+                <Clock className="size-3 shrink-0 text-muted-foreground" />
+                <span className="leading-none">{formatTime(timeLeft)}</span>
               </div>
             </div>
 
-            <p className="text-xs text-muted-foreground max-w-xs leading-relaxed">
-              Minta penerima/PIC meng-scan QR Code ini dari HP untuk mengisi <strong>Nama</strong> & <strong>Tanda Tangan</strong>.
+            <p className="max-w-xs text-xs leading-relaxed text-muted-foreground">
+              Minta penerima/PIC meng-scan QR Code ini dari HP untuk mengisi <strong className="font-medium text-foreground">Nama</strong> & <strong className="font-medium text-foreground">Tanda Tangan</strong>.
             </p>
 
             <Button

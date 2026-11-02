@@ -436,7 +436,7 @@ export function Combobox({
 						ref={panelRef}
 						id={listboxId}
 						role="listbox"
-						className="animate-in fade-in-0 zoom-in-95 duration-100 fixed z-50 overflow-y-auto rounded-lg bg-popover p-1 text-sm text-popover-foreground shadow-md ring-1 ring-foreground/10 mt-1 motion-reduce:animate-none"
+						className="animate-in fade-in-0 zoom-in-95 duration-100 fixed z-50 overflow-y-auto rounded-md border border-border bg-popover p-1 text-sm text-popover-foreground shadow-none mt-1 motion-reduce:animate-none"
 						style={{
 							top: pos.top,
 							bottom: pos.bottom,

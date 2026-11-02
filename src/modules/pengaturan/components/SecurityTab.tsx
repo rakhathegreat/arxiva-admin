@@ -67,31 +67,30 @@ export function SecurityTab() {
   };
 
   return (
-    <div className="px-2 pt-14">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-medium">Keamanan</h1>
-          <span className="text-sm text-muted-foreground">Kelola kata sandi akun Anda</span>
-        </div>
-      </div>
+    <div className="flex flex-col gap-6">
+      <header className="flex flex-col gap-1">
+        <p className="eyebrow text-stone">Akun</p>
+        <h1 className="page-title">Keamanan</h1>
+        <p className="text-sm text-muted-foreground">Kelola kata sandi akun Anda</p>
+      </header>
 
-      <div className="mt-6 space-y-6">
-        <h1 className="text-lg font-medium">Ubah Kata Sandi</h1>
-        <Card className="rounded-sm p-0!">
+      <div className="space-y-4">
+        <h2 className="text-sm font-medium">Ubah Kata Sandi</h2>
+        <Card className="rounded-md p-0!">
           <CardContent className="p-0!">
             <div className="flex flex-wrap justify-between p-4">
               <h2 className="font-medium text-sm">Kata Sandi Saat Ini</h2>
-              <Input type="password" value={oldPassword} placeholder="Masukkan kata sandi saat ini" className="max-w-md h-9 rounded-sm" onChange={(e) => setOldPassword(e.target.value)} />
+              <Input type="password" value={oldPassword} placeholder="Masukkan kata sandi saat ini" className="max-w-md h-9 rounded-md" onChange={(e) => setOldPassword(e.target.value)} />
             </div>
             <Separator />
             <div className="flex flex-wrap justify-between p-4">
               <h2 className="font-medium text-sm">Kata Sandi Baru</h2>
-              <Input type="password" value={newPassword} placeholder="Masukkan kata sandi baru" className="max-w-md h-9 rounded-sm" onChange={(e) => setNewPassword(e.target.value)} />
+              <Input type="password" value={newPassword} placeholder="Masukkan kata sandi baru" className="max-w-md h-9 rounded-md" onChange={(e) => setNewPassword(e.target.value)} />
             </div>
             <Separator />
             <div className="flex flex-wrap justify-between p-4">
               <h2 className="font-medium text-sm">Konfirmasi Kata Sandi Baru</h2>
-              <Input type="password" value={confirmPassword} placeholder="Ketik ulang kata sandi baru" className="max-w-md h-9 rounded-sm" onChange={(e) => setConfirmPassword(e.target.value)} />
+              <Input type="password" value={confirmPassword} placeholder="Ketik ulang kata sandi baru" className="max-w-md h-9 rounded-md" onChange={(e) => setConfirmPassword(e.target.value)} />
             </div>
             <div className="w-full flex items-center justify-end gap-2 p-4 border-t border-border/50">
               <Button className="active:translate-y-0!" size="sm" variant="outline" onClick={() => { setOldPassword(""); setNewPassword(""); setConfirmPassword(""); }} disabled={!hasChanges || isSaving}>

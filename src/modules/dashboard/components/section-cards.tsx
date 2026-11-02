@@ -10,13 +10,7 @@ import {
 	TrendingDown,
 } from "lucide-react";
 
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/shared/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 
 import type { InventoryStats } from "@/modules/dashboard/types";
 
@@ -92,44 +86,44 @@ function SectionCardsBase({
 	});
 
 	return (
-		<div className="grid grid-cols-1 gap-4 px-4 lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-5">
-			{cards.map(
-				({ key, label, value, icon: Icon, direction, percent }) => {
-					return (
-						<Card
-							key={key}
-							className="@container/card relative overflow-hidden flex flex-col justify-between gap-0 border-border">
-							<CardHeader className="flex flex-col w-full justify-between space-y-0">
-								<div className="flex w-full items-center justify-between gap-2">
-									<CardDescription className="font-medium text-muted-foreground">{label}</CardDescription>
-									<div className="rounded-lg p-2 bg-muted/50">
-										<Icon className="text-muted-foreground w-4 h-4" />
-									</div>
-								</div>
-								<CardTitle className="flex items-end gap-2 text-2xl font-bold tabular-nums @[250px]/card:text-3xl pt-2">
-									<div>
-										{value}{" "}
-									</div>
-								</CardTitle>
-							</CardHeader>
-							<CardContent className="pt-0">
-								<div
-									className={`inline-flex items-center gap-1 text-xs font-medium ${direction === "up"
-										? "text-emerald-600 dark:text-emerald-500"
-										: "text-destructive dark:text-destructive"
-										}`}>
-									{direction === "up" ? (
-										<TrendingUp className="h-3.5 w-3.5" />
-									) : (
-										<TrendingDown className="h-3.5 w-3.5" />
-									)}
-									<span>{direction === "up" ? "+" : "-"}{percent}% <span className="text-muted-foreground font-normal ml-0.5">dari bulan lalu</span></span>
-								</div>
-							</CardContent>
-						</Card>
-					);
-				},
-			)}
+		<div className="grid grid-cols-1 gap-3 px-4 lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-5">
+			{cards.map(({ key, label, value, icon: Icon, direction, percent }) => {
+				return (
+					<Card key={key} className="@container/card justify-between gap-0 py-0">
+						<CardHeader className="flex flex-col gap-1 py-4">
+							<div className="flex w-full items-start justify-between gap-2">
+								<CardDescription className="pr-2 text-muted-foreground">
+									{label}
+								</CardDescription>
+								<Icon className="size-4 shrink-0 text-muted-foreground" />
+							</div>
+							<CardTitle className="text-lg leading-none font-[450] tracking-tight tabular-nums @[250px]/card:text-[32px]">
+								{value}
+							</CardTitle>
+						</CardHeader>
+						<CardContent className="px-4 pb-3">
+							<div
+								className={`flex items-center gap-1.5 text-xs ${
+									direction === "up" ? "text-success" : "text-muted-foreground"
+								}`}
+							>
+								{direction === "up" ? (
+									<TrendingUp className="size-3.5 shrink-0" />
+								) : (
+									<TrendingDown className="size-3.5 shrink-0" />
+								)}
+								<span className="font-mono tracking-[0.04em]">
+									{direction === "up" ? "+" : "-"}
+									{percent}%
+								</span>
+								<span className="text-xs font-normal text-muted-foreground">
+									dari bulan lalu
+								</span>
+							</div>
+						</CardContent>
+					</Card>
+				);
+			})}
 		</div>
 	);
 }

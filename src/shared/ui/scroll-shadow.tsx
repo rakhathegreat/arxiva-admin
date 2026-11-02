@@ -43,7 +43,7 @@ export function ScrollShadowWrapper({
 	return (
 		<div
 			className={cn(
-				"rounded-lg border overflow-hidden relative flex-1 min-h-0",
+				"rounded-md border overflow-hidden relative flex-1 min-h-0",
 				className,
 			)}>
 			<div
@@ -59,7 +59,7 @@ export function ScrollShadowWrapper({
 				/>
 			)}
 			{canScrollBottom && (
-				<div className="absolute bottom-0 left-0 right-0 h-8 bg-linear-to-t from-background to-transparent pointer-events-none rounded-b-lg z-30" />
+				<div className="absolute bottom-0 left-0 right-0 h-8 bg-linear-to-t from-background to-transparent pointer-events-none rounded-b-md z-30" />
 			)}
 		</div>
 	);

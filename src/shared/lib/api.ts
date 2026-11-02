@@ -13,39 +13,51 @@ export const PRODUCTION_API_URL = "https://api-taslim.duckdns.org";
 const BUKAN_API = ["github.com", "www.github.com", "gitlab.com", "bitbucket.org"];
 
 /**
- * Normalisasi + validasi base URL.
+ * Ambil base URL yang aman dari `URL`.
  *
- * Sengaja melempar Error, bukan diam-diam memakai nilai lain: base URL yang
- * salah membuat semua request dikirim ke host asing dan tampil di browser
- * sebagai error CORS yang menyesatkan ("No Access-Control-Allow-Origin"),
- * padahal masalahnya ada di konfigurasi build. `URL` adalah nama yang sangat
- * umum, jadi nilai yang salah isi tetap harus gagal dengan pesan jelas.
+ * Nilai yang **terbukti bukan alamat API** diabaikan (dengan peringatan di
+ * konsol) lalu jatuh ke backend produksi, bukan melempar error. Alasannya
+ * praktis: kalau melempar, `getBaseUrl()` gagal sebelum `fetch` sehingga tombol
+ * Masuk tampak mati total — tidak ada request sama sekali — dan pesan yang
+ * muncul di UI hanya "Login gagal", jauh dari penyebab sebenarnya. Dashboard
+ * Vercel pernah berisi alamat repo di variabel `URL`, dan aplikasi harus tetap
+ * bisa dipakai selama itu belum diperbaiki.
+ *
+ * Nilai yang valid tetap dipakai apa adanya, supaya menunjuk ke backend lain
+ * (staging) tetap berfungsi.
  */
-function normalizeBaseUrl(raw: string): string {
+function resolveBaseUrl(raw: string): string {
+	if (!raw) return PRODUCTION_API_URL;
+
 	let parsed: globalThis.URL;
 	try {
 		parsed = new globalThis.URL(raw);
 	} catch {
-		throw new Error(
-			`URL bukan URL absolut: "${raw}". Set ke ${PRODUCTION_API_URL} (tanpa trailing slash).`,
-		);
+		console.warn(`[arxiva] URL bukan URL absolut: "${raw}". Memakai ${PRODUCTION_API_URL}.`);
+		return PRODUCTION_API_URL;
 	}
+
 	if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
-		throw new Error(`URL harus memakai http/https, bukan "${parsed.protocol}".`);
-	}
-	if (BUKAN_API.includes(parsed.hostname)) {
-		throw new Error(
-			`URL menunjuk ke ${parsed.hostname}, bukan backend API. Isi dengan ${PRODUCTION_API_URL}.`,
+		console.warn(
+			`[arxiva] URL memakai skema "${parsed.protocol}", bukan http/https. Memakai ${PRODUCTION_API_URL}.`,
 		);
+		return PRODUCTION_API_URL;
 	}
+
+	if (BUKAN_API.includes(parsed.hostname)) {
+		console.warn(
+			`[arxiva] URL menunjuk ke ${parsed.hostname} (host kode, bukan API). ` +
+				`Memakai ${PRODUCTION_API_URL}. Perbaiki variabel URL di dashboard Vercel.`,
+		);
+		return PRODUCTION_API_URL;
+	}
+
 	return raw.replace(/\/+$/, "");
 }
 
 export const getBaseUrl = () => {
 	// Satu variabel saja: `URL`.
-	const raw = (import.meta.env.URL ?? "").trim();
-	if (!raw) return PRODUCTION_API_URL;
-	return normalizeBaseUrl(raw);
+	return resolveBaseUrl((import.meta.env.URL ?? "").trim());
 };
 
 export const getHeaders = () => {

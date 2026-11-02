@@ -46,19 +46,33 @@ describe("getBaseUrl", () => {
 		expect(getBaseUrl()).toBe("https://api.example.com");
 	});
 
-	it("melempar bila URL menunjuk ke host kode, bukan API", () => {
+	it("jatuh ke backend produksi bila URL menunjuk ke host kode (bukan API)", () => {
+		const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
 		vi.stubEnv("URL", "https://github.com/rakhathegreat/arxiva-admin");
-		expect(() => getBaseUrl()).toThrow(/bukan backend API/);
+		expect(getBaseUrl()).toBe(PRODUCTION_API_URL);
+		expect(warn).toHaveBeenCalled();
+		warn.mockRestore();
 	});
 
-	it("melempar bila URL bukan URL absolut", () => {
+	it("jatuh ke backend produksi bila URL bukan URL absolut", () => {
+		const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
 		vi.stubEnv("URL", "/api");
-		expect(() => getBaseUrl()).toThrow(/bukan URL absolut/);
+		expect(getBaseUrl()).toBe(PRODUCTION_API_URL);
+		expect(warn).toHaveBeenCalled();
+		warn.mockRestore();
 	});
 
-	it("melempar bila skemanya bukan http(s)", () => {
+	it("jatuh ke backend produksi bila skemanya bukan http(s)", () => {
+		const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
 		vi.stubEnv("URL", "ftp://api.example.com");
-		expect(() => getBaseUrl()).toThrow(/http\/https/);
+		expect(getBaseUrl()).toBe(PRODUCTION_API_URL);
+		expect(warn).toHaveBeenCalled();
+		warn.mockRestore();
+	});
+
+	it("tetap memakai URL valid lain (mis. staging)", () => {
+		vi.stubEnv("URL", "https://staging.example.com/");
+		expect(getBaseUrl()).toBe("https://staging.example.com");
 	});
 });
 

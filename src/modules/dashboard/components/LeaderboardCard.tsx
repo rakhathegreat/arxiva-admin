@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/sha
 import { Badge } from "@/shared/ui/badge";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/ui/tooltip";
-import { Clock, Trophy, Zap, Award, Info } from "lucide-react";
+import { Trophy, Award, Info } from "lucide-react";
 import type { MitraPerformanceMetrics } from "@/modules/dashboard/types";
 
 interface LeaderboardCardProps {

@@ -4,7 +4,6 @@ import { ChartInboundOutbound } from "@/modules/dashboard/components/chart-inbou
 import { RequestSection } from "@/modules/dashboard/components/RequestSection";
 import { ActivityFeedCard } from "@/modules/dashboard/components/ActivityFeedCard";
 import { MitraPerformanceSection } from "@/modules/dashboard/components/MitraPerformanceSection";
-import { IdleStockAlert } from "@/modules/dashboard/components/IdleStockAlert";
 import { useDashboard } from "./use-dashboard";
 
 export default function DashboardPage() {
@@ -27,11 +26,6 @@ export default function DashboardPage() {
 		<div className="@container/main flex flex-col gap-4 py-4">
 			{/* Row 1: Inventory KPI cards */}
 			<SectionCards stats={inventoryStats} totalLabel="Total Material" />
-
-			{/* Idle Stock Alert */}
-			{/* <div className="px-4 lg:px-6">
-				<IdleStockAlert metrics={mitraPerformanceMetrics} isLoading={isLoading} />
-			</div> */}
 
 			{/* Mitra Performance */}
 			<MitraPerformanceSection metrics={mitraPerformanceMetrics} isLoading={isLoading} />

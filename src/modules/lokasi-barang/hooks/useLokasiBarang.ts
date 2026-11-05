@@ -27,6 +27,7 @@ export function useLokasiBarang() {
 	const [locations, setLocations] = useState<StorageLocation[]>([]);
 	const [brands, setBrands] = useState<string[]>(["Campuran"]);
 	const [isLoading, setIsLoading] = useState(true);
+	const [loadError, setLoadError] = useState<string | null>(null);
 	const [sheetMode, setSheetMode] = useState<SheetMode>("closed");
 	const [activeItem, setActiveItem] = useState<{ parentId?: string; levelId?: string } | null>(null);
 	const [searchQuery, setSearchQuery] = useState("");
@@ -52,13 +53,28 @@ export function useLokasiBarang() {
 	const loadLocations = async () => {
 		try {
 			setLocations((await fetchLocations()).filter(isKpStorageLocation));
+			setLoadError(null);
 		} catch {
-			toast.error("Gagal mengambil data lokasi dari server.");
+			// Pesan ditampilkan inline di daftar; toast hanya untuk aksi pengguna.
+			setLoadError("Data lokasi gagal dimuat. Periksa koneksi lalu coba lagi.");
+		}
+	};
+
+	const reload = async () => {
+		setIsLoading(true);
+		try {
+			await loadLocations();
+		} finally {
+			setIsLoading(false);
 		}
 	};
 
 	const loadBrands = async () => {
-		setBrands(await fetchBrandNames());
+		try {
+			setBrands(await fetchBrandNames());
+		} catch {
+			// Daftar merek hanya melengkapi form; kegagalan di sini tidak menghalangi daftar lokasi.
+		}
 	};
 
 	useEffect(() => {
@@ -220,6 +236,8 @@ export function useLokasiBarang() {
 		locations,
 		stats,
 		isLoading,
+		loadError,
+		reload,
 		filteredAndSortedLocations,
 		// filter
 		searchQuery,
@@ -256,3 +274,5 @@ export function useLokasiBarang() {
 		loadLocations,
 	};
 }
+
+export type LokasiBarangState = ReturnType<typeof useLokasiBarang>;

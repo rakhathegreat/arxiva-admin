@@ -97,8 +97,8 @@ describe("getProgressStyles", () => {
 	it("<=70% memakai warna dasar", () => {
 		expect(getProgressStyles(5, 10, "bg-chart-1").barClass).toBe("bg-chart-1");
 	});
-	it(">70% charcoal, >=100% ink", () => {
-		expect(getProgressStyles(8, 10, "").barClass).toBe("bg-charcoal");
+	it(">70% pekat, >=100% penuh", () => {
+		expect(getProgressStyles(8, 10, "").barClass).toBe("bg-foreground/65");
 		expect(getProgressStyles(10, 10, "").barClass).toBe("bg-foreground");
 	});
 });

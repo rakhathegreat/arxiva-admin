@@ -2,6 +2,7 @@ import { Archive, PackageMinus, X, Loader2, ScanLine } from "lucide-react";
 
 import { Badge } from "@/shared/ui/badge";
 import { StatusBadge } from "@/shared/ui/status-badge";
+import { toneFromLabel } from "@/shared/lib/tone";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent } from "@/shared/ui/card";
 import { Input } from "@/shared/ui/input";
@@ -106,7 +107,7 @@ export default function BarangKeluarPage() {
 				<div className="flex items-center justify-between gap-4">
 					<div className="flex items-center gap-3">
 						<h2 className="text-base font-medium">Daftar Distribusi Material</h2>
-						<Badge variant="secondary">{barangKeluar.length} Item</Badge>
+						<Badge variant="quiet">{barangKeluar.length} Item</Badge>
 					</div>
 					<Button
 						className="shrink-0 gap-2 cursor-pointer"
@@ -156,7 +157,7 @@ export default function BarangKeluarPage() {
 										</TableCell>
 										<TableCell className="text-sm">{item.merek}</TableCell>
 										<TableCell>
-											<Badge variant="secondary" size="sm">
+											<Badge variant="quiet" size="sm" tone={toneFromLabel(item.kategori)}>
 												{item.kategori}
 											</Badge>
 										</TableCell>

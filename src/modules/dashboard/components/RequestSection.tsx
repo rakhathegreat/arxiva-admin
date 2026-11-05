@@ -1,197 +1,194 @@
-import { useNavigate } from "react-router-dom"
-import { memo } from "react"
-import { ArrowUpRight, InboxIcon, Clock,  Package } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card"
-import { Skeleton } from "@/shared/ui/skeleton"
-import { cn } from "@/shared/lib/utils"
-import type { RequestSummary } from "@/modules/transaksi/types"
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/shared/ui/table"
-import { Badge } from "@/shared/ui/badge"
+import { useNavigate } from "react-router-dom";
+import { memo } from "react";
+import { ArrowUpRight, Clock, Package } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
+import { Skeleton } from "@/shared/ui/skeleton";
+import { cn } from "@/shared/lib/utils";
+import type { RequestSummary } from "@/modules/transaksi/types";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
+import { Badge, type BadgeTone } from "@/shared/ui/badge";
 
 interface RequestCounts {
-    menunggu: number
-    siap: number
+	menunggu: number;
+	siap: number;
 }
 
 interface RequestSectionProps {
-    requests: RequestSummary[]
-    counts: RequestCounts
-    isLoading: boolean
-    className?: string
+	requests: RequestSummary[];
+	counts: RequestCounts;
+	isLoading: boolean;
+	className?: string;
 }
 
-function getStatusBadgeClass(status: string): string {
-    switch (status.toUpperCase()) {
-        case "MENUNGGU":
-            return "bg-muted-foreground text-muted-foreground"
-        case "SIAP":
-            return "bg-foreground text-foreground"
-        case "DITERIMA":
-        case "SELESAI":
-            return "bg-success text-success"
-        case "DITOLAK":
-        case "DIBATALKAN":
-            return "bg-foreground text-foreground"
-        default:
-            return "bg-ash text-muted-foreground"
-    }
+function getStatusTone(status: string): BadgeTone {
+	switch (status.toUpperCase()) {
+		case "MENUNGGU":
+			return "amber";
+		case "SIAP":
+			return "blue";
+		case "DITERIMA":
+		case "SELESAI":
+			return "emerald";
+		case "DITOLAK":
+			return "red";
+		case "DIBATALKAN":
+			return "zinc";
+		default:
+			return "slate";
+	}
 }
 
-// Komponen StatusBadge dengan dot warna, tanpa border
+// Chip status ringkas: tone dari status, tanpa ikon.
 function StatusBadge({ status }: { status: string }) {
-    const colorClass = getStatusBadgeClass(status)
-    const label = getStatusLabel(status)
-    return (
-        <Badge variant="secondary" size="sm">
-            <span className={cn("size-2 rounded-full mr-1", colorClass.split(' ')[0])} />
-            {label}
-        </Badge>
-    )
+	const label = getStatusLabel(status);
+	return (
+		<Badge variant="glass" size="sm" tone={getStatusTone(status)}>
+			{label}
+		</Badge>
+	);
 }
 
 function getStatusLabel(status: string): string {
-    const map: Record<string, string> = {
-        MENUNGGU: "Menunggu",
-        SIAP: "Siap",
-        DITERIMA: "Diterima",
-        SELESAI: "Selesai",
-        DITOLAK: "Ditolak",
-        DIBATALKAN: "Dibatalkan",
-        DRAFT: "Draft",
-    }
-    return map[status.toUpperCase()] ?? status
+	const map: Record<string, string> = {
+		MENUNGGU: "Menunggu",
+		SIAP: "Siap",
+		DITERIMA: "Diterima",
+		SELESAI: "Selesai",
+		DITOLAK: "Ditolak",
+		DIBATALKAN: "Dibatalkan",
+		DRAFT: "Draft",
+	};
+	return map[status.toUpperCase()] ?? status;
 }
 
 function formatDate(dateStr: string): string {
-    try {
-        return new Date(dateStr).toLocaleDateString("id-ID", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-        })
-    } catch {
-        return "-"
-    }
+	try {
+		return new Date(dateStr).toLocaleDateString("id-ID", {
+			day: "2-digit",
+			month: "short",
+			year: "numeric",
+		});
+	} catch {
+		return "-";
+	}
 }
 
 function RequestSectionBase({ requests, counts, isLoading, className }: RequestSectionProps) {
-    const navigate = useNavigate()
-    const requestTarget = "/request"
-    const displayedRequests = requests.filter(req => req.status.toUpperCase() === "MENUNGGU")
+	const navigate = useNavigate();
+	const requestTarget = "/request";
+	const displayedRequests = requests.filter((req) => req.status.toUpperCase() === "MENUNGGU");
 
-    return (
-        <Card className={cn("flex flex-col h-full ", className)}>
-            <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="text-base">
-                    {"Request Masuk"}
-                </CardTitle>
-                <div
-                    onClick={() => navigate(requestTarget)}
-                    className="rounded-full p-1.5 cursor-pointer bg-muted transition-colors hover:bg-muted/80"
-                >
-                    <ArrowUpRight size={14} className="text-muted-foreground" />
-                </div>
-            </CardHeader>
+	return (
+		<Card className={cn("flex flex-col h-full ", className)}>
+			<CardHeader className="flex flex-row items-center justify-between">
+				<CardTitle className="text-base">{"Request Masuk"}</CardTitle>
+				<div
+					onClick={() => navigate(requestTarget)}
+					className="rounded-full p-1.5 cursor-pointer bg-muted transition-colors hover:bg-muted/80"
+				>
+					<ArrowUpRight size={14} className="text-muted-foreground" />
+				</div>
+			</CardHeader>
 
-            <CardContent className="p-0 flex-1 flex flex-col">
-                {/* 2 Mini KPI Cards */}
-                <div className="grid grid-cols-2 gap-2.5 px-4 pb-4">
-                    {[
-                        { label: "Menunggu", count: counts.menunggu, icon: Clock },
-                        { label: "Siap", count: counts.siap, icon: Package },
-                    ].map((kpi) => (
-                        <div
-                            key={kpi.label}
-                            onClick={() => navigate(`/request?tab=${kpi.label}`)}
-                            className={cn(
-                                "flex cursor-pointer items-center gap-3 rounded-md border border-border bg-muted/30 p-3 transition-colors hover:bg-muted/60"
-                            )}
-                        >
-                            <div className="rounded-full p-2 bg-muted text-muted-foreground shrink-0">
-                                <kpi.icon className="w-4 h-4" />
-                            </div>
-                            <div className="flex flex-col min-w-0">
-                                <span className="text-xs text-muted-foreground">{kpi.label}</span>
-                                <span className="text-xl font-[450] tracking-tight mt-0.5 tabular-nums">
-                                    {isLoading ? "-" : kpi.count}
-                                </span>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+			<CardContent className="p-0 flex-1 flex flex-col">
+				{/* 2 Mini KPI Cards */}
+				<div className="grid grid-cols-2 gap-2.5 px-4 pb-4">
+					{[
+						{ label: "Menunggu", count: counts.menunggu, icon: Clock },
+						{ label: "Siap", count: counts.siap, icon: Package },
+					].map((kpi) => (
+						<div
+							key={kpi.label}
+							onClick={() => navigate(`/request?tab=${kpi.label}`)}
+							className={cn(
+								"flex cursor-pointer items-center gap-3 rounded-md border border-border bg-muted/30 p-3 transition-colors hover:bg-muted/60",
+							)}
+						>
+							<div className="rounded-full p-2 bg-muted text-muted-foreground shrink-0">
+								<kpi.icon className="w-4 h-4" />
+							</div>
+							<div className="flex flex-col min-w-0">
+								<span className="text-xs text-muted-foreground">{kpi.label}</span>
+								<span className="text-xl font-[450] tracking-tight mt-0.5 tabular-nums">
+									{isLoading ? "-" : kpi.count}
+								</span>
+							</div>
+						</div>
+					))}
+				</div>
 
-                {/* Table Request */}
-                <div className="flex-1 overflow-x-auto px-4 pb-4">
-                    {isLoading ? (
-                        <div className="flex flex-col space-y-3 py-3">
-                            {[1, 2, 3, 4, 5].map((i) => (
-                                <Skeleton key={i} className="h-8 w-full" />
-                            ))}
-                        </div>
-                    ) : displayedRequests.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
-                            <div className="size-10 rounded-full bg-muted flex items-center justify-center">
-                                <InboxIcon className="size-5 text-muted-foreground" />
-                            </div>
-                            <p className="text-sm text-muted-foreground">
-                                {"Belum ada request terbaru"}
-                            </p>
-                        </div>
-                    ) : (
-                        <div className="rounded-md border overflow-hidden">
-                            <Table>
-                                <TableHeader className="bg-muted">
-                                    <TableRow className="hover:bg-transparent">
-                                        <TableHead className="w-[50px] text-xs h-9">No</TableHead>
-                                        <TableHead className="text-xs h-9">No. Permintaan</TableHead>
-                                        <TableHead className="text-xs h-9">Tanggal Masuk</TableHead>
-                                        <TableHead className="text-xs h-9">Mitra</TableHead>
-                                        <TableHead className="text-xs h-9">Kategori</TableHead>
-                                        <TableHead className="text-right text-xs h-9">Status</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {displayedRequests.map((req, index) => (
-                                        <TableRow
-                                            key={req.id}
-                                            className="cursor-pointer group"
-                                            onClick={() => navigate(`/request?tab=${getStatusLabel(req.status)}`)}
-                                        >
-                                            <TableCell className="text-[13px] text-muted-foreground py-2.5">
-                                                {index + 1}
-                                            </TableCell>
-                                            <TableCell className="text-[13px] font-medium py-2.5 group-hover:text-primary transition-colors">
-                                                {req.requestNumber}
-                                            </TableCell>
-                                            <TableCell className="text-[13px] text-muted-foreground py-2.5 whitespace-nowrap">
-                                                {formatDate(req.requestedAt)}
-                                            </TableCell>
-                                            <TableCell className="text-[13px] py-2.5 truncate max-w-[150px]" title={req.requesterName}>
-                                                {req.requesterName}
-                                            </TableCell>
-                                            <TableCell className="text-[13px] py-2.5 text-muted-foreground">
-                                                {req.partnerCategory || "-"}
-                                            </TableCell>
-                                            <TableCell className="text-right py-2.5">
-                                                <StatusBadge status={req.status} />
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </div>
-                    )}
-                </div>
-            </CardContent>
-        </Card>
-    )
+				{/* Table Request */}
+				<div className="flex-1 overflow-x-auto px-4 pb-4">
+					{isLoading ? (
+						<div className="flex flex-col space-y-3 py-3">
+							{[1, 2, 3, 4, 5].map((i) => (
+								<Skeleton key={i} className="h-8 w-full" />
+							))}
+						</div>
+					) : displayedRequests.length === 0 ? (
+						<div className="flex flex-col items-center justify-center gap-1 py-10 text-center">
+							<p className="text-primary font-medium">Tidak Ada Data</p>
+							<p className="text-muted-foreground">Belum ada request terbaru</p>
+						</div>
+					) : (
+						<div className="rounded-md border overflow-hidden">
+							<Table>
+								<TableHeader className="bg-muted">
+									<TableRow className="hover:bg-transparent">
+										<TableHead className="w-[50px] text-xs h-9">No</TableHead>
+										<TableHead className="text-xs h-9">
+											No. Permintaan
+										</TableHead>
+										<TableHead className="text-xs h-9">Tanggal Masuk</TableHead>
+										<TableHead className="text-xs h-9">Mitra</TableHead>
+										<TableHead className="text-xs h-9">Kategori</TableHead>
+										<TableHead className="text-right text-xs h-9">
+											Status
+										</TableHead>
+									</TableRow>
+								</TableHeader>
+								<TableBody>
+									{displayedRequests.map((req, index) => (
+										<TableRow
+											key={req.id}
+											className="cursor-pointer group"
+											onClick={() =>
+												navigate(
+													`/request?tab=${getStatusLabel(req.status)}`,
+												)
+											}
+										>
+											<TableCell className="text-[13px] text-muted-foreground py-2.5">
+												{index + 1}
+											</TableCell>
+											<TableCell className="text-[13px] font-medium py-2.5 group-hover:text-primary transition-colors">
+												{req.requestNumber}
+											</TableCell>
+											<TableCell className="text-[13px] text-muted-foreground py-2.5 whitespace-nowrap">
+												{formatDate(req.requestedAt)}
+											</TableCell>
+											<TableCell
+												className="text-[13px] py-2.5 truncate max-w-[150px]"
+												title={req.requesterName}
+											>
+												{req.requesterName}
+											</TableCell>
+											<TableCell className="text-[13px] py-2.5 text-muted-foreground">
+												{req.partnerCategory || "-"}
+											</TableCell>
+											<TableCell className="text-right py-2.5">
+												<StatusBadge status={req.status} />
+											</TableCell>
+										</TableRow>
+									))}
+								</TableBody>
+							</Table>
+						</div>
+					)}
+				</div>
+			</CardContent>
+		</Card>
+	);
 }
 
-export const RequestSection = memo(RequestSectionBase)
+export const RequestSection = memo(RequestSectionBase);

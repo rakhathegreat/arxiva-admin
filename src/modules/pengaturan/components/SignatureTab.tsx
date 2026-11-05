@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { useAuth } from "@/modules/auth/auth";
 import { toast } from "sonner";
-import { Smartphone, Loader2, Eraser, CheckCircle2, ShieldCheck, Camera, QrCode, PenTool } from "lucide-react";
+import { Smartphone, Loader2, Eraser, CheckCircle2, Camera, QrCode, PenTool } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent } from "@/shared/ui/card";
 import { Badge } from "@/shared/ui/badge";
@@ -107,9 +107,8 @@ export function SignatureTab() {
           <CardContent className="flex min-h-[320px] flex-col items-center justify-center gap-6 p-6">
             {hasSignature && signatureUrl ? (
               <div className="flex w-full max-w-md flex-col items-center gap-4 text-center">
-                <Badge variant="success" size="sm">
-                  <ShieldCheck className="size-3.5" />
-                  <span>Tanda Tangan Tersimpan (Format Transparan)</span>
+                <Badge variant="glass" size="sm" tone="emerald">
+                  Tanda Tangan Tersimpan
                 </Badge>
 
                 {/* Transparent Checkerboard Pattern Frame */}

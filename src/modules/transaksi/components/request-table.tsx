@@ -3,47 +3,27 @@
 import * as React from "react";
 import type { ColumnDef, Table as TanstackTable } from "@tanstack/react-table";
 import { Badge } from "@/shared/ui/badge";
+import { toneFromLabel } from "@/shared/lib/tone";
 import { StatusBadge } from "@/shared/ui/status-badge";
-import {
-	IconPackage,
-	IconX,
-	IconBan,
-	IconFileText,
-	IconCircleCheck,
-} from "@tabler/icons-react";
+import { IconPackage, IconX, IconBan, IconFileText, IconCircleCheck } from "@tabler/icons-react";
 import { Button } from "@/shared/ui/button";
 import { toast } from "sonner";
 import { api, getBaseUrl } from "@/shared/lib/api";
 import { openExternal } from "@/shared/lib/open-external";
 import { useNavigate } from "react-router-dom";
 import type { DashboardRequest } from "@/modules/transaksi/types";
-import {
-	PackageCheck,
-	ArrowUpDown,
-	Edit,
-	Pencil,
-	Send,
-} from "lucide-react";
+import { PackageCheck, Edit, Pencil, Send } from "lucide-react";
 import { PengambilanQrModal } from "./PengambilanQrModal";
 import { RejectRequestModal } from "./RejectRequestModal";
 import { DigitalSignatureDialog } from "./DigitalSignatureDialog";
-import {
-	DataTable,
-	type DataTableEmptyState,
-} from "@/shared/ui/data-table/DataTable";
+import { RoundedDataTable } from "@/shared/ui/data-table/RoundedDataTable";
+import type { DataTableEmptyState } from "@/shared/ui/data-table/DataTable";
 
 /** Meta yang dapat diakses oleh kolom tabel. Bukan `any` — fully typed. */
 export type TableMeta = {
 	onRowClick?: (item: DashboardRequest) => void;
-	onStatusChange?: (
-		id: string,
-		status: string,
-		rejectionNotes?: string,
-	) => void;
-	onReject?: (
-		row: DashboardRequest,
-		status: "Ditolak" | "Dibatalkan",
-	) => void;
+	onStatusChange?: (id: string, status: string, rejectionNotes?: string) => void;
+	onReject?: (row: DashboardRequest, status: "Ditolak" | "Dibatalkan") => void;
 	onPengambilan?: (row: DashboardRequest) => void;
 	onApprove?: (row: DashboardRequest) => void;
 	onSign?: (row: DashboardRequest) => void;
@@ -54,11 +34,7 @@ export type DataTableProps = {
 	data: DashboardRequest[];
 	className?: string;
 	onRowClick?: (item: DashboardRequest) => void;
-	onStatusChange?: (
-		id: string,
-		status: string,
-		rejectionNotes?: string,
-	) => void;
+	onStatusChange?: (id: string, status: string, rejectionNotes?: string) => void;
 	hiddenColumns?: string[];
 	/** Kolom Jumlah: 'allocated' = jumlah alokasi, 'requested' = jumlah permintaan */
 	countMode?: "requested" | "allocated";
@@ -75,8 +51,7 @@ export type DataTableProps = {
 const normalizeKey = (value?: string | null) =>
 	(value || "").trim().toUpperCase().replace(/-/g, "_");
 
-const isRusak = (row: DashboardRequest) =>
-	normalizeKey(row.type) === "RETURN_RUSAK";
+const isRusak = (row: DashboardRequest) => normalizeKey(row.type) === "RETURN_RUSAK";
 
 // ─────────────────────────────────────────────
 // Constants
@@ -153,7 +128,8 @@ function BastActions({
 					size="sm"
 					className="h-8 text-xs font-medium cursor-pointer gap-1.5 text-muted-foreground"
 					title="Buka PDF BAST"
-					onClick={isSigned ? handleOpenSignedPDF : handleOpenDraftPDF}>
+					onClick={isSigned ? handleOpenSignedPDF : handleOpenDraftPDF}
+				>
 					<IconFileText size={16} />
 					{isSigned ? "Lihat BAST" : "BAST"}
 				</Button>
@@ -167,17 +143,15 @@ function BastActions({
 						onClick={(e) => {
 							e.stopPropagation();
 							meta?.onSign?.(row.original);
-						}}>
+						}}
+					>
 						<Pencil size={16} />
 						Tanda Tangan
 					</Button>
 				)}
 
 				{isSigned && !isSelesai && (
-					<Badge
-						variant="success"
-						size="sm">
-						<Pencil />
+					<Badge variant="glass" size="sm" tone="emerald">
 						Signed
 					</Badge>
 				)}
@@ -191,7 +165,8 @@ function BastActions({
 						onClick={(e) => {
 							e.stopPropagation();
 							meta?.onSelesai?.(row.original);
-						}}>
+						}}
+					>
 						<Send size={16} />
 						Selesaikan
 					</Button>
@@ -200,9 +175,7 @@ function BastActions({
 		);
 	}
 
-	const showBastActions = ["SIAP", "SELESAI", "DITERIMA"].includes(
-		status || "",
-	);
+	const showBastActions = ["SIAP", "SELESAI", "DITERIMA"].includes(status || "");
 
 	if (!showBastActions) return null;
 
@@ -216,7 +189,8 @@ function BastActions({
 					size="sm"
 					className="h-8 text-xs text-muted-foreground font-medium cursor-pointer gap-1.5"
 					title="Buka PDF BAST Draft (Tanpa TTD)"
-					onClick={handleOpenDraftPDF}>
+					onClick={handleOpenDraftPDF}
+				>
 					<IconFileText size={16} />
 					BAST Draft
 				</Button>
@@ -226,7 +200,8 @@ function BastActions({
 					size="sm"
 					className="h-8 text-xs font-medium cursor-pointer gap-1.5 text-muted-foreground"
 					title="Buka PDF BAST Final (Ber-TTD)"
-					onClick={handleOpenSignedPDF}>
+					onClick={handleOpenSignedPDF}
+				>
 					<IconFileText size={16} />
 					Lihat BAST
 				</Button>
@@ -242,7 +217,8 @@ function BastActions({
 						onClick={(e) => {
 							e.stopPropagation();
 							meta?.onPengambilan?.(row.original);
-						}}>
+						}}
+					>
 						<PackageCheck size={16} />
 						Pengambilan
 					</Button>
@@ -286,7 +262,8 @@ function ActionMenu({
 								e.stopPropagation();
 								meta?.onApprove?.(row.original);
 							}}
-							title="Setujui Pengajuan Material Rusak">
+							title="Setujui Pengajuan Material Rusak"
+						>
 							<IconCircleCheck size={18} />
 						</Button>
 					) : (
@@ -295,7 +272,8 @@ function ActionMenu({
 							size="icon-lg"
 							className="text-xs font-medium text-muted-foreground hover:text-foreground cursor-pointer"
 							onClick={handleNavigateToPrepare}
-							title="Siapkan Material">
+							title="Siapkan Material"
+						>
 							<IconPackage size={18} />
 						</Button>
 					)}
@@ -307,7 +285,8 @@ function ActionMenu({
 							e.stopPropagation();
 							meta?.onReject?.(row.original, "Ditolak");
 						}}
-						title="Tolak Request">
+						title="Tolak Request"
+					>
 						<IconX size={18} className="" />
 					</Button>
 				</>
@@ -320,7 +299,8 @@ function ActionMenu({
 						size="icon-lg"
 						className="text-xs font-medium text-muted-foreground hover:text-foreground cursor-pointer"
 						onClick={handleNavigateToPrepare}
-						title="Edit Alokasi">
+						title="Edit Alokasi"
+					>
 						<Edit strokeWidth={2} />
 					</Button>
 					<Button
@@ -330,7 +310,8 @@ function ActionMenu({
 						onClick={(e) => {
 							e.stopPropagation();
 							meta?.onReject?.(row.original, "Dibatalkan");
-						}}>
+						}}
+					>
 						<IconBan strokeWidth={2} />
 					</Button>
 				</div>
@@ -349,37 +330,22 @@ function createColumns(
 	return [
 		{
 			id: "nomor",
-			header: () => <div className="text-center">No.</div>,
-			cell: ({ row }) => (
-				<div className="text-muted-foreground whitespace-nowrap text-center px-4">
-					{row.index + 1}
-				</div>
-			),
+			header: () => <div className="">No.</div>,
+			cell: ({ row }) => <div className="text-muted-foreground">{row.index + 1}</div>,
 		},
 		{
 			accessorKey: "requestNumber",
 			header: "No. Permintaan",
-			cell: ({ row }) => (
-				<div className="font-medium text-primary uppercase">
-					{row.original.requestNumber}
-				</div>
-			),
+			cell: ({ row }) => <div className="text-primary">{row.original.requestNumber}</div>,
 		},
 		{
 			id: "jenis",
-			header: () => <div className="text-center">Jenis</div>,
+			header: () => <div className="">Jenis</div>,
 			cell: ({ row }) => {
 				const rusak = isRusak(row.original);
 				return (
 					<div className="flex items-center justify-center">
-						<Badge
-							variant="secondary"
-							size="sm"
-							className={
-								rusak
-									? "border-transparent bg-inverted text-inverted-foreground"
-									: "border-border bg-muted text-charcoal"
-							}>
+						<Badge variant="glass" size="sm" tone={rusak ? "orange" : "indigo"}>
 							{rusak ? "Material Rusak" : "Permintaan"}
 						</Badge>
 					</div>
@@ -388,17 +354,8 @@ function createColumns(
 		},
 		{
 			accessorKey: "requestedAt",
-			header: ({ column }) => {
-				return (
-					<Button
-						variant="ghost"
-						onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-						className="p-0 hover:bg-transparent font-medium">
-						Tanggal Permintaan
-						<ArrowUpDown className="ml-2 h-4 w-4" />
-					</Button>
-				);
-			},
+			header: "Tanggal Masuk",
+			enableSorting: false,
 			cell: ({ row }) => (
 				<div className="text-muted-foreground whitespace-nowrap">
 					{new Date(row.original.requestedAt).toLocaleDateString(
@@ -412,9 +369,7 @@ function createColumns(
 			accessorKey: "requesterName",
 			header: "Mitra",
 			cell: ({ row }) => (
-				<div className="text-foreground font-medium">
-					{row.original.requesterName}
-				</div>
+				<div className="text-foreground font-medium">{row.original.requesterName}</div>
 			),
 		},
 		{
@@ -422,9 +377,11 @@ function createColumns(
 			header: "Kategori",
 			cell: ({ row }) => (
 				<Badge
-					variant="secondary"
+					variant="quiet"
 					size="sm"
-					className="text-muted-foreground capitalize">
+					tone={toneFromLabel(row.original.partnerCategory)}
+					className="capitalize"
+				>
 					{row.original.partnerCategory?.toLocaleLowerCase()}
 				</Badge>
 			),
@@ -460,12 +417,12 @@ function createColumns(
 			id: "catatan",
 			header: "Catatan",
 			cell: ({ row }) => {
-				const note =
-					row.original.rejectionNotes || row.original.adminRemarks || "-";
+				const note = row.original.rejectionNotes || row.original.adminRemarks || "-";
 				return (
 					<div
 						className="text-muted-foreground max-w-60 truncate"
-						title={note === "-" ? undefined : note}>
+						title={note === "-" ? undefined : note}
+					>
 						{note}
 					</div>
 				);
@@ -505,9 +462,7 @@ export const RequestTable = React.memo(function RequestTable({
 		status: "Ditolak" | "Dibatalkan";
 	} | null>(null);
 
-	const [pengambilanTarget, setPengambilanTarget] = React.useState<
-		DashboardRequest | null
-	>(null);
+	const [pengambilanTarget, setPengambilanTarget] = React.useState<DashboardRequest | null>(null);
 
 	const [signDialog, setSignDialog] = React.useState<{
 		open: boolean;
@@ -541,8 +496,7 @@ export const RequestTable = React.memo(function RequestTable({
 			setSignDialog({ open: false, request: null });
 			onRefetch?.();
 		} catch (err: unknown) {
-			const msg =
-				err instanceof Error ? err.message : "Gagal menandatangani dokumen BAST";
+			const msg = err instanceof Error ? err.message : "Gagal menandatangani dokumen BAST";
 			toast.error(msg);
 		}
 	}, [signDialog.request, onRefetch]);
@@ -590,7 +544,7 @@ export const RequestTable = React.memo(function RequestTable({
 
 	return (
 		<>
-			<DataTable<DashboardRequest>
+			<RoundedDataTable<DashboardRequest>
 				data={data}
 				enableSelection
 				getRowId={(row) => row.id}
@@ -649,4 +603,4 @@ export const RequestTable = React.memo(function RequestTable({
 			/>
 		</>
 	);
-})
+});

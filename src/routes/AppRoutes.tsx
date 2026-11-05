@@ -22,8 +22,6 @@ const TransaksiPage = lazy(() => import("@/modules/transaksi/pages/page"));
 const PreparePage = lazy(() => import("@/modules/transaksi/pages/prepare-page"));
 const DataBarangPage = lazy(() => import("@/modules/data-barang/page"));
 const LokasiBarangPage = lazy(() => import("@/modules/lokasi-barang/page"));
-const StatistikTab = lazy(() => import("@/modules/lokasi-barang/tabs/StatistikTab"));
-const ManajemenLokasiTab = lazy(() => import("@/modules/lokasi-barang/tabs/ManajemenLokasiTab"));
 const ManajemenDataPage = lazy(() => import("@/modules/manajemen-data/page"));
 const KategoriBarangPage = lazy(() => import("@/modules/kategori-barang/page"));
 const TipeMaterialPage = lazy(() => import("@/modules/tipe-material/page"));
@@ -50,11 +48,12 @@ export function AppRoutes() {
 					<Route path="request" element={<TransaksiPage />} />
 					<Route path="request/:id/prepare" element={<PreparePage />} />
 					<Route path="data-barang" element={<DataBarangPage />} />
-					<Route path="lokasi-barang" element={<LokasiBarangPage />}>
-						<Route index element={<Navigate to="/lokasi-barang/statistik" replace />} />
-						<Route path="statistik" element={<StatistikTab />} />
-						<Route path="lokasi" element={<ManajemenLokasiTab />} />
-					</Route>
+					<Route path="lokasi-barang" element={<LokasiBarangPage />} />
+					{/* Tautan lama (/statistik, /lokasi) diarahkan ke halaman tunggal. */}
+					<Route
+						path="lokasi-barang/:legacy"
+						element={<Navigate to="/lokasi-barang" replace />}
+					/>
 					<Route path="manajemen-data" element={<ManajemenDataPage />}>
 						<Route index element={<Navigate to="/manajemen-data/kategori" replace />} />
 						<Route path="kategori" element={<KategoriBarangPage />} />

@@ -158,9 +158,16 @@ export function getNextLevelShelfName(locations: StorageLocation[], parentId?: s
 	return `Shelf ${nextNum}`;
 }
 
-/** Kelas warna progress bar sesuai tingkat pemakaian. */
+/**
+ * Kelas warna progress bar sesuai tingkat pemakaian.
+ *
+ * Semua warna memakai `foreground` dengan opasitas bertingkat, bukan warna
+ * brand statis, supaya bar tetap terbaca di tema gelap (charcoal `#4d4d4d`
+ * nyaris hilang di atas kartu `#171717`).
+ */
 export function getProgressStyles(used: number, cap: number, baseColor: string) {
-	if (cap <= 0) return { barClass: "bg-muted-foreground", textClass: "text-muted-foreground", label: "0%", pct: 0 };
+	if (cap <= 0)
+		return { barClass: "bg-muted-foreground", textClass: "text-muted-foreground", label: "0%", pct: 0 };
 	const pct = Math.min(100, Math.round((used / cap) * 100));
 	let barClass = baseColor;
 	let textClass = "text-muted-foreground";
@@ -168,8 +175,8 @@ export function getProgressStyles(used: number, cap: number, baseColor: string) 
 		barClass = "bg-foreground";
 		textClass = "text-foreground font-semibold";
 	} else if (pct > 70) {
-		barClass = "bg-charcoal";
-		textClass = "text-charcoal font-medium";
+		barClass = "bg-foreground/65";
+		textClass = "text-foreground/80 font-medium";
 	}
 	return { barClass, textClass, pct, label: `${pct}%` };
 }

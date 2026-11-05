@@ -2,7 +2,8 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/shared/ui/dialog";
 import { Button } from "@/shared/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/ui/tabs";
-import { PenTool, Smartphone, Loader2, Eraser, Sparkles, RefreshCw, Clock } from "lucide-react";
+import { PenTool, Smartphone, Loader2, Eraser, Sparkles, RefreshCw } from "lucide-react";
+import { Badge } from "@/shared/ui/badge";
 import SignatureCanvas from "react-signature-canvas";
 import { toast } from "sonner";
 import { api, getBaseUrl } from "@/shared/lib/api";
@@ -233,19 +234,18 @@ export function DigitalSignatureDialog({
                   <img src={qrCodeUrl} alt="QR Code" className="h-48 w-48 rounded-md" />
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-1.5 rounded-full border border-success/25 bg-success/10 px-3 py-1 font-mono text-[10px] font-medium tracking-[0.06em] text-success uppercase">
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success/50 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-success" />
+                <div className="flex items-center gap-2">
+                  <Badge variant="glass" size="md" tone="emerald">
+                    <span className="relative flex size-1.5 shrink-0">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--badge-tone)] opacity-60" />
+                      <span className="relative inline-flex size-1.5 rounded-full bg-[var(--badge-tone)]" />
                     </span>
-                    <span>Sesi Aktif</span>
-                  </div>
+                    Sesi Aktif
+                  </Badge>
 
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground font-mono bg-muted px-2.5 py-1 rounded-full border">
-                    <Clock className="size-3 text-muted-foreground" />
-                    <span>{formatTime(timeLeft)}</span>
-                  </div>
+                  <Badge variant="quiet" size="md" tone="zinc">
+                    {formatTime(timeLeft)}
+                  </Badge>
                 </div>
 
                 <p className="text-xs text-center text-muted-foreground leading-relaxed px-4">

@@ -29,6 +29,7 @@ import {
 import { CSS } from "@dnd-kit/utilities"
 import { Button } from "@/shared/ui/button"
 import { Badge } from "@/shared/ui/badge"
+import { toneFromLabel } from "@/shared/lib/tone"
 import { Input } from "@/shared/ui/input"
 import { Label } from "@/shared/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs"
@@ -150,7 +151,7 @@ function SortableRow({ item, onDelete }: SortableRowProps) {
         </div>
       </TableCell>
       <TableCell>
-        <Badge variant="secondary" size="sm">
+        <Badge variant="quiet" size="sm" tone={toneFromLabel(item.inventoryItem.model?.materialCategory?.nama)}>
           {item.inventoryItem.model?.materialCategory?.nama || "-"}
         </Badge>
       </TableCell>

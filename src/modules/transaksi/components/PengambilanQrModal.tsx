@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import QRCode from "qrcode";
 import { toast } from "sonner";
-import { Loader2, PackageCheck, RefreshCw, Clock, Building2, Layers } from "lucide-react";
+import { Loader2, PackageCheck, RefreshCw, Building2, Layers } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -185,7 +185,7 @@ export function PengambilanQrModal({
           <div className="w-full space-y-1.5 rounded-md border border-border bg-muted/40 p-3 text-left text-xs">
             <div className="flex items-center justify-between border-b border-border pb-1.5">
               <span className="font-mono text-[11px] font-medium">{request.requestNumber}</span>
-              <Badge variant="success" size="sm">
+              <Badge variant="glass" size="sm" tone="emerald">
                 {request.status}
               </Badge>
             </div>
@@ -217,18 +217,17 @@ export function PengambilanQrModal({
             </div>
 
             {/* Live Connection Status & Countdown Timer */}
-            <div className="flex items-center justify-center gap-3">
-              <div className="flex h-6 items-center gap-1.5 rounded-full border border-success/25 bg-success/10 px-3 font-mono text-[10px] font-medium tracking-[0.06em] text-success uppercase">
-                <span className="relative flex h-2 w-2 shrink-0">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success/50 opacity-75" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
+            <div className="flex items-center justify-center gap-2">
+              <Badge variant="glass" size="md" tone="emerald">
+                <span className="relative flex size-1.5 shrink-0">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--badge-tone)] opacity-60" />
+                  <span className="relative inline-flex size-1.5 rounded-full bg-[var(--badge-tone)]" />
                 </span>
-                <span className="leading-none">Sesi Aktif</span>
-              </div>
-              <div className="flex h-6 items-center gap-1 rounded-full border border-border bg-muted px-2.5 font-mono text-[10px] tabular-nums text-muted-foreground">
-                <Clock className="size-3 shrink-0 text-muted-foreground" />
-                <span className="leading-none">{formatTime(timeLeft)}</span>
-              </div>
+                Sesi Aktif
+              </Badge>
+              <Badge variant="quiet" size="md" tone="zinc">
+                {formatTime(timeLeft)}
+              </Badge>
             </div>
 
             <p className="max-w-xs text-xs leading-relaxed text-muted-foreground">

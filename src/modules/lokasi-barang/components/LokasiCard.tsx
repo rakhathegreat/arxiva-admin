@@ -1,8 +1,17 @@
-import { ArrowRightLeft, Edit, MoreVertical, Plus, Power, QrCode, Trash2 } from "lucide-react";
+import {
+	ArrowRightLeft,
+	ArrowUpRight,
+	Edit,
+	MoreVertical,
+	Plus,
+	Power,
+	QrCode,
+	Trash2,
+} from "lucide-react";
 
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
+import { Card } from "@/shared/ui/card";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -36,13 +45,13 @@ interface LokasiCardProps extends LokasiCardActions {
 	isDeleting: boolean;
 }
 
-const menuItem = "cursor-pointer text-xs";
-const menuItemDestructive = "cursor-pointer text-xs text-destructive focus:text-destructive";
+const MENU_ITEM = "cursor-pointer text-xs";
+const MENU_ITEM_DANGER = "cursor-pointer text-xs text-destructive focus:text-destructive";
 
-function BrandRuleBadge({ rule }: { rule?: string | null }) {
+function BrandRule({ rule }: { rule?: string | null }) {
 	if (!rule) return null;
 	return (
-		<span className="max-w-28 truncate rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+		<span className="max-w-32 truncate rounded-sm bg-muted px-1.5 py-px text-[10px] leading-4 text-muted-foreground">
 			{rule}
 		</span>
 	);
@@ -54,20 +63,20 @@ function CardMenu({ label, children }: { label: string; children: React.ReactNod
 			<DropdownMenuTrigger asChild>
 				<Button
 					variant="ghost"
-					size="icon"
+					size="icon-sm"
 					aria-label={label}
-					className="size-7 shrink-0 cursor-pointer rounded-full text-muted-foreground">
-					<MoreVertical className="size-4" />
+					className="shrink-0 cursor-pointer text-muted-foreground opacity-60 transition-opacity duration-150 group-hover/card:opacity-100 data-[state=open]:opacity-100 focus-visible:opacity-100">
+					<MoreVertical className="size-3.5" />
 				</Button>
 			</DropdownMenuTrigger>
-			<DropdownMenuContent align="end" className="w-48 text-xs">
+			<DropdownMenuContent align="end" className="w-48">
 				{children}
 			</DropdownMenuContent>
 		</DropdownMenu>
 	);
 }
 
-/** Kartu satu lokasi penyimpanan. Rak menampilkan daftar level; Kardus/Pallet ringkas dengan bar kapasitas. */
+/** Kartu lokasi penyimpanan. Rak menampilkan level; kardus/pallet ringkas. */
 export function LokasiCard({
 	loc,
 	isToggling,
@@ -81,79 +90,76 @@ export function LokasiCard({
 	onViewItems,
 	onMigrate,
 }: LokasiCardProps) {
-	const config = getTypeConfig(loc.type);
-	const Icon = config.icon;
+	const { icon: Icon, editMode } = getTypeConfig(loc.type);
+	const inactive = !loc.isActive;
 
 	const header = (
-		<div className="flex items-start justify-between gap-2">
-			<div className="flex min-w-0 items-center gap-2.5">
-				<span className={cn("shrink-0 rounded-md p-1.5", config.chipBg)}>
-					<Icon className={cn("size-4", config.text)} />
-				</span>
-				<div className="min-w-0">
-					<CardTitle className="flex items-center gap-1.5 text-sm font-medium text-foreground">
-						<span className="truncate">{loc.name}</span>
-						{!loc.isActive && (
-<Badge variant="secondary" className="text-muted-foreground">
+		<div className="flex items-start gap-2.5 p-3.5">
+			<Icon aria-hidden className="mt-px size-3.5 shrink-0 text-muted-foreground" />
+			<div className="min-w-0 flex-1">
+				<div className="flex min-w-0 items-center gap-1.5">
+					<span className="truncate text-sm font-medium text-foreground">{loc.name}</span>
+					{inactive && (
+						<Badge variant="quiet" className="h-4 shrink-0 px-1.5 text-[10px]">
 							Nonaktif
 						</Badge>
-						)}
-					</CardTitle>
-					<CardDescription className="mt-0.5 text-[11px]">
-						{loc.type === "Rak"
-							? `${loc.levels?.length || 0} level penyimpanan`
-							: `Penyimpanan ${loc.type.toLowerCase()}`}
-					</CardDescription>
+					)}
 				</div>
+				<p className="mt-0.5 text-[11px] text-muted-foreground">
+					{loc.type === "Rak"
+						? `${loc.levels?.length ?? 0} level penyimpanan`
+						: `Penyimpanan ${loc.type.toLowerCase()}`}
+				</p>
 			</div>
 			<CardMenu label={`Menu ${loc.name}`}>
 				<DropdownMenuGroup>
 					{loc.type === "Rak" ? (
 						<>
 							<DropdownMenuItem
-								className={menuItem}
+								className={MENU_ITEM}
 								onClick={() => onOpenSheet("edit-rak", { parentId: loc.id })}>
-								<Edit /> Edit Nama Rak
+								<Edit /> Edit nama rak
 							</DropdownMenuItem>
 							<DropdownMenuItem
-								className={menuItem}
+								className={MENU_ITEM}
 								onClick={() => onOpenSheet("add-level", { parentId: loc.id })}>
-								<Plus /> Tambah Level
+								<Plus /> Tambah level
 							</DropdownMenuItem>
 						</>
 					) : (
 						<>
 							<DropdownMenuItem
-								className={menuItem}
-								onClick={() =>
-									onOpenSheet(loc.type === "Kardus" ? "edit-kardus" : "edit-pallet", { parentId: loc.id })
-								}>
-								<Edit /> Edit {loc.type}
+								className={MENU_ITEM}
+								onClick={() => onOpenSheet(editMode, { parentId: loc.id })}>
+								<Edit /> Edit {loc.type.toLowerCase()}
 							</DropdownMenuItem>
 							<DropdownMenuItem
-								className={menuItem}
+								className={MENU_ITEM}
 								onClick={() => onDownloadQr(loc.sheetUrl, loc.name)}>
-								<QrCode /> Simpan QR Code
+								<QrCode /> Unduh QR code
 							</DropdownMenuItem>
-													<DropdownMenuItem
-								className={menuItem}
+							<DropdownMenuItem
+								className={MENU_ITEM}
 								disabled={!loc.usedCapacity}
 								onClick={() => onMigrate(loc.id, loc.name, loc.usedCapacity || 0)}>
-								<ArrowRightLeft /> Pindahkan Isi
+								<ArrowRightLeft /> Pindahkan isi
 							</DropdownMenuItem>
 						</>
 					)}
 				</DropdownMenuGroup>
 				<DropdownMenuSeparator />
 				<DropdownMenuGroup>
-					<DropdownMenuItem disabled={isToggling} className={menuItem} onClick={() => onToggleLocation(loc.id)}>
-						<Power /> {loc.isActive ? `Nonaktifkan ${loc.type}` : `Aktifkan ${loc.type}`}
+					<DropdownMenuItem
+						disabled={isToggling}
+						className={MENU_ITEM}
+						onClick={() => onToggleLocation(loc.id)}>
+						<Power /> {loc.isActive ? `Nonaktifkan ${loc.type.toLowerCase()}` : `Aktifkan ${loc.type.toLowerCase()}`}
 					</DropdownMenuItem>
 					<DropdownMenuItem
 						disabled={isDeleting}
-						className={menuItemDestructive}
+						className={MENU_ITEM_DANGER}
 						onClick={() => onDeleteLocation(loc.id, loc.name)}>
-						<Trash2 /> Hapus {loc.type}
+						<Trash2 /> Hapus {loc.type.toLowerCase()}
 					</DropdownMenuItem>
 				</DropdownMenuGroup>
 			</CardMenu>
@@ -161,69 +167,77 @@ export function LokasiCard({
 	);
 
 	function LevelRow({ lvl }: { lvl: Level }) {
+		const query = `${loc.name} - ${lvl.name}`;
+		const levelInactive = inactive || !lvl.isActive;
+
 		return (
-			<li
-				role="button"
-				tabIndex={0}
-				onClick={() => onViewItems(`${loc.name} - ${lvl.name}`)}
-				onKeyDown={(e) => e.key === "Enter" && onViewItems(`${loc.name} - ${lvl.name}`)}
-				className={cn(
-					"group/level cursor-pointer px-4 py-3 transition-colors duration-200 hover:bg-muted/40 focus-visible:bg-muted/40 focus-visible:outline-none",
-					!(loc.isActive && lvl.isActive) && "opacity-55",
-				)}>
-				<div className="mb-2 flex items-center justify-between gap-2">
-					<span className="text-xs font-medium text-foreground">{lvl.name}</span>
-					<div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
-						<BrandRuleBadge rule={lvl.brandRule} />
-						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<Button
-									variant="ghost"
-									size="icon"
-									aria-label={`Menu ${lvl.name}`}
-									className="size-6 cursor-pointer rounded-full text-muted-foreground opacity-60 transition-opacity duration-200 group-hover/level:opacity-100 focus-visible:opacity-100">
-									<MoreVertical className="size-3" />
-								</Button>
-							</DropdownMenuTrigger>
-							<DropdownMenuContent align="end" className="w-48 text-xs">
-								<DropdownMenuGroup>
-									<DropdownMenuItem
-										className={menuItem}
-										onClick={() => onOpenSheet("edit-level", { parentId: loc.id, levelId: lvl.id })}>
-										<Edit /> Edit Level
-									</DropdownMenuItem>
-									<DropdownMenuItem
-										className={menuItem}
-										onClick={() => onDownloadQr(lvl.sheetUrl, `${loc.name} - ${lvl.name}`)}>
-										<QrCode /> Simpan QR Code
-									</DropdownMenuItem>
-									<DropdownMenuItem
-										className={menuItem}
-										disabled={!lvl.usedCapacity}
-										onClick={() => onMigrate(lvl.id, `${loc.name} - ${lvl.name}`, lvl.usedCapacity)}>
-										<ArrowRightLeft /> Pindahkan Isi
-									</DropdownMenuItem>
-								</DropdownMenuGroup>
-								<DropdownMenuSeparator />
-								<DropdownMenuGroup>
-									<DropdownMenuItem
-										disabled={!loc.isActive || isToggling}
-										className={menuItem}
-										onClick={() => onToggleLevel(loc.id, lvl.id)}>
-										<Power /> {lvl.isActive ? "Nonaktifkan Level" : "Aktifkan Level"}
-									</DropdownMenuItem>
-									<DropdownMenuItem
-										disabled={isDeleting}
-										className={menuItemDestructive}
-										onClick={() => onDeleteLevel(lvl.id, lvl.name)}>
-										<Trash2 /> Hapus Level
-									</DropdownMenuItem>
-								</DropdownMenuGroup>
-							</DropdownMenuContent>
-						</DropdownMenu>
-					</div>
-				</div>
-				<CapacityBar used={lvl.usedCapacity} capacity={lvl.capacity} baseBarClass={config.bar} />
+			<li className="flex items-center gap-1.5 pr-2 pl-3.5 transition-colors duration-150 hover:bg-muted/40">
+				<button
+					type="button"
+					onClick={() => onViewItems(query)}
+					className="min-w-0 flex-1 cursor-pointer py-2.5 pr-1 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground/30">
+					<span className="flex min-w-0 items-center gap-1.5">
+						<span
+							className={cn(
+								"truncate text-xs",
+								levelInactive ? "text-muted-foreground" : "text-foreground",
+							)}>
+							{lvl.name}
+						</span>
+						<BrandRule rule={lvl.brandRule} />
+						{levelInactive && (
+							<span className="shrink-0 text-[10px] text-muted-foreground">nonaktif</span>
+						)}
+					</span>
+					<CapacityBar used={lvl.usedCapacity} capacity={lvl.capacity} className="mt-1.5" />
+				</button>
+
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild>
+						<Button
+							variant="ghost"
+							size="icon-xs"
+							aria-label={`Menu ${lvl.name}`}
+							className="shrink-0 cursor-pointer text-muted-foreground opacity-0 transition-opacity duration-150 group-hover/card:opacity-100 data-[state=open]:opacity-100 focus-visible:opacity-100">
+							<MoreVertical className="size-3" />
+						</Button>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent align="end" className="w-48">
+						<DropdownMenuGroup>
+							<DropdownMenuItem
+								className={MENU_ITEM}
+								onClick={() => onOpenSheet("edit-level", { parentId: loc.id, levelId: lvl.id })}>
+								<Edit /> Edit level
+							</DropdownMenuItem>
+							<DropdownMenuItem
+								className={MENU_ITEM}
+								onClick={() => onDownloadQr(lvl.sheetUrl, query)}>
+								<QrCode /> Unduh QR code
+							</DropdownMenuItem>
+							<DropdownMenuItem
+								className={MENU_ITEM}
+								disabled={!lvl.usedCapacity}
+								onClick={() => onMigrate(lvl.id, query, lvl.usedCapacity)}>
+								<ArrowRightLeft /> Pindahkan isi
+							</DropdownMenuItem>
+						</DropdownMenuGroup>
+						<DropdownMenuSeparator />
+						<DropdownMenuGroup>
+							<DropdownMenuItem
+								disabled={inactive || isToggling}
+								className={MENU_ITEM}
+								onClick={() => onToggleLevel(loc.id, lvl.id)}>
+								<Power /> {lvl.isActive ? "Nonaktifkan level" : "Aktifkan level"}
+							</DropdownMenuItem>
+							<DropdownMenuItem
+								disabled={isDeleting}
+								className={MENU_ITEM_DANGER}
+								onClick={() => onDeleteLevel(lvl.id, lvl.name)}>
+								<Trash2 /> Hapus level
+							</DropdownMenuItem>
+						</DropdownMenuGroup>
+					</DropdownMenuContent>
+				</DropdownMenu>
 			</li>
 		);
 	}
@@ -231,55 +245,49 @@ export function LokasiCard({
 	if (loc.type !== "Rak") {
 		return (
 			<Card
-				role="button"
-				tabIndex={0}
-				onClick={() => onViewItems(loc.name)}
-				onKeyDown={(e) => e.key === "Enter" && onViewItems(loc.name)}
 				className={cn(
-					"cursor-pointer transition-colors duration-200 hover:border-muted-foreground/40",
-					!loc.isActive && "opacity-60 saturate-50",
+					"group/card gap-0 py-0",
+					inactive && "bg-muted/40",
 				)}>
-				<CardContent className="flex h-full flex-col gap-4 p-4">
-					{header}
-					<div className="mt-auto space-y-2">
-						<div className="flex justify-end">
-							<BrandRuleBadge rule={loc.brandRule} />
-						</div>
-						<CapacityBar
-							used={loc.usedCapacity || 0}
-							capacity={loc.capacity || 0}
-							baseBarClass={config.bar}
-						/>
+				{header}
+				<div className="flex flex-col gap-2.5 border-t border-border px-3.5 py-3">
+					<CapacityBar used={loc.usedCapacity || 0} capacity={loc.capacity || 0} />
+					<div className="flex items-center justify-between gap-2">
+						<BrandRule rule={loc.brandRule} />
+						<Button
+							variant="ghost"
+							size="xs"
+							onClick={() => onViewItems(loc.name)}
+							className="-mr-1.5 h-6 cursor-pointer gap-1 px-1.5 text-[11px] font-normal text-muted-foreground hover:text-foreground">
+							Lihat material <ArrowUpRight className="size-3" />
+						</Button>
 					</div>
-				</CardContent>
+				</div>
 			</Card>
 		);
 	}
 
 	return (
-		<Card
-			className={cn(
-				"transition-colors duration-200 hover:border-muted-foreground/40",
-				!loc.isActive && "opacity-60 saturate-50",
-			)}>
-			<CardHeader className="border-b px-4 py-3.5">{header}</CardHeader>
-			<CardContent className="p-0">
-				<ul className="divide-y divide-border">
-					{loc.levels?.map((lvl) => <LevelRow key={lvl.id} lvl={lvl} />)}
+		<Card className={cn("group/card gap-0 py-0", inactive && "bg-muted/40")}>
+			{header}
+			{loc.levels && loc.levels.length > 0 ? (
+				<ul className="divide-y divide-border border-t border-border">
+					{loc.levels.map((lvl) => (
+						<LevelRow key={lvl.id} lvl={lvl} />
+					))}
 				</ul>
-				{(!loc.levels || loc.levels.length === 0) && (
-					<div className="m-3 flex flex-col items-center gap-1.5 rounded-md border border-dashed py-8 text-center">
-						<p className="text-xs text-muted-foreground">Rak ini belum memiliki level.</p>
-						<Button
-							variant="link"
-							size="sm"
-							className="h-auto cursor-pointer p-0 text-xs"
-							onClick={() => onOpenSheet("add-level", { parentId: loc.id })}>
-							Tambah level sekarang
-						</Button>
-					</div>
-				)}
-			</CardContent>
+			) : (
+				<div className="flex flex-col items-start gap-1 border-t border-border px-3.5 py-3">
+					<p className="text-[11px] text-muted-foreground">Rak ini belum memiliki level.</p>
+					<Button
+						variant="ghost"
+						size="xs"
+						onClick={() => onOpenSheet("add-level", { parentId: loc.id })}
+						className="-ml-1.5 h-6 cursor-pointer gap-1 px-1.5 text-[11px] font-normal">
+						<Plus className="size-3" /> Tambah level
+					</Button>
+				</div>
+			)}
 		</Card>
 	);
 }

@@ -2,6 +2,7 @@ import { memo } from "react";
 import { TableRow, TableCell } from "@/shared/ui/table";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { Badge } from "@/shared/ui/badge";
+import { toneFromLabel } from "@/shared/lib/tone";
 import { Button } from "@/shared/ui/button";
 import { Lock, X } from "lucide-react";
 import type { BarangMasukItem } from "@/modules/transaksi/types";
@@ -61,7 +62,7 @@ export const ScannedTableRow = memo(({
             </SelectContent>
           </Select>
         ) : (
-          <Badge variant="secondary" size="sm"><Lock className="size-3 text-muted-foreground" />{item.kategori}</Badge>
+          <Badge variant="quiet" size="sm" tone={toneFromLabel(item.kategori)}>{item.kategori}</Badge>
         )}
       </TableCell>
       <TableCell>

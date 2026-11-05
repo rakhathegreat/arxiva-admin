@@ -1,20 +1,12 @@
 "use client";
 
 import * as React from "react";
-import {
-	Plus,
-	Search,
-	Edit,
-	Trash2,
-	Boxes,
-	Loader2,
-	Download,
-	ExternalLink,
-} from "lucide-react";
+import { Plus, Search, Edit, Trash2, Boxes, Loader2, Download, ExternalLink } from "lucide-react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
+import { Kbd } from "@/shared/ui/kbd";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -25,18 +17,15 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@/shared/ui/alert-dialog";
-import { Combobox } from "@/shared/ui/combobox";
 import { StatusBadge } from "@/shared/ui/status-badge";
 import { Badge } from "@/shared/ui/badge";
-import {
-	DataTable,
-	createRowActionsColumn,
-} from "@/shared/ui/data-table/DataTable";
+import { DataTable, createRowActionsColumn } from "@/shared/ui/data-table/DataTable";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 
 import { BarangDetailDrawer } from "@/modules/data-barang/components/BarangDetailDrawer";
 import { BarangFormModal } from "@/modules/data-barang/components/BarangFormModal";
 import { ExportExcelModal } from "@/modules/data-barang/components/ExportExcelModal";
+import { BarangFilterPopover } from "@/modules/data-barang/components/BarangFilterPopover";
 import { formatItemLocation } from "@/shared/lib/status-helper";
 
 import { useDataBarang } from "./hooks/useDataBarang";
@@ -96,15 +85,47 @@ export default function DataBarangPage() {
 	} = useDataBarang();
 	const navigate = useNavigate();
 
+	const searchInputRef = React.useRef<HTMLInputElement>(null);
+
+	// Keyboard shortcuts: "/" to focus search, "Escape" to clear search
+	React.useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+			const target = e.target as HTMLElement | null;
+			const isInputActive =
+				target?.tagName === "INPUT" ||
+				target?.tagName === "TEXTAREA" ||
+				target?.tagName === "SELECT" ||
+				target?.isContentEditable;
+
+			if (e.key === "/" && !isInputActive) {
+				e.preventDefault();
+				searchInputRef.current?.focus();
+				return;
+			}
+
+			if (e.key === "Escape" && !isInputActive) {
+				if (searchTerm !== "") {
+					e.preventDefault();
+					setSearchTerm("");
+				}
+			}
+		};
+
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
+	}, [searchTerm, setSearchTerm]);
+
 	const columns = React.useMemo<ColumnDef<BarangUnit, any>[]>(
 		() => [
 			{
 				id: "nomor",
-				header: () => <span>No.</span>,
+				header: "No.",
 				cell: ({ row }) => (
-					<span className="text-muted-foreground">
+					<div className="text-muted-foreground">
 						{(currentPage - 1) * pageSize + row.index + 1}
-					</span>
+					</div>
 				),
 			},
 			{
@@ -115,24 +136,19 @@ export default function DataBarangPage() {
 				accessorKey: "merek",
 				header: "Merek",
 				cell: ({ row }) => (
-					<span className="text-muted-foreground">
-						{row.original.merek || "-"}
-					</span>
+					<span className="text-muted-foreground">{row.original.merek || "-"}</span>
 				),
 			},
 			{
 				accessorKey: "kategori",
 				header: "Kategori",
 				cell: ({ row }) => (
-					<span className="text-muted-foreground">
-						{row.original.kategori || "-"}
-					</span>
+					<span className="text-muted-foreground">{row.original.kategori || "-"}</span>
 				),
 			},
 			{
 				accessorKey: "kondisi",
-				header: () => <span className="flex justify-center">Kondisi</span>,
-				meta: { className: "text-center" },
+				header: "Kondisi",
 				cell: ({ row }) => (
 					<div className="flex justify-center">
 						<StatusBadge size="sm" status={row.original.kondisi || "Baru"} />
@@ -141,8 +157,7 @@ export default function DataBarangPage() {
 			},
 			{
 				accessorKey: "status",
-				header: () => <span className="flex justify-center">Status</span>,
-				meta: { className: "text-center" },
+				header: "Status",
 				cell: ({ row }) => (
 					<div className="flex justify-center">
 						<StatusBadge size="sm" status={row.original.status} />
@@ -151,16 +166,10 @@ export default function DataBarangPage() {
 			},
 			{
 				accessorKey: "lokasiPenyimpanan",
-				header: () => (
-					<span className="flex justify-center">Lokasi Penyimpanan</span>
-				),
-				meta: { className: "text-center" },
+				header: "Lokasi Penyimpanan",
 				cell: ({ row }) => (
 					<span>
-						{formatItemLocation(
-							row.original.lokasiPenyimpanan,
-							row.original.mitra,
-						)}
+						{formatItemLocation(row.original.lokasiPenyimpanan, row.original.mitra)}
 					</span>
 				),
 			},
@@ -168,19 +177,17 @@ export default function DataBarangPage() {
 				? [
 						{
 							id: "lastReconDate",
-							header: () => (
-								<span className="flex justify-center">Rekon Terakhir</span>
-							),
-							meta: { className: "text-center" },
+							header: () => <span className="flex">Rekon Terakhir</span>,
 							cell: ({ row }: { row: any }) => {
 								const item: BarangUnit = row.original;
 								const telat = isReconTelat(item);
 								return (
-									<div className="flex flex-col items-center gap-1">
+									<div className="flex flex-col gap-1">
 										<span
 											className={
 												item.lastReconDate ? "" : "text-muted-foreground"
-											}>
+											}
+										>
 											{item.lastReconDate
 												? formatTanggal(item.lastReconDate)
 												: "-"}
@@ -190,15 +197,14 @@ export default function DataBarangPage() {
 												href={item.lastPhotoUrl}
 												target="_blank"
 												rel="noopener noreferrer"
-												className="inline-flex items-center gap-1 text-[11px] text-primary underline underline-offset-4 hover:text-primary/80">
+												className="inline-flex items-center gap-1 text-[11px] text-primary underline underline-offset-4 hover:text-primary/80"
+											>
 												<ExternalLink className="size-3" />
 												Lihat Foto
 											</a>
 										) : null}
 										{telat && (
-											<Badge
-												variant="destructive"
-												size="sm">
+											<Badge variant="glass" tone="orange" size="sm">
 												Telat
 											</Badge>
 										)}
@@ -227,81 +233,89 @@ export default function DataBarangPage() {
 
 	return (
 		<div className="mx-auto flex h-full w-full flex-col gap-5 p-4 md:p-6">
-			<div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-				<div className="flex flex-col gap-3 sm:flex-row sm:items-center w-full lg:w-auto">
-					<div className="relative w-full sm:w-72">
-						<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-						<Input
-							type="search"
-							placeholder="Cari SN atau material..."
-							className="w-full pl-9 bg-card border-border placeholder:text-sm"
-							value={searchTerm}
-							onChange={(e) => setSearchTerm(e.target.value)}
-						/>
-					</div>
-					<div className="flex flex-wrap gap-2">
-						<Combobox
-							value={filterCategory === "all" ? "" : filterCategory}
-							onChange={(val) => setFilterCategory(val || "all")}
-							onSearch={searchCategories}
-							placeholder="Kategori"
-							searchPlaceholder="Cari kategori..."
-							emptyText="Tidak ditemukan"
-							recentKey="kategori"
-							className="w-32"
-						/>
-						<Combobox
-							value={filterBrand === "all" ? "" : filterBrand}
-							onChange={(val) => setFilterBrand(val || "all")}
-							onSearch={searchBrands}
-							placeholder="Merek"
-							searchPlaceholder="Cari merek..."
-							emptyText="Tidak ditemukan"
-							recentKey="merek"
-							className="w-32"
-						/>
-						<Combobox
-							value={filterLocation === "all" ? "" : filterLocation}
-							onChange={(val) => setFilterLocation(val || "all")}
-							onSearch={searchLocations}
-							placeholder="Shelf"
-							searchPlaceholder="Cari shelf..."
-							emptyText="Tidak ditemukan"
-							recentKey="lokasi"
-							className="w-40"
-						/>
-					</div>
-				</div>
-				<div className="flex justify-end gap-2 w-full lg:w-auto">
-					{
-						<>
-							<Button
-								variant="outline"
-								className="h-8 gap-2 rounded-md bg-card border-border text-foreground cursor-pointer"
-								onClick={() => setIsExportModalOpen(true)}>
-								<Download className="w-4 h-4" /> Export Excel
-							</Button>
-							<Button
-								className="h-8 gap-2 rounded-md cursor-pointer"
-								onClick={() => navigate("/barang-masuk")}>
-								<Plus className="w-4 h-4" /> Tambah Material
-							</Button>
-						</>
-					}
-				</div>
-			</div>
+			<header className="flex justify-between items-center gap-1">
+				<h1 className="page-title">Data Material</h1>
+				<Button
+					size="sm"
+					className="h-7 gap-1.5 text-xs rounded-md cursor-pointer transition-transform active:scale-98"
+					onClick={() => navigate("/barang-masuk")}
+				>
+					<Plus className="size-3.5" /> Tambah Material
+				</Button>
+			</header>
 
-			<Tabs
-				value={filterStatus}
-				onValueChange={setFilterStatus}
-				className="w-full">
-				<TabsList variant="line" className="w-fit">
-					{STATUS_OPTIONS.map((status) => (
-						<TabsTrigger key={status} value={status}>
-							{status}
-						</TabsTrigger>
-					))}
-				</TabsList>
+			<Tabs value={filterStatus} onValueChange={setFilterStatus} className="w-full">
+				<div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+					<div className="flex items-center w-full overflow-x-auto pb-1">
+						<TabsList className="inline-flex h-auto w-full lg:w-auto bg-accent/50 rounded-md">
+							{STATUS_OPTIONS.map((status) => (
+								<TabsTrigger
+									key={status}
+									value={status}
+									className="cursor-pointer rounded-md dark:data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-sm data-[state=active]:shadow-accent/50 flex items-center gap-2 px-3 py-1.5 text-sm transition-colors hover:text-accent-foreground"
+								>
+									{status}
+								</TabsTrigger>
+							))}
+						</TabsList>
+					</div>
+
+					<div className="flex flex-row items-center gap-2 w-full lg:w-auto">
+						<div className="relative flex-1 lg:w-64">
+							<Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+							<Input
+								ref={searchInputRef}
+								type="search"
+								placeholder="Cari SN atau material..."
+								className="pl-9 pr-16 text-sm"
+								value={searchTerm}
+								onChange={(e) => setSearchTerm(e.target.value)}
+								onKeyDown={(e) => {
+									if (e.key === "Escape") {
+										e.preventDefault();
+										setSearchTerm("");
+										searchInputRef.current?.blur();
+									}
+								}}
+							/>
+							<div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
+								{searchTerm !== "" ? (
+									<Kbd
+										className="font-sans cursor-pointer select-none pointer-events-auto"
+										onClick={() => {
+											setSearchTerm("");
+											searchInputRef.current?.blur();
+										}}
+										title="Tekan Esc untuk hapus pencarian"
+									>
+										Esc
+									</Kbd>
+								) : (
+									<Kbd title="Tekan / untuk mencari">/</Kbd>
+								)}
+							</div>
+						</div>
+
+						<BarangFilterPopover
+							filterCategory={filterCategory}
+							onCategoryChange={setFilterCategory}
+							filterBrand={filterBrand}
+							onBrandChange={setFilterBrand}
+							filterLocation={filterLocation}
+							onLocationChange={setFilterLocation}
+						/>
+
+						<Button
+							variant="outline"
+							size="sm"
+							className="h-8 gap-1.5 text-xs rounded-md cursor-pointer hover:text-foreground"
+							onClick={() => setIsExportModalOpen(true)}
+						>
+							<Download className="size-3.5" />
+							<span>Export</span>
+						</Button>
+					</div>
+				</div>
 			</Tabs>
 
 			<DataTable<BarangUnit>
@@ -328,9 +342,7 @@ export default function DataBarangPage() {
 				className="flex flex-col gap-4 w-full min-h-0"
 				emptyState={{
 					icon: Boxes,
-					title: isFiltered
-						? "Tidak ada unit yang cocok"
-						: "Belum ada data material",
+					title: "Belum ada data material",
 					description: isFiltered
 						? undefined
 						: "Daftarkan unit material pertama ke dalam inventaris.",
@@ -338,7 +350,8 @@ export default function DataBarangPage() {
 						<Button
 							size="sm"
 							className="gap-1.5 cursor-pointer"
-							onClick={() => navigate("/barang-masuk")}>
+							onClick={() => navigate("/barang-masuk")}
+						>
 							<Plus className="size-4" /> Tambah Material
 						</Button>
 					) : undefined,
@@ -380,7 +393,8 @@ export default function DataBarangPage() {
 
 			<AlertDialog
 				open={!!deleteDialog}
-				onOpenChange={(open) => !open && setDeleteDialog(null)}>
+				onOpenChange={(open) => !open && setDeleteDialog(null)}
+			>
 				<AlertDialogContent className="max-w-md">
 					<AlertDialogHeader>
 						<AlertDialogTitle className="text-base text-destructive">
@@ -389,8 +403,8 @@ export default function DataBarangPage() {
 								: `Hapus ${deleteDialog?.ids.length} Unit Terpilih?`}
 						</AlertDialogTitle>
 						<AlertDialogDescription className="text-sm">
-							Tindakan ini tidak dapat dibatalkan. Unit material yang dihapus
-							akan terhapus dari sistem inventaris.
+							Tindakan ini tidak dapat dibatalkan. Unit material yang dihapus akan
+							terhapus dari sistem inventaris.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter className="pt-2">
@@ -398,7 +412,8 @@ export default function DataBarangPage() {
 						<AlertDialogAction
 							onClick={confirmDelete}
 							disabled={isDeleting}
-							variant="destructive">
+							variant="destructive"
+						>
 							{isDeleting ? (
 								<Loader2 className="size-3.5 animate-spin" />
 							) : (

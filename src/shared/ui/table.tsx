@@ -18,12 +18,7 @@ Table.displayName = "Table";
 
 const TableHeader = React.forwardRef<HTMLTableSectionElement, React.ComponentProps<"thead">>(
 	({ className, ...props }, ref) => (
-		<thead
-			ref={ref}
-			data-slot="table-header"
-			className={cn("[&_tr]:border-b [&_tr]:border-border", className)}
-			{...props}
-		/>
+		<thead ref={ref} data-slot="table-header" className={cn("", className)} {...props} />
 	),
 );
 TableHeader.displayName = "TableHeader";
@@ -61,7 +56,7 @@ const TableRow = React.forwardRef<HTMLTableRowElement, React.ComponentProps<"tr"
 			ref={ref}
 			data-slot="table-row"
 			className={cn(
-				"border-b border-border transition-colors hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted",
+				"transition-colors hover:bg-muted/50 has-aria-expanded:bg-transparent data-[state=selected]:bg-transparent",
 				className,
 			)}
 			{...props}
@@ -76,7 +71,7 @@ const TableHead = React.forwardRef<HTMLTableCellElement, React.ComponentProps<"t
 			ref={ref}
 			data-slot="table-head"
 			className={cn(
-				"h-9 bg-muted/40 px-3 text-left align-middle text-[10px] font-medium whitespace-nowrap text-muted-foreground has-[[role=checkbox]]:pr-0",
+				"px-3 h-9 border border-border dark:border-muted text-left align-middle text-xs font-normal whitespace-nowrap text-muted-foreground has-[[role=checkbox]]:pr-0",
 				className,
 			)}
 			{...props}
@@ -91,7 +86,7 @@ const TableCell = React.forwardRef<HTMLTableCellElement, React.ComponentProps<"t
 			ref={ref}
 			data-slot="table-cell"
 			className={cn(
-				"px-3 py-2.5 align-middle whitespace-nowrap has-[[role=checkbox]]:pr-0",
+				"px-3 first:px-0 py-1 align-middle whitespace-nowrap has-[[role=checkbox]]:pr-0",
 				className,
 			)}
 			{...props}

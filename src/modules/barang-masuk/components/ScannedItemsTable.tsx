@@ -45,7 +45,7 @@ export function ScannedItemsTable({
         <div className="space-y-1">
           <CardTitle>Daftar Material Masuk</CardTitle>
         </div>
-        <Badge variant="secondary">
+        <Badge variant="quiet">
           {barangMasuk.length} Item
         </Badge>
       </CardHeader>

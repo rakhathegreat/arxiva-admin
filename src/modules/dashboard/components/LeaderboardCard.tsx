@@ -1,5 +1,5 @@
 import { memo, useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Badge } from "@/shared/ui/badge";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/ui/tooltip";
@@ -102,7 +102,7 @@ function LeaderboardCardBase({
 						<CardTitle className="text-base font-medium">Top Velocity Mitra</CardTitle>
 					</div>
 				</div>
-				<CardDescription>Mitra dengan perputaran BAST tercepat</CardDescription>
+				{/* <CardDescription>Mitra dengan perputaran BAST tercepat</CardDescription> */}
 			</CardHeader>
 			<CardContent className="flex-1 overflow-y-auto">
 				{topPerformers.length === 0 ? (
@@ -154,7 +154,7 @@ function LeaderboardCardBase({
 												</div>
 											</div>
 											<div className="flex flex-col items-end gap-0.5">
-												<Badge variant="success" size="sm">
+												<Badge variant="glass" size="sm" tone="emerald">
 													{mitra.averageLifespanDays} Hari
 												</Badge>
 												<Tooltip>

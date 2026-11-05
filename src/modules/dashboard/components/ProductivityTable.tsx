@@ -1,7 +1,7 @@
 import { useState, useMemo, memo } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
-import { Badge } from "@/shared/ui/badge";
+import { Badge, type BadgeTone } from "@/shared/ui/badge";
 import { Input } from "@/shared/ui/input";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/ui/tabs";
@@ -25,18 +25,18 @@ type SortField =
 	| "status";
 type SortOrder = "asc" | "desc";
 
-const getBadgeStyle = (status: MitraPerformanceMetrics["status"]) => {
+const getBadgeTone = (status: MitraPerformanceMetrics["status"]): BadgeTone => {
 	switch (status) {
 		case "Fast":
-			return "border-success/25 bg-success/10 text-success";
+			return "emerald";
 		case "Steady":
-			return "border-border bg-muted text-charcoal";
+			return "sky";
 		case "Slow":
-			return "border-border bg-foreground/5 text-foreground";
+			return "amber";
 		case "Idle":
-			return "border-transparent bg-inverted text-inverted-foreground";
+			return "zinc";
 		default:
-			return "border-border bg-muted text-stone";
+			return "slate";
 	}
 };
 
@@ -139,7 +139,7 @@ function ProductivityTableBase({
 						<CardTitle className="text-base font-medium">
 							Analisis Produktivitas Mitra
 						</CardTitle>
-						<CardDescription>Rincian kecepatan perputaran per mitra</CardDescription>
+						{/* <CardDescription>Rincian kecepatan perputaran per mitra</CardDescription> */}
 					</div>
 				</div>
 
@@ -178,13 +178,13 @@ function ProductivityTableBase({
 					{/* Filter Status Tabs */}
 					<div className="overflow-x-auto max-w-full pb-0.5 sm:pb-0">
 						<Tabs value={statusFilter} onValueChange={setStatusFilter}>
-							<TabsList className="h-8 p-0.5 bg-muted/60 border border-border/80 rounded-md gap-0.5">
+							<TabsList className="h-8 p-0.5 bg-muted/60 border border-border/80 rounded-md gap-0.5 dark:bg-card">
 								{filterTabs.map((tab) => {
 									return (
 										<TabsTrigger
 											key={tab.value}
 											value={tab.value}
-											className="text-xs px-2.5 h-7 rounded-sm data-active:bg-card data-active:text-foreground data-active:shadow-xs data-active:border-border data-active:rounded-md cursor-pointer transition-colors gap-1.5"
+											className="text-xs px-2.5 h-7 rounded-sm data-active:bg-card dark:data-active:bg-muted data-active:shadow-xs data-active:border-border data-active:rounded-md cursor-pointer gap-1.5"
 										>
 											<span>{tab.label}</span>
 										</TabsTrigger>
@@ -197,43 +197,37 @@ function ProductivityTableBase({
 			</CardHeader>
 
 			<CardContent>
-				<div className="rounded-md border overflow-x-auto">
+				<div className="overflow-x-auto">
 					<Table>
 						<TableHeader>
-							<TableRow className="bg-muted/30">
+							<TableRow className="">
 								<TableHead
 									onClick={() => handleSort("name")}
-									className="cursor-pointer select-none hover:text-foreground font-medium text-xs"
+									className="cursor-pointer select-none font-medium text-xs border-l-0"
 								>
 									Nama Mitra {renderSortIcon("name")}
 								</TableHead>
 								<TableHead
-									onClick={() => handleSort("requestCount")}
-									className="text-center cursor-pointer select-none hover:text-foreground font-medium text-xs"
-								>
-									Total BAST {renderSortIcon("requestCount")}
-								</TableHead>
-								<TableHead
 									onClick={() => handleSort("totalItems")}
-									className="text-center cursor-pointer select-none hover:text-foreground font-medium text-xs"
+									className="cursor-pointer select-none hover:text-foreground font-medium text-xs"
 								>
 									Total Item {renderSortIcon("totalItems")}
 								</TableHead>
 								<TableHead
 									onClick={() => handleSort("averageLifespanDays")}
-									className="text-center cursor-pointer select-none hover:text-foreground font-medium text-xs"
+									className="cursor-pointer select-none hover:text-foreground font-medium text-xs"
 								>
 									Avg. Lifespan {renderSortIcon("averageLifespanDays")}
 								</TableHead>
 								<TableHead
 									onClick={() => handleSort("daysSinceLastRequest")}
-									className="text-center cursor-pointer select-none hover:text-foreground font-medium text-xs"
+									className="cursor-pointer select-none hover:text-foreground font-medium text-xs"
 								>
 									Days Idle {renderSortIcon("daysSinceLastRequest")}
 								</TableHead>
 								<TableHead
 									onClick={() => handleSort("status")}
-									className="text-center cursor-pointer select-none hover:text-foreground font-medium text-xs"
+									className="cursor-pointer select-none hover:text-foreground font-medium text-xs border-r-0"
 								>
 									Status {renderSortIcon("status")}
 								</TableHead>
@@ -244,9 +238,12 @@ function ProductivityTableBase({
 								<TableRow>
 									<TableCell
 										colSpan={6}
-										className="text-center text-muted-foreground h-24 text-sm"
+										className="text-center text-primary h-24 text-sm"
 									>
-										Tidak ada data mitra yang sesuai filter.
+										<span className="font-medium">Tidak ada data</span>
+										<span className="block text-muted-foreground">
+											Coba ubah kata kunci pencarian atau filter status
+										</span>
 									</TableCell>
 								</TableRow>
 							) : (
@@ -336,9 +333,9 @@ function ProductivityTableBase({
 
 											<TableCell className="text-center">
 												<Badge
-													variant="secondary"
+													variant="glass"
 													size="sm"
-													className={getBadgeStyle(mitra.status)}
+													tone={getBadgeTone(mitra.status)}
 												>
 													{mitra.status}
 												</Badge>

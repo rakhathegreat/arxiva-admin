@@ -7,6 +7,8 @@ import {
 import { Card, CardContent } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
+import { Tabs, TabsList, TabsTrigger } from "@/shared/ui/tabs";
+import { Kbd } from "@/shared/ui/kbd";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/shared/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetFooter } from "@/shared/ui/sheet";
 import { Label } from "@/shared/ui/label";
@@ -58,19 +60,52 @@ export default function MerekBarangPage() {
 		setFormErrors,
 	} = useMerekBarang();
 
+	const searchInputRef = React.useRef<HTMLInputElement>(null);
+
+	// Keyboard shortcuts: "/" to focus search, "Escape" to clear search
+	React.useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+			const target = e.target as HTMLElement | null;
+			const isInputActive =
+				target?.tagName === "INPUT" ||
+				target?.tagName === "TEXTAREA" ||
+				target?.tagName === "SELECT" ||
+				target?.isContentEditable;
+
+			if (e.key === "/" && !isInputActive) {
+				e.preventDefault();
+				searchInputRef.current?.focus();
+				return;
+			}
+
+			if (e.key === "Escape" && !isInputActive) {
+				if (searchQuery !== "") {
+					e.preventDefault();
+					setSearchQuery("");
+				}
+			}
+		};
+
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
+	}, [searchQuery, setSearchQuery]);
+
 	const columns = React.useMemo<ColumnDef<Merek, any>[]>(
 		() => [
 			{
 				id: "nomor",
-				header: "No.",
+				header: () => <div className="text-center">No.</div>,
 				cell: ({ row, table }) => {
 					const { pageIndex, pageSize } = table.getState().pagination;
 					return (
-						<span className="text-muted-foreground">
+						<div className="text-center text-muted-foreground">
 							{pageIndex * pageSize + row.index + 1}
-						</span>
+						</div>
 					);
 				},
+				meta: { className: "w-12 px-1 text-center" },
 			},
 			{
 				accessorKey: "nama",
@@ -117,34 +152,61 @@ export default function MerekBarangPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex flex-1 items-center gap-4 w-full sm:w-auto">
           <div className="relative w-full sm:w-72">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
+              ref={searchInputRef}
               type="search"
               placeholder="Cari merek atau identifier..."
-              className="w-full pl-9 bg-card border-border placeholder:text-sm"
+              className="w-full pl-9 pr-12 bg-card border-border placeholder:text-sm"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") {
+                  e.preventDefault();
+                  setSearchQuery("");
+                  searchInputRef.current?.blur();
+                }
+              }}
             />
+            <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
+              {searchQuery !== "" ? (
+                <Kbd
+                  className="font-sans cursor-pointer select-none pointer-events-auto"
+                  onClick={() => {
+                    setSearchQuery("");
+                    searchInputRef.current?.blur();
+                  }}
+                  title="Tekan Esc untuk hapus pencarian"
+                >
+                  Esc
+                </Kbd>
+              ) : (
+                <Kbd title="Tekan / untuk mencari">/</Kbd>
+              )}
+            </div>
           </div>
         </div>
-        <div className="flex flex-1 justify-end gap-2 w-full sm:w-auto">
-          <div className="flex flex-wrap gap-1">
-            <Button
-              variant={viewMode === "grid" ? "secondary" : "ghost"}
-              size="sm"
-              onClick={() => handleViewModeChange("grid")}
-              className={`h-8 px-2.5 rounded-md active:translate-y-0 active:not-aria-[haspopup]:translate-y-0 transition-none ${viewMode === "grid" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}
+        <div className="flex flex-1 justify-end items-center gap-2 w-full sm:w-auto">
+          <div className="hidden sm:flex">
+            <Tabs
+              value={viewMode}
+              onValueChange={(val) => handleViewModeChange(val as "grid" | "table")}
             >
-              <LayoutGrid className="size-3.5" />
-            </Button>
-            <Button
-              variant={viewMode === "table" ? "secondary" : "ghost"}
-              size="sm"
-              onClick={() => handleViewModeChange("table")}
-              className={`h-8 px-2.5 rounded-md active:translate-y-0 active:not-aria-[haspopup]:translate-y-0 transition-none ${viewMode === "table" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}
-            >
-              <List className="size-3.5" />
-            </Button>
+              <TabsList className="inline-flex h-8 bg-accent/50 rounded-md p-0.5">
+                <TabsTrigger
+                  value="grid"
+                  className="cursor-pointer rounded-md dark:data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-sm data-[state=active]:shadow-accent/50 h-7 px-2.5 text-xs transition-colors hover:text-accent-foreground"
+                >
+                  <LayoutGrid className="size-3.5" />
+                </TabsTrigger>
+                <TabsTrigger
+                  value="table"
+                  className="cursor-pointer rounded-md dark:data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-sm data-[state=active]:shadow-accent/50 h-7 px-2.5 text-xs transition-colors hover:text-accent-foreground"
+                >
+                  <List className="size-3.5" />
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
           </div>
           <Button className="h-8 gap-2 rounded-md" onClick={() => handleOpenSheet()}>
             <Plus className="w-4 h-4" /> Tambah Merek
@@ -153,25 +215,29 @@ export default function MerekBarangPage() {
       </div>
 
       {/* Mobile view toggle */}
-      <div className="sm:hidden flex items-center p-1 rounded-md border border-border bg-muted/50 w-full">
-        <Button
-          variant={viewMode === "grid" ? "secondary" : "ghost"}
-          size="sm"
-          onClick={() => handleViewModeChange("grid")}
-          className={`flex-1 h-8 active:translate-y-0 active:not-aria-[haspopup]:translate-y-0 transition-none ${viewMode === "grid" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}
+      <div className="sm:hidden w-full">
+        <Tabs
+          value={viewMode}
+          onValueChange={(val) => handleViewModeChange(val as "grid" | "table")}
+          className="w-full"
         >
-          <LayoutGrid className="size-4 mr-1.5" />
-          Grid
-        </Button>
-        <Button
-          variant={viewMode === "table" ? "secondary" : "ghost"}
-          size="sm"
-          onClick={() => handleViewModeChange("table")}
-          className={`flex-1 h-8 active:translate-y-0 active:not-aria-[haspopup]:translate-y-0 transition-none ${viewMode === "table" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}
-        >
-          <List className="size-4 mr-1.5" />
-          Table
-        </Button>
+          <TabsList className="grid grid-cols-2 w-full h-9 bg-accent/50 rounded-md p-0.5">
+            <TabsTrigger
+              value="grid"
+              className="cursor-pointer rounded-md dark:data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-sm data-[state=active]:shadow-accent/50 h-7.5 text-xs transition-colors hover:text-accent-foreground gap-1.5"
+            >
+              <LayoutGrid className="size-3.5" />
+              Grid
+            </TabsTrigger>
+            <TabsTrigger
+              value="table"
+              className="cursor-pointer rounded-md dark:data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-sm data-[state=active]:shadow-accent/50 h-7.5 text-xs transition-colors hover:text-accent-foreground gap-1.5"
+            >
+              <List className="size-3.5" />
+              Table
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
 
       {viewMode === "grid" ? (
@@ -215,11 +281,24 @@ export default function MerekBarangPage() {
 
           {filteredBrands.length === 0 && (
             <div className="col-span-full py-16 flex flex-col items-center justify-center text-center">
-              <div className="w-16 h-16 bg-card rounded-full flex items-center justify-center mb-4">
-                <Search className="w-8 h-8 text-muted-foreground" />
+              <div className="size-10 bg-muted rounded-md flex items-center justify-center mb-4">
+                <Search className="size-5 text-muted-foreground" />
               </div>
-              <h3 className="mb-1 text-[15px] font-medium text-foreground">Merek Tidak Ditemukan</h3>
-              <p className="text-sm text-muted-foreground max-w-sm">Coba gunakan kata kunci lain atau tambahkan merek baru.</p>
+              <h3 className="mb-1 text-sm font-medium text-foreground">
+                {searchQuery ? "Merek Tidak Ditemukan" : "Belum Ada Data"}
+              </h3>
+              <p className="text-sm text-muted-foreground max-w-md">
+                {searchQuery
+                  ? "Coba gunakan kata kunci lain atau tambahkan merek baru."
+                  : "Daftarkan merek material pertama untuk mulai mengelompokkan unit."}
+              </p>
+              <Button
+                size="sm"
+                className="mt-4 gap-1.5 cursor-pointer rounded-md"
+                onClick={() => handleOpenSheet()}
+              >
+                <Plus className="size-4" /> Tambah Merek
+              </Button>
             </div>
           )}
         </div>
@@ -245,12 +324,12 @@ export default function MerekBarangPage() {
           columns={columns}
           emptyState={{
             icon: Search,
-            title: searchQuery ? "Merek Tidak Ditemukan" : "Belum Ada Merek",
+            title: searchQuery ? "Merek Tidak Ditemukan" : "Belum Ada Data",
             description: searchQuery
               ? "Coba gunakan kata kunci lain atau tambahkan merek baru."
               : "Daftarkan merek material pertama untuk mulai mengelompokkan unit.",
             action: (
-              <Button size="sm" className="gap-1.5 cursor-pointer" onClick={() => handleOpenSheet()}>
+              <Button size="sm" className="gap-1.5 cursor-pointer rounded-md" onClick={() => handleOpenSheet()}>
                 <Plus className="size-4" /> Tambah Merek
               </Button>
             ),

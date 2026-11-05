@@ -1,8 +1,10 @@
+import type { BadgeTone } from "@/shared/ui/badge";
+
 export const ROLE_META = {
-	ADMIN: { label: "Admin", badge: "border-border bg-foreground/5 text-foreground" },
-	INTERNAL: { label: "Internal", badge: "border-border bg-muted text-charcoal" },
-	MITRA: { label: "Mitra", badge: "border-success/25 bg-success/10 text-success" },
-} as const;
+	ADMIN: { label: "Admin", tone: "indigo" },
+	INTERNAL: { label: "Internal", tone: "sky" },
+	MITRA: { label: "Mitra", tone: "zinc" },
+} as const satisfies Record<string, { label: string; tone: BadgeTone }>;
 
 export type BackendRole = keyof typeof ROLE_META;
 

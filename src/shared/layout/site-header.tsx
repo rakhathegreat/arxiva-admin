@@ -8,32 +8,13 @@ import {
 } from "@/shared/ui/breadcrumb";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Notifications } from "@/modules/dashboard/components/notifications";
-import { Sun, Moon, LogOut, Bell, User } from "lucide-react";
+import { Sun, Moon, Bell, User } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { useTheme } from "@/shared/theme/themeProvider";
 import { useAuth } from "@/modules/auth/auth";
 import { useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage, getAvatarGradient } from "@/shared/ui/avatar";
 import { cn } from "@/shared/lib/utils";
-
-const AVATAR_GRADIENTS = [
-	"bg-linear-to-tr from-violet-600 via-indigo-500 to-cyan-400",
-	"bg-linear-to-tr from-amber-500 via-rose-500 to-purple-600",
-	"bg-linear-to-tr from-emerald-400 via-teal-500 to-indigo-500",
-	"bg-linear-to-tr from-blue-500 via-indigo-500 to-violet-600",
-	"bg-linear-to-tr from-fuchsia-500 via-pink-500 to-rose-500",
-	"bg-linear-to-tr from-sky-400 via-blue-500 to-indigo-600",
-];
-
-function getAvatarGradient(name?: string): string {
-	if (!name) return AVATAR_GRADIENTS[0];
-	let hash = 0;
-	for (let i = 0; i < name.length; i++) {
-		hash = name.charCodeAt(i) + ((hash << 5) - hash);
-	}
-	const index = Math.abs(hash) % AVATAR_GRADIENTS.length;
-	return AVATAR_GRADIENTS[index];
-}
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -97,9 +78,9 @@ export function SiteHeader({ className }: { className?: string }) {
 	} else if (path === "/data-transaksi") {
 		parent = "Inventori";
 		pageName = "Data Transaksi";
-	} else if (path === "/lokasi-barang" || path.startsWith("/lokasi-barang/")) {
+	} else if (path === "/lokasi-barang") {
 		parent = "Inventori";
-		pageName = path.endsWith("/statistik") ? "Statistik Gudang" : "Lokasi Material";
+		pageName = "Lokasi Material";
 	} else if (path === "/manajemen-data/kategori") {
 		parent = "Manajemen Data";
 		pageName = "Kategori Material";
@@ -190,31 +171,32 @@ export function SiteHeader({ className }: { className?: string }) {
 						</DropdownMenuTrigger>
 						<DropdownMenuContent className="w-56" align="end" forceMount>
 							<DropdownMenuLabel className="py-2 font-normal">
-								<div className="flex flex-col gap-1">
-									<p className="text-sm font-medium leading-none">
+								<div className="flex flex-col gap-0.5">
+									<p className="text-sm font-medium text-primary">
 										{user?.displayName || "User"}
 									</p>
-									<p className="meta-label">Akun</p>
+									<p className="text-xs text-muted-foreground">
+										user@example.com
+									</p>
 								</div>
 							</DropdownMenuLabel>
 							<DropdownMenuSeparator />
 							<DropdownMenuGroup>
 								<DropdownMenuItem className="cursor-pointer">
-									<User className="mr-2 h-4 w-4" />
+									<User className="mr-1 h-4 w-4" />
 									<span>Profil</span>
 								</DropdownMenuItem>
 								<DropdownMenuItem className="cursor-pointer">
-									<Bell className="mr-2 h-4 w-4" />
+									<Bell className="mr-1 h-4 w-4" />
 									<span>Notifikasi</span>
 								</DropdownMenuItem>
 							</DropdownMenuGroup>
 							<DropdownMenuItem
 								variant="destructive"
-								className="cursor-pointer"
+								className="cursor-pointer mt-3 justify-center text-destructive bg-destructive/10 focus:text-destructive hover:bg-destructive/20 focus:bg-destructive/20 transition-colors"
 								onClick={() => setIsLogoutDialogOpen(true)}
 							>
-								<LogOut className="mr-2 h-4 w-4" />
-								<span>Keluar</span>
+								<span>Logout</span>
 							</DropdownMenuItem>
 						</DropdownMenuContent>
 					</DropdownMenu>
@@ -232,12 +214,11 @@ export function SiteHeader({ className }: { className?: string }) {
 					<AlertDialogFooter>
 						<AlertDialogCancel className="cursor-pointer">Batal</AlertDialogCancel>
 						<AlertDialogAction
-							variant="destructive"
-							className="cursor-pointer"
+							variant="ghost"
+							className="cursor-pointer bg-destructive/10 text-destructive hover:bg-destructive/20 hover:text-destructive focus:bg-destructive/20 focus:text-destructive transition-colors"
 							onClick={handleLogout}
 						>
-							<LogOut className="mr-1 h-4 w-4" />
-							Ya, Keluar
+							Logout
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>

@@ -4,9 +4,9 @@ import * as React from "react";
 import { Bell, Check, Info, AlertTriangle, XCircle } from "lucide-react";
 
 import { Button } from "@/shared/ui/button";
+import { Badge } from "@/shared/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover";
 import { ScrollArea } from "@/shared/ui/scroll-area";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 import { cn } from "@/shared/lib/utils";
 import { getBaseUrl, getHeaders } from "@/shared/lib/api";
 
@@ -122,153 +122,83 @@ export function Notifications() {
 				</Button>
 			</PopoverTrigger>
 			<PopoverContent className="w-[320px] p-0 md:w-95" align="end" sideOffset={8}>
-				<div className="flex items-center justify-between border-b px-4 py-3 gap-3">
+				<div className="flex items-center justify-between px-4 py-3 gap-3">
 					<div className="flex items-center gap-2">
-						<p className="font-medium text-sm">Notifikasi</p>
+						<p className="font-normal text-sm">Notifikasi</p>
 						{unreadCount > 0 && (
-							<span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+							<Badge variant="quiet" size="sm" tone="indigo">
 								{unreadCount} baru
-							</span>
+							</Badge>
 						)}
 					</div>
 					<Button
 						variant="ghost"
 						size="sm"
 						onClick={markAllAsRead}
-						className="text-xs font-medium text-muted-foreground hover:text-foreground"
+						className="text-xs text-muted-foreground hover:text-foreground rounded-md cursor-pointer transition-colors"
 					>
-						Tandai semua sudah dibaca
+						Tandai sudah dibaca
 					</Button>
 				</div>
-				<Tabs defaultValue="all">
-					<TabsList variant="line" className="w-full border-b border-border px-2">
-						<TabsTrigger value="all">Semua</TabsTrigger>
-						<TabsTrigger value="unread">Belum dibaca</TabsTrigger>
-					</TabsList>
-					<TabsContent value="all">
-						<ScrollArea className="h-100">
-							<div className="flex flex-col gap-1 p-2">
-								{items.length === 0 ? (
-									<div className="text-center p-4 text-sm text-muted-foreground">
-										Tidak ada notifikasi
-									</div>
-								) : (
-									items.map((notification) => {
-										const {
-											icon: Icon,
-											color,
-											bg,
-										} = getIconProps(notification.type);
-										return (
-											<button
-												key={notification.id}
-												onClick={() => markAsRead(notification.id)}
+				<ScrollArea className="h-100">
+					{items.length === 0 ? (
+						<div className="flex h-90 flex-col items-center justify-center text-center text-sm gap-3 p-4">
+							<div className="flex items-center justify-center rounded-md bg-muted size-8">
+								<Bell className="size-4 text-muted-foreground fill-muted-foreground" />
+							</div>
+							<p className="text-center text-sm text-muted-foreground">
+								You're all caught up!
+							</p>
+						</div>
+					) : (
+						<div className="flex flex-col gap-1 p-2">
+							{items.map((notification) => {
+								const { icon: Icon, color, bg } = getIconProps(notification.type);
+								return (
+									<button
+										key={notification.id}
+										onClick={() => markAsRead(notification.id)}
+										className={cn(
+											"flex items-start gap-3 rounded-md p-3 text-left transition-all hover:bg-accent focus:bg-accent outline-none cursor-pointer",
+											!notification.isRead && "bg-muted/40",
+										)}
+									>
+										<div
+											className={cn(
+												"flex size-9 shrink-0 items-center justify-center rounded-full mt-0.5",
+												bg,
+												color,
+											)}
+										>
+											<Icon className="size-4.5" />
+										</div>
+										<div className="flex flex-col gap-1 flex-1 min-w-0">
+											<p
 												className={cn(
-													"flex items-start gap-3 rounded-md p-3 text-left transition-all hover:bg-accent focus:bg-accent outline-none",
-													!notification.isRead && "bg-muted/40",
+													"text-sm leading-tight text-foreground",
+													!notification.isRead
+														? "font-medium"
+														: "font-normal",
 												)}
 											>
-												<div
-													className={cn(
-														"flex size-9 shrink-0 items-center justify-center rounded-full mt-0.5",
-														bg,
-														color,
-													)}
-												>
-													<Icon className="size-4.5" />
-												</div>
-												<div className="flex flex-col gap-1">
-													<p
-														className={cn(
-															"text-sm leading-tight text-foreground",
-															!notification.isRead
-																? "font-medium"
-																: "font-medium",
-														)}
-													>
-														{notification.title}
-													</p>
-													<p className="line-clamp-2 text-xs text-muted-foreground leading-relaxed">
-														{notification.message}
-													</p>
-													<p className="text-[10px] font-medium text-muted-foreground/60 mt-1">
-														{formatTime(notification.date)}
-													</p>
-												</div>
-												{!notification.isRead && (
-													<div className="ml-auto mt-1 flex size-2 shrink-0 rounded-full bg-primary" />
-												)}
-											</button>
-										);
-									})
-								)}
-							</div>
-						</ScrollArea>
-					</TabsContent>
-					<TabsContent value="unread">
-						<ScrollArea className="h-100">
-							<div className="flex flex-col gap-1 p-2">
-								{items.filter((notification) => !notification.isRead).length ===
-								0 ? (
-									<div className="text-center p-4 text-sm text-muted-foreground">
-										Tidak ada notifikasi baru
-									</div>
-								) : (
-									items
-										.filter((notification) => !notification.isRead)
-										.map((notification) => {
-											const {
-												icon: Icon,
-												color,
-												bg,
-											} = getIconProps(notification.type);
-											return (
-												<button
-													key={notification.id}
-													onClick={() => markAsRead(notification.id)}
-													className={cn(
-														"flex items-start gap-3 rounded-md p-3 text-left transition-all hover:bg-accent focus:bg-accent outline-none",
-														!notification.isRead && "bg-muted/40",
-													)}
-												>
-													<div
-														className={cn(
-															"flex size-9 shrink-0 items-center justify-center rounded-full mt-0.5",
-															bg,
-															color,
-														)}
-													>
-														<Icon className="size-4.5" />
-													</div>
-													<div className="flex flex-col gap-1">
-														<p
-															className={cn(
-																"text-sm leading-tight text-foreground",
-																!notification.isRead
-																	? "font-medium"
-																	: "font-medium",
-															)}
-														>
-															{notification.title}
-														</p>
-														<p className="line-clamp-2 text-xs text-muted-foreground leading-relaxed">
-															{notification.message}
-														</p>
-														<p className="text-[10px] font-medium text-muted-foreground/60 mt-1">
-															{formatTime(notification.date)}
-														</p>
-													</div>
-													{!notification.isRead && (
-														<div className="ml-auto mt-1 flex size-2 shrink-0 rounded-full bg-primary" />
-													)}
-												</button>
-											);
-										})
-								)}
-							</div>
-						</ScrollArea>
-					</TabsContent>
-				</Tabs>
+												{notification.title}
+											</p>
+											<p className="line-clamp-2 text-xs text-muted-foreground leading-relaxed">
+												{notification.message}
+											</p>
+											<p className="text-[10px] font-medium text-muted-foreground/60 mt-1">
+												{formatTime(notification.date)}
+											</p>
+										</div>
+										{!notification.isRead && (
+											<div className="ml-auto mt-1 flex size-2 shrink-0 rounded-full bg-primary" />
+										)}
+									</button>
+								);
+							})}
+						</div>
+					)}
+				</ScrollArea>
 			</PopoverContent>
 		</Popover>
 	);

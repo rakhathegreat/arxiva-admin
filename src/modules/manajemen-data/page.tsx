@@ -16,7 +16,6 @@ export default function ManajemenDataPage() {
 			<div className="flex flex-1 flex-col overflow-hidden lg:flex-row">
 				<aside className="shrink-0 overflow-x-auto border-b border-border lg:w-60 lg:overflow-y-auto lg:border-r lg:border-b-0">
 					<div className="flex flex-col gap-1 border-b border-border px-4 py-4">
-						<p className="eyebrow text-stone">Referensi</p>
 						<h1 className="text-[15px] font-medium tracking-tight">Manajemen Data</h1>
 						<p className="text-xs text-muted-foreground">
 							Referensi material untuk modul inventori
@@ -24,9 +23,7 @@ export default function ManajemenDataPage() {
 					</div>
 
 					<div className="flex flex-col gap-1 p-3">
-						<h2 className="meta-label px-2 pb-1">
-							Registri Material
-						</h2>
+						<h2 className="meta-label px-2 pb-1">Registri Material</h2>
 						<nav className="flex flex-wrap gap-1 lg:flex-col lg:flex-nowrap">
 							{TABS.map((tab) => {
 								const Icon = tab.icon;
@@ -36,12 +33,13 @@ export default function ManajemenDataPage() {
 										to={`/manajemen-data/${tab.value}`}
 										className={({ isActive }) =>
 											cn(
-												"flex h-8 min-w-40 cursor-pointer items-center justify-start gap-2 rounded-md px-2 text-[13px] transition-colors lg:min-w-0",
+												"flex h-8 min-w-40 cursor-pointer items-center justify-start gap-2 rounded-md px-2 text-sm transition-colors lg:min-w-0",
 												isActive
-													? "bg-foreground/[0.06] font-medium text-foreground"
+													? "bg-foreground/6 text-foreground"
 													: "font-normal text-muted-foreground hover:bg-muted/60 hover:text-foreground",
 											)
-										}>
+										}
+									>
 										<Icon className="size-4 shrink-0 opacity-70" />
 										<span className="truncate">{tab.label}</span>
 									</NavLink>
@@ -53,7 +51,8 @@ export default function ManajemenDataPage() {
 
 				<div
 					key={location.pathname}
-					className="w-full flex-1 overflow-y-auto animate-in fade-in slide-in-from-bottom-1 duration-200 motion-reduce:animate-none">
+					className="w-full flex-1 overflow-y-auto animate-in fade-in slide-in-from-bottom-1 duration-200 motion-reduce:animate-none"
+				>
 					<Outlet />
 				</div>
 			</div>

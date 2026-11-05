@@ -100,6 +100,25 @@ function AvatarGroupCount({
   )
 }
 
+const AVATAR_GRADIENTS = [
+	"bg-linear-to-tr from-violet-600 via-indigo-500 to-cyan-400",
+	"bg-linear-to-tr from-amber-500 via-rose-500 to-purple-600",
+	"bg-linear-to-tr from-emerald-400 via-teal-500 to-indigo-500",
+	"bg-linear-to-tr from-blue-500 via-indigo-500 to-violet-600",
+	"bg-linear-to-tr from-fuchsia-500 via-pink-500 to-rose-500",
+	"bg-linear-to-tr from-sky-400 via-blue-500 to-indigo-600",
+];
+
+function getAvatarGradient(name?: string): string {
+	if (!name) return AVATAR_GRADIENTS[0];
+	let hash = 0;
+	for (let i = 0; i < name.length; i++) {
+		hash = name.charCodeAt(i) + ((hash << 5) - hash);
+	}
+	const index = Math.abs(hash) % AVATAR_GRADIENTS.length;
+	return AVATAR_GRADIENTS[index];
+}
+
 export {
   Avatar,
   AvatarImage,
@@ -107,4 +126,6 @@ export {
   AvatarGroup,
   AvatarGroupCount,
   AvatarBadge,
+  AVATAR_GRADIENTS,
+  getAvatarGradient,
 }

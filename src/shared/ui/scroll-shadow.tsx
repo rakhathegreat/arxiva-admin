@@ -6,10 +6,7 @@ interface ScrollShadowWrapperProps {
 	className?: string;
 }
 
-export function ScrollShadowWrapper({
-	children,
-	className,
-}: ScrollShadowWrapperProps) {
+export function ScrollShadowWrapper({ children, className }: ScrollShadowWrapperProps) {
 	const [canScrollTop, setCanScrollTop] = React.useState(false);
 	const [canScrollBottom, setCanScrollBottom] = React.useState(false);
 	const [headerHeight, setHeaderHeight] = React.useState(40);
@@ -41,15 +38,12 @@ export function ScrollShadowWrapper({
 	}, [children]);
 
 	return (
-		<div
-			className={cn(
-				"rounded-md border overflow-hidden relative flex-1 min-h-0",
-				className,
-			)}>
+		<div className={cn("overflow-hidden relative flex-1 min-h-0", className)}>
 			<div
 				ref={scrollRef}
 				className="overflow-auto h-full max-h-[65vh] lg:max-h-none overscroll-contain [&>div]:overflow-visible [&>div]:static"
-				onScroll={checkScroll}>
+				onScroll={checkScroll}
+			>
 				{children}
 			</div>
 			{canScrollTop && (

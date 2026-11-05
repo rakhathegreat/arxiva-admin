@@ -1,19 +1,12 @@
 "use client";
 
 import * as React from "react";
-import {
-	Plus,
-	Edit,
-	Trash2,
-	Search,
-	MoreVertical,
-	Loader2,
-	LayoutGrid,
-	List,
-} from "lucide-react";
+import { Plus, Edit, Trash2, Search, MoreVertical, Loader2, LayoutGrid, List } from "lucide-react";
 import { Card, CardContent } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
+import { Tabs, TabsList, TabsTrigger } from "@/shared/ui/tabs";
+import { Kbd } from "@/shared/ui/kbd";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -29,13 +22,7 @@ import {
 	SheetFooter,
 } from "@/shared/ui/sheet";
 import { Label } from "@/shared/ui/label";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/shared/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -46,10 +33,7 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@/shared/ui/alert-dialog";
-import {
-	DataTable,
-	createRowActionsColumn,
-} from "@/shared/ui/data-table/DataTable";
+import { DataTable, createRowActionsColumn } from "@/shared/ui/data-table/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { ModelRow } from "./utils/tipeMaterial";
 import { useTipeMaterial } from "./hooks/useTipeMaterial";
@@ -92,35 +76,64 @@ export default function TipeMaterialPage() {
 		requestBulkDelete,
 	} = useTipeMaterial();
 
+	const searchInputRef = React.useRef<HTMLInputElement>(null);
+
+	// Keyboard shortcuts: "/" to focus search, "Escape" to clear search
+	React.useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+			const target = e.target as HTMLElement | null;
+			const isInputActive =
+				target?.tagName === "INPUT" ||
+				target?.tagName === "TEXTAREA" ||
+				target?.tagName === "SELECT" ||
+				target?.isContentEditable;
+
+			if (e.key === "/" && !isInputActive) {
+				e.preventDefault();
+				searchInputRef.current?.focus();
+				return;
+			}
+
+			if (e.key === "Escape" && !isInputActive) {
+				if (searchQuery !== "") {
+					e.preventDefault();
+					setSearchQuery("");
+				}
+			}
+		};
+
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
+	}, [searchQuery, setSearchQuery]);
+
 	const columns = React.useMemo<ColumnDef<ModelRow, any>[]>(
 		() => [
 			{
 				id: "nomor",
-				header: "No.",
+				header: () => <div className="text-center">No.</div>,
 				cell: ({ row, table }) => {
 					const { pageIndex, pageSize } = table.getState().pagination;
 					return (
-						<span className="text-muted-foreground">
+						<div className="text-center text-muted-foreground">
 							{pageIndex * pageSize + row.index + 1}
-						</span>
+						</div>
 					);
 				},
+				meta: { className: "w-12 px-1 text-center" },
 			},
 			{
 				accessorKey: "code",
 				header: "Kode Model",
 				cell: ({ row }) => (
-					<span className="text-muted-foreground">
-						{row.original.code || "-"}
-					</span>
+					<span className="text-muted-foreground">{row.original.code || "-"}</span>
 				),
 			},
 			{
 				accessorKey: "nama",
 				header: "Nama Model",
-				cell: ({ row }) => (
-					<span className="text-foreground">{row.original.nama}</span>
-				),
+				cell: ({ row }) => <span className="text-foreground">{row.original.nama}</span>,
 			},
 			{
 				id: "deskripsi",
@@ -128,7 +141,8 @@ export default function TipeMaterialPage() {
 				cell: ({ row }) => (
 					<span
 						className="block max-w-48 truncate text-muted-foreground"
-						title={row.original.deskripsi || undefined}>
+						title={row.original.deskripsi || undefined}
+					>
 						{row.original.deskripsi || "-"}
 					</span>
 				),
@@ -137,9 +151,7 @@ export default function TipeMaterialPage() {
 				id: "merek",
 				header: "Merek",
 				cell: ({ row }) => (
-					<span className="text-muted-foreground">
-						{row.original.brand?.nama || "-"}
-					</span>
+					<span className="text-muted-foreground">{row.original.brand?.nama || "-"}</span>
 				),
 			},
 			{
@@ -187,59 +199,92 @@ export default function TipeMaterialPage() {
 			<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
 				<div className="flex flex-1 items-center gap-4 w-full sm:w-auto">
 					<div className="relative w-full sm:w-72">
-						<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+						<Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
 						<Input
+							ref={searchInputRef}
 							type="search"
 							placeholder="Cari model material..."
-							className="w-full pl-9 bg-card border-border placeholder:text-sm"
+							className="w-full pl-9 pr-12 bg-card border-border placeholder:text-sm"
 							value={searchQuery}
 							onChange={(e) => setSearchQuery(e.target.value)}
+							onKeyDown={(e) => {
+								if (e.key === "Escape") {
+									e.preventDefault();
+									setSearchQuery("");
+									searchInputRef.current?.blur();
+								}
+							}}
 						/>
+						<div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
+							{searchQuery !== "" ? (
+								<Kbd
+									className="font-sans cursor-pointer select-none pointer-events-auto"
+									onClick={() => {
+										setSearchQuery("");
+										searchInputRef.current?.blur();
+									}}
+									title="Tekan Esc untuk hapus pencarian"
+								>
+									Esc
+								</Kbd>
+							) : (
+								<Kbd title="Tekan / untuk mencari">/</Kbd>
+							)}
+						</div>
 					</div>
 				</div>
-				<div className="flex flex-1 justify-end gap-2 w-full sm:w-auto">
-					<div className="flex flex-wrap gap-1">
-						<Button
-							variant={viewMode === "grid" ? "secondary" : "ghost"}
-							size="sm"
-							onClick={() => handleViewModeChange("grid")}
-							className={`h-8 px-2.5 rounded-md active:translate-y-0 active:not-aria-[haspopup]:translate-y-0 transition-none ${viewMode === "grid" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}>
-							<LayoutGrid className="size-3.5" />
-						</Button>
-						<Button
-							variant={viewMode === "table" ? "secondary" : "ghost"}
-							size="sm"
-							onClick={() => handleViewModeChange("table")}
-							className={`h-8 px-2.5 rounded-md active:translate-y-0 active:not-aria-[haspopup]:translate-y-0 transition-none ${viewMode === "table" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}>
-							<List className="size-3.5" />
-						</Button>
+				<div className="flex flex-1 justify-end items-center gap-2 w-full sm:w-auto">
+					<div className="hidden sm:flex">
+						<Tabs
+							value={viewMode}
+							onValueChange={(val) => handleViewModeChange(val as "grid" | "table")}
+						>
+							<TabsList className="inline-flex h-8 bg-accent/50 rounded-md p-0.5">
+								<TabsTrigger
+									value="grid"
+									className="cursor-pointer rounded-md dark:data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-sm data-[state=active]:shadow-accent/50 h-7 px-2.5 text-xs transition-colors hover:text-accent-foreground"
+								>
+									<LayoutGrid className="size-3.5" />
+								</TabsTrigger>
+								<TabsTrigger
+									value="table"
+									className="cursor-pointer rounded-md dark:data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-sm data-[state=active]:shadow-accent/50 h-7 px-2.5 text-xs transition-colors hover:text-accent-foreground"
+								>
+									<List className="size-3.5" />
+								</TabsTrigger>
+							</TabsList>
+						</Tabs>
 					</div>
-					<Button
-						className="h-8 gap-2 rounded-md"
-						onClick={() => handleOpenSheet()}>
+					<Button className="h-8 gap-2 rounded-md" onClick={() => handleOpenSheet()}>
 						<Plus className="w-4 h-4" /> Tambah Model Material
 					</Button>
 				</div>
 			</div>
 
 			{/* Mobile view toggle */}
-			<div className="sm:hidden flex items-center p-1 rounded-md border border-border bg-muted/50 w-full">
-				<Button
-					variant={viewMode === "grid" ? "secondary" : "ghost"}
-					size="sm"
-					onClick={() => handleViewModeChange("grid")}
-					className={`flex-1 h-8 active:translate-y-0 active:not-aria-[haspopup]:translate-y-0 transition-none ${viewMode === "grid" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}>
-					<LayoutGrid className="size-4 mr-1.5" />
-					Grid
-				</Button>
-				<Button
-					variant={viewMode === "table" ? "secondary" : "ghost"}
-					size="sm"
-					onClick={() => handleViewModeChange("table")}
-					className={`flex-1 h-8 active:translate-y-0 active:not-aria-[haspopup]:translate-y-0 transition-none ${viewMode === "table" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}>
-					<List className="size-4 mr-1.5" />
-					Table
-				</Button>
+			<div className="sm:hidden w-full">
+				<Tabs
+					value={viewMode}
+					onValueChange={(val) => handleViewModeChange(val as "grid" | "table")}
+					className="w-full"
+				>
+					<TabsList className="grid grid-cols-2 w-full h-9 bg-accent/50 rounded-md p-0.5">
+						<TabsTrigger
+							value="grid"
+							className="cursor-pointer rounded-md dark:data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-sm data-[state=active]:shadow-accent/50 h-7.5 text-xs transition-colors hover:text-accent-foreground gap-1.5"
+						>
+							<LayoutGrid className="size-3.5" />
+							Grid
+						</TabsTrigger>
+						<TabsTrigger
+							value="table"
+							className="cursor-pointer rounded-md dark:data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-sm data-[state=active]:shadow-accent/50 h-7.5 text-xs transition-colors hover:text-accent-foreground gap-1.5"
+						>
+							<List className="size-3.5" />
+							Table
+						</TabsTrigger>
+					</TabsList>
+				</Tabs>
 			</div>
 
 			{viewMode === "grid" ? (
@@ -247,7 +292,8 @@ export default function TipeMaterialPage() {
 					{filteredTypes.map((t) => (
 						<Card
 							key={t.id}
-							className="overflow-hidden relative group transition-all duration-300 hover:border-border/80 hover:bg-muted/60">
+							className="overflow-hidden relative group transition-all duration-300 hover:border-border/80 hover:bg-muted/60"
+						>
 							<CardContent className="px-5 py-2 flex flex-col h-full justify-between gap-15">
 								<div className="flex justify-between items-start">
 									<div>
@@ -265,16 +311,19 @@ export default function TipeMaterialPage() {
 											<Button
 												variant="ghost"
 												size="icon"
-												className="h-7 w-7 rounded-md hover:bg-muted text-muted-foreground -mr-2 -mt-1">
+												className="h-7 w-7 rounded-md hover:bg-muted text-muted-foreground -mr-2 -mt-1"
+											>
 												<MoreVertical className="w-4 h-4" />
 											</Button>
 										</DropdownMenuTrigger>
 										<DropdownMenuContent
 											align="end"
-											className="bg-card border-border text-foreground">
+											className="bg-card border-border text-foreground"
+										>
 											<DropdownMenuItem
 												className="cursor-pointer focus:bg-accent"
-												onClick={() => handleOpenSheet(t.id)}>
+												onClick={() => handleOpenSheet(t.id)}
+											>
 												<Edit className="w-4 h-4 mr-2" /> Edit Model
 											</DropdownMenuItem>
 											<DropdownMenuItem
@@ -285,7 +334,8 @@ export default function TipeMaterialPage() {
 														id: t.id,
 														name: t.nama,
 													})
-												}>
+												}
+											>
 												<Trash2 className="w-4 h-4 mr-2" /> Hapus Model
 											</DropdownMenuItem>
 										</DropdownMenuContent>
@@ -309,15 +359,24 @@ export default function TipeMaterialPage() {
 
 					{filteredTypes.length === 0 && (
 						<div className="col-span-full py-16 flex flex-col items-center justify-center text-center">
-							<div className="w-16 h-16 bg-card rounded-full flex items-center justify-center mb-4">
-								<Search className="w-8 h-8 text-muted-foreground" />
+							<div className="size-10 bg-muted rounded-md flex items-center justify-center mb-4">
+								<Search className="size-5 text-muted-foreground" />
 							</div>
-							<h3 className="mb-1 text-[15px] font-medium text-foreground">
-								Model Material Tidak Ditemukan
+							<h3 className="mb-1 text-sm font-medium text-foreground">
+								{searchQuery ? "Model Material Tidak Ditemukan" : "Belum Ada Data"}
 							</h3>
-							<p className="text-sm text-muted-foreground max-w-sm">
-								Coba gunakan kata kunci lain atau tambahkan model material baru.
+							<p className="text-sm text-muted-foreground max-w-md">
+								{searchQuery
+									? "Coba gunakan kata kunci lain atau tambahkan model material baru."
+									: "Tambahkan model material sebagai referensi utama katalog."}
 							</p>
+							<Button
+								size="sm"
+								className="mt-4 gap-1.5 cursor-pointer rounded-md"
+								onClick={() => handleOpenSheet()}
+							>
+								<Plus className="size-4" /> Tambah Model Material
+							</Button>
 						</div>
 					)}
 				</div>
@@ -343,17 +402,16 @@ export default function TipeMaterialPage() {
 					columns={columns}
 					emptyState={{
 						icon: Search,
-						title: searchQuery
-							? "Model Material Tidak Ditemukan"
-							: "Belum Ada Model Material",
+						title: searchQuery ? "Model Material Tidak Ditemukan" : "Belum Ada Data",
 						description: searchQuery
 							? "Coba gunakan kata kunci lain atau tambahkan model material baru."
 							: "Tambahkan model material sebagai referensi utama katalog.",
 						action: (
 							<Button
 								size="sm"
-								className="gap-1.5 cursor-pointer"
-								onClick={() => handleOpenSheet()}>
+								className="gap-1.5 cursor-pointer rounded-md"
+								onClick={() => handleOpenSheet()}
+							>
 								<Plus className="size-4" /> Tambah Model Material
 							</Button>
 						),
@@ -402,7 +460,9 @@ export default function TipeMaterialPage() {
 							<div className="space-y-2">
 								<Label>
 									Deskripsi{" "}
-									<span className="text-xs font-normal text-muted-foreground">(opsional)</span>
+									<span className="text-xs font-normal text-muted-foreground">
+										(opsional)
+									</span>
 								</Label>
 								<textarea
 									value={deskripsi}
@@ -420,9 +480,11 @@ export default function TipeMaterialPage() {
 									onValueChange={(val) => {
 										setBrandId(val);
 										setBrandError("");
-									}}>
+									}}
+								>
 									<SelectTrigger
-										className={`bg-card ${brandError ? "border-destructive" : "border-border"}`}>
+										className={`bg-card ${brandError ? "border-destructive" : "border-border"}`}
+									>
 										<SelectValue placeholder="Pilih Merek Material" />
 									</SelectTrigger>
 									<SelectContent className="bg-card border-border">
@@ -445,9 +507,11 @@ export default function TipeMaterialPage() {
 									onValueChange={(val) => {
 										setMaterialCategoryId(val);
 										setCategoryError("");
-									}}>
+									}}
+								>
 									<SelectTrigger
-										className={`bg-card ${categoryError ? "border-destructive" : "border-border"}`}>
+										className={`bg-card ${categoryError ? "border-destructive" : "border-border"}`}
+									>
 										<SelectValue placeholder="Pilih Kategori Material" />
 									</SelectTrigger>
 									<SelectContent className="bg-card border-border">
@@ -468,7 +532,8 @@ export default function TipeMaterialPage() {
 						<Button
 							variant="outline"
 							onClick={() => setIsSheetOpen(false)}
-							disabled={isSaving}>
+							disabled={isSaving}
+						>
 							Batal
 						</Button>
 						<Button onClick={handleSave} disabled={isSaving}>
@@ -485,7 +550,8 @@ export default function TipeMaterialPage() {
 					!open &&
 					!isDeleting &&
 					setDeleteAlertData({ ...deleteAlertData, isOpen: false })
-				}>
+				}
+			>
 				<AlertDialogContent>
 					<AlertDialogHeader>
 						<AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>

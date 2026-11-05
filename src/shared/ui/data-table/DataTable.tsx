@@ -18,23 +18,10 @@ import {
 	IconChevronsRight,
 } from "@tabler/icons-react";
 import { ArrowUpDown, Inbox } from "lucide-react";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/shared/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
 import { Button } from "@/shared/ui/button";
 import { Label } from "@/shared/ui/label";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/shared/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -53,8 +40,8 @@ export const PAGE_SIZE_OPTIONS = [10, 20, 30, 40, 50];
 
 export interface RowAction<TData> {
 	label: string;
-	icon: LucideIcon;
 	onClick: (row: TData) => void;
+	icon?: LucideIcon | React.ComponentType<{ className?: string }>;
 	destructive?: boolean;
 	disabled?: boolean;
 }
@@ -79,19 +66,18 @@ function getInlineBreakpoint(actionCount: number) {
  * Aksi baris adaptif: tiap aksi jadi tombol ikon saat kontainer tabel
  * cukup lebar; jika sempit, runtuh menjadi DropdownMenu (popover).
  */
-function AdaptiveRowActions<TData>({
-	items,
-	row,
-}: {
-	items: RowAction<TData>[];
-	row: TData;
-}) {
+function AdaptiveRowActions<TData>({ items, row }: { items: RowAction<TData>[]; row: TData }) {
 	const moreThan3 = items.length > 3;
 	const bp = getInlineBreakpoint(items.length);
 
 	return (
 		<>
-			<div className={cn("hidden items-center justify-center gap-1", moreThan3 ? "hidden" : bp.show)}>
+			<div
+				className={cn(
+					"hidden items-center justify-center gap-1",
+					moreThan3 ? "hidden" : bp.show,
+				)}
+			>
 				{items.map((action) => (
 					<Button
 						key={action.label}
@@ -102,8 +88,10 @@ function AdaptiveRowActions<TData>({
 							"size-8 cursor-pointer",
 							action.destructive && "text-destructive hover:text-destructive",
 						)}
-						onClick={() => action.onClick(row)}>
-						<action.icon className="size-3.5" />
+						onClick={() => action.onClick(row)}
+						title={action.label}
+					>
+						{action.icon && <action.icon className="size-4" />}
 						<span className="sr-only">{action.label}</span>
 					</Button>
 				))}
@@ -112,10 +100,7 @@ function AdaptiveRowActions<TData>({
 			<div className={cn("flex items-center justify-center", moreThan3 ? "flex" : bp.hide)}>
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
-						<Button
-							variant="outline"
-							size="icon"
-							className="size-8 cursor-pointer">
+						<Button variant="outline" size="icon" className="size-6 cursor-pointer">
 							<MoreVertical className="size-3.5" />
 							<span className="sr-only">Buka menu aksi</span>
 						</Button>
@@ -127,12 +112,13 @@ function AdaptiveRowActions<TData>({
 								disabled={action.disabled}
 								className={
 									action.destructive
-										? "text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer font-medium"
-										: "cursor-pointer"
+										? "text-xs text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer font-medium gap-2"
+										: "cursor-pointer text-xs gap-2"
 								}
-								onClick={() => action.onClick(row)}>
-								<action.icon className="size-3.5 mr-1.5" />
-								{action.label}
+								onClick={() => action.onClick(row)}
+							>
+								{action.icon && <action.icon className="size-3.5" />}
+								<span>{action.label}</span>
 							</DropdownMenuItem>
 						))}
 					</DropdownMenuContent>
@@ -152,15 +138,12 @@ export function createRowActionsColumn<TData>(
 ): ColumnDef<TData> {
 	return {
 		id: "actions",
-		header: () => <span className="block text-center">Aksi</span>,
+		header: () => <span className="block">Aksi</span>,
 		cell: ({ row }) => {
-			const items =
-				typeof actions === "function" ? actions(row.original) : actions;
+			const items = typeof actions === "function" ? actions(row.original) : actions;
 			if (items.length === 0) return null;
 			return (
-				<div
-					className="flex items-center justify-center"
-					onClick={(e) => e.stopPropagation()}>
+				<div className="flex items-center" onClick={(e) => e.stopPropagation()}>
 					<AdaptiveRowActions items={items} row={row.original} />
 				</div>
 			);
@@ -206,21 +189,40 @@ export interface DataTableProps<TData> {
 	getRowId?: (row: TData) => string;
 	/** Diberi tahu setiap kali set baris terpilih berubah. */
 	onSelectionChange?: (selectedIds: string[]) => void;
+	/** State baris terpilih eksternal (controlled). */
+	rowSelection?: RowSelectionState;
+	/** Callback saat state baris terpilih berubah (controlled). */
+	onRowSelectionChange?: React.Dispatch<React.SetStateAction<RowSelectionState>>;
 	/** Aksi massal yang tampil saat ada baris terpilih. */
 	bulkActions?: DataTableBulkAction[];
+	/** Aktifkan sorting pada header kolom (default: false). */
+	enableSorting?: boolean;
 }
 
 const DEFAULT_EMPTY: DataTableEmptyState = {
 	title: "Belum ada data.",
 };
 
-function TableSkeleton({ columns }: { columns: number }) {
+function TableSkeleton({
+	columns,
+	enableSelection,
+}: {
+	columns: number;
+	enableSelection?: boolean;
+}) {
 	return (
 		<>
 			{Array.from({ length: 5 }).map((_, rowIndex) => (
 				<TableRow key={`skeleton-${rowIndex}`} className="hover:bg-transparent">
 					{Array.from({ length: columns }).map((_, colIndex) => (
-						<TableCell key={`skeleton-${rowIndex}-${colIndex}`}>
+						<TableCell
+							key={`skeleton-${rowIndex}-${colIndex}`}
+							className={cn(
+								"border border-border first:border-l-0 last:border-r-0",
+								enableSelection && colIndex === 0 && "w-10 px-0 text-center border-x-0",
+								enableSelection && colIndex === 1 && "border-l-0",
+							)}
+						>
 							<Skeleton className="h-4 w-full max-w-32" />
 						</TableCell>
 					))}
@@ -230,29 +232,25 @@ function TableSkeleton({ columns }: { columns: number }) {
 	);
 }
 
-function EmptyRow({
-	colSpan,
-	emptyState,
-}: {
-	colSpan: number;
-	emptyState: DataTableEmptyState;
-}) {
+function EmptyRow({ colSpan, emptyState }: { colSpan: number; emptyState: DataTableEmptyState }) {
 	const Icon = emptyState.icon ?? Inbox;
 	return (
 		<TableRow className="hover:bg-transparent">
 			<TableCell colSpan={colSpan} className="p-0">
 				<div
-					className="flex min-h-64 flex-col items-center justify-center gap-4 px-6 py-16 text-center lg:min-h-[55vh]"
-					role="status">
+					className="flex min-h-42 flex-col items-center justify-center gap-4 px-6 py-16 text-center lg:min-h-80"
+					role="status"
+				>
 					<div
-						className="flex size-16 items-center justify-center rounded-full border border-dashed border-border bg-muted/40"
-						aria-hidden="true">
-						<Icon className="size-7 text-muted-foreground" strokeWidth={1.8} />
+						className="flex size-10 rounded-md items-center justify-center bg-muted"
+						aria-hidden="true"
+					>
+						<Icon className="size-5 text-muted-foreground" strokeWidth={1.8} />
 					</div>
 					<div className="space-y-1">
-						<p className="font-medium text-foreground">{emptyState.title}</p>
+						<h3 className="text-sm font-medium text-foreground">{emptyState.title}</h3>
 						{emptyState.description && (
-							<p className="mx-auto max-w-sm text-sm leading-relaxed text-muted-foreground">
+							<p className="mx-auto max-w-md text-sm text-muted-foreground">
 								{emptyState.description}
 							</p>
 						)}
@@ -282,12 +280,13 @@ export function DataTable<TData>({
 	enableSelection = false,
 	getRowId,
 	onSelectionChange,
+	rowSelection: controlledRowSelection,
+	onRowSelectionChange: controlledOnRowSelectionChange,
 	bulkActions,
+	enableSorting = false,
 }: DataTableProps<TData>) {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
-	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-		[],
-	);
+	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
 	const isServer = pagination === "server";
 
 	const [internalPagination, setInternalPagination] = React.useState({
@@ -295,9 +294,7 @@ export function DataTable<TData>({
 		pageSize: PAGE_SIZE_OPTIONS[0],
 	});
 
-	const effectivePageSize = isServer
-		? (pageSize ?? 10)
-		: internalPagination.pageSize;
+	const effectivePageSize = isServer ? (pageSize ?? 10) : internalPagination.pageSize;
 
 	const paginationState = isServer
 		? { pageIndex: Math.max(0, (page ?? 1) - 1), pageSize: effectivePageSize }
@@ -316,26 +313,20 @@ export function DataTable<TData>({
 						pageSize: number;
 				  }),
 		) => {
-			const next =
-				typeof updater === "function" ? updater(paginationState) : updater;
+			const next = typeof updater === "function" ? updater(paginationState) : updater;
 			if (isServer) {
 				onPageChange?.(next.pageIndex + 1);
-				if (next.pageSize !== effectivePageSize)
-					onPageSizeChange?.(next.pageSize);
+				if (next.pageSize !== effectivePageSize) onPageSizeChange?.(next.pageSize);
 			} else {
 				setInternalPagination(next);
 			}
 		},
-		[
-			isServer,
-			onPageChange,
-			onPageSizeChange,
-			paginationState,
-			effectivePageSize,
-		],
+		[isServer, onPageChange, onPageSizeChange, paginationState, effectivePageSize],
 	);
 
-	const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
+	const [internalRowSelection, setInternalRowSelection] = React.useState<RowSelectionState>({});
+	const rowSelection = controlledRowSelection ?? internalRowSelection;
+	const setRowSelection = controlledOnRowSelectionChange ?? setInternalRowSelection;
 	const [isBulkRunning, setIsBulkRunning] = React.useState(false);
 
 	const resolvedGetRowId = React.useCallback(
@@ -351,7 +342,7 @@ export function DataTable<TData>({
 		const selectColumn: ColumnDef<TData, any> = {
 			id: "__select",
 			header: ({ table: tbl }) => (
-				<div className="flex justify-center">
+				<div className="flex items-center justify-center">
 					<Checkbox
 						checked={
 							tbl.getIsAllPageRowsSelected() ||
@@ -364,8 +355,9 @@ export function DataTable<TData>({
 			),
 			cell: ({ row }) => (
 				<div
-					className="flex justify-center"
-					onClick={(e) => e.stopPropagation()}>
+					className="flex items-center justify-center"
+					onClick={(e) => e.stopPropagation()}
+				>
 					<Checkbox
 						checked={row.getIsSelected()}
 						onCheckedChange={(v) => row.toggleSelected(v === true)}
@@ -374,7 +366,7 @@ export function DataTable<TData>({
 				</div>
 			),
 			enableSorting: false,
-			meta: { className: "w-10 text-center" },
+			meta: { className: "w-10 px-0 text-center" },
 		};
 		return [selectColumn, ...columns];
 	}, [columns, enableSelection]);
@@ -387,11 +379,12 @@ export function DataTable<TData>({
 		onRowSelectionChange: enableSelection ? setRowSelection : undefined,
 		getCoreRowModel: getCoreRowModel(),
 		...(isServer ? {} : { getPaginationRowModel: getPaginationRowModel() }),
-		getSortedRowModel: getSortedRowModel(),
-		onSortingChange: setSorting,
+		...(enableSorting ? { getSortedRowModel: getSortedRowModel() } : {}),
+		onSortingChange: enableSorting ? setSorting : undefined,
 		onColumnFiltersChange: setColumnFilters,
+		enableSorting,
 		state: {
-			sorting,
+			sorting: enableSorting ? sorting : [],
 			columnFilters,
 			pagination: paginationState,
 			rowSelection: enableSelection ? rowSelection : {},
@@ -418,22 +411,17 @@ export function DataTable<TData>({
 
 	const clearSelection = React.useCallback(() => setRowSelection({}), []);
 
-	const totalRows = isServer
-		? (totalItems ?? 0)
-		: table.getFilteredRowModel().rows.length;
+	const totalRows = isServer ? (totalItems ?? 0) : table.getFilteredRowModel().rows.length;
 
 	return (
-		<div
-			className={cn(
-				"@container",
-				className ?? "flex flex-col w-full h-full min-h-0 gap-4",
-			)}>
+		<div className={cn("@container", className ?? "flex flex-col w-full h-full min-h-0 gap-4")}>
 			{toolbar}
 			{enableSelection && !!bulkActions?.length && selectedIds.length > 0 && (
 				<div
 					role="toolbar"
 					aria-label="Aksi massal"
-					className="flex flex-wrap items-center gap-2 rounded-md border border-border bg-muted/40 px-3 py-2">
+					className="flex flex-wrap items-center gap-2 border border-border bg-muted/40 px-3 py-2"
+				>
 					<span className="text-xs font-medium text-foreground">
 						{selectedIds.length} dipilih
 					</span>
@@ -453,7 +441,8 @@ export function DataTable<TData>({
 								} finally {
 									setIsBulkRunning(false);
 								}
-							}}>
+							}}
+						>
 							{action.icon && <action.icon className="size-3.5" />}
 							{isBulkRunning ? "Memproses..." : action.label}
 						</Button>
@@ -462,92 +451,124 @@ export function DataTable<TData>({
 						variant="ghost"
 						size="sm"
 						className="ml-auto h-7 cursor-pointer gap-1 px-2 text-xs text-muted-foreground"
-						onClick={clearSelection}>
+						onClick={clearSelection}
+					>
 						<X className="size-3.5" /> Bersihkan
 					</Button>
 				</div>
 			)}
-			<ScrollShadowWrapper>
-				<Table>
-					<TableHeader className="sticky top-0 z-20 bg-muted">
-						{table.getHeaderGroups().map((headerGroup) => (
-							<TableRow key={headerGroup.id} className="hover:bg-transparent">
-								{headerGroup.headers.map((header) => (
-									<TableHead key={header.id}>
-										{header.isPlaceholder ? null : typeof header.column
-												.columnDef.header === "string" &&
-										  header.column.getCanSort() ? (
-											<button
-												type="button"
+			<div>
+				<ScrollShadowWrapper>
+					<Table>
+						<TableHeader className="sticky top-0 z-20 bg-transparent">
+							{table.getHeaderGroups().map((headerGroup) => (
+								<TableRow key={headerGroup.id} className="hover:bg-transparent">
+									{headerGroup.headers.map((header, index) => {
+										const isSelect = header.column.id === "__select";
+										const isAfterSelect = enableSelection && index === 1;
+
+										return (
+											<TableHead
+												key={header.id}
 												className={cn(
-													"flex items-center gap-1 cursor-pointer select-none hover:text-foreground",
-													(header.column.columnDef.meta as any)?.className,
+													"first:border-l-0 last:border-r-0",
+													isSelect && "w-10 px-0 text-center border-x-0",
+													isAfterSelect && "border-l-0",
+													(header.column.columnDef.meta as any)
+														?.className,
 												)}
-												onClick={header.column.getToggleSortingHandler()}>
-												{header.column.columnDef.header}
-												<ArrowUpDown className="size-3.5 opacity-50" />
-											</button>
-										) : (
-											<div
-												className={
-													(header.column.columnDef.meta as any)?.className
-												}>
-												{flexRender(
-													header.column.columnDef.header,
-													header.getContext(),
+											>
+												{header.isPlaceholder ? null : typeof header.column
+														.columnDef.header === "string" &&
+												  header.column.getCanSort() ? (
+													<button
+														type="button"
+														className={cn(
+															"flex items-center gap-1 cursor-pointer select-none hover:text-foreground",
+															(header.column.columnDef.meta as any)
+																?.className,
+														)}
+														onClick={header.column.getToggleSortingHandler()}
+													>
+														{header.column.columnDef.header}
+														<ArrowUpDown className="size-3.5 opacity-50" />
+													</button>
+												) : (
+													<div
+														className={
+															(header.column.columnDef.meta as any)
+																?.className
+														}
+													>
+														{flexRender(
+															header.column.columnDef.header,
+															header.getContext(),
+														)}
+													</div>
 												)}
-											</div>
-										)}
-									</TableHead>
-								))}
-							</TableRow>
-						))}
-					</TableHeader>
-					<TableBody>
-						{isLoading ? (
-							<TableSkeleton columns={columns.length} />
-						) : table.getRowModel().rows.length > 0 ? (
-							table.getRowModel().rows.map((row) => (
-								<TableRow
-									key={row.id}
-									data-state={row.getIsSelected() && "selected"}
-									className="cursor-pointer transition-colors hover:bg-muted/40"
-									onClick={() => onRowClick?.(row.original)}>
-									{row.getVisibleCells().map((cell) => (
-										<TableCell
-											key={cell.id}
-											className={
-												(cell.column.columnDef.meta as any)?.className
-											}>
-											{flexRender(
-												cell.column.columnDef.cell,
-												cell.getContext(),
-											)}
-										</TableCell>
-									))}
+											</TableHead>
+										);
+									})}
 								</TableRow>
-							))
-						) : (
-							<EmptyRow colSpan={columns.length} emptyState={emptyState} />
-						)}
-					</TableBody>
-				</Table>
-			</ScrollShadowWrapper>
+							))}
+						</TableHeader>
+						<TableBody>
+							{isLoading ? (
+								<TableSkeleton
+									columns={columnsWithSelection.length}
+									enableSelection={enableSelection}
+								/>
+							) : table.getRowModel().rows.length > 0 ? (
+								table.getRowModel().rows.map((row) => (
+									<TableRow
+										key={row.id}
+										data-state={row.getIsSelected() && "selected"}
+										className="cursor-pointer transition-colors hover:bg-muted/40"
+										onClick={() => onRowClick?.(row.original)}
+									>
+										{row.getVisibleCells().map((cell, cellIndex) => {
+											const isSelect = cell.column.id === "__select";
+											const isAfterSelect =
+												enableSelection && cellIndex === 1;
+
+											return (
+												<TableCell
+													key={cell.id}
+													className={cn(
+														"border border-border dark:border-muted first:border-l-0 last:border-r-0",
+														isSelect && "w-10 px-0 text-center border-x-0",
+														isAfterSelect && "border-l-0",
+														(cell.column.columnDef.meta as any)
+															?.className,
+													)}
+												>
+													{flexRender(
+														cell.column.columnDef.cell,
+														cell.getContext(),
+													)}
+												</TableCell>
+											);
+										})}
+									</TableRow>
+								))
+							) : (
+								<EmptyRow
+									colSpan={columnsWithSelection.length}
+									emptyState={emptyState}
+								/>
+							)}
+						</TableBody>
+					</Table>
+				</ScrollShadowWrapper>
+			</div>
 
 			{/* Pagination Controls */}
 			{(totalRows > 0 || isServer) && !isLoading && (
-				<div className="flex items-center justify-between px-4 pb-2">
+				<div className="flex items-center justify-between px-4 py-4">
 					<div className="hidden flex-1 text-sm text-muted-foreground lg:flex">
 						Menampilkan{" "}
-						{Math.min(
-							paginationState.pageIndex * effectivePageSize + 1,
-							totalRows,
-						)}
-						–
-						{Math.min(
-							(paginationState.pageIndex + 1) * effectivePageSize,
-							totalRows,
-						)}{" "}
+						{Math.min(paginationState.pageIndex * effectivePageSize + 1, totalRows)}–
+						{Math.min((paginationState.pageIndex + 1) * effectivePageSize, totalRows)}{" "}
 						dari {totalRows} data
 					</div>
 					<div className="flex w-full items-center gap-8 lg:w-fit">
@@ -559,7 +580,8 @@ export function DataTable<TData>({
 								value={`${effectivePageSize}`}
 								onValueChange={(value) => {
 									table.setPageSize(Number(value));
-								}}>
+								}}
+							>
 								<SelectTrigger size="sm" className="w-20" id="rows-per-page">
 									<SelectValue placeholder={`${effectivePageSize}`} />
 								</SelectTrigger>
@@ -573,15 +595,15 @@ export function DataTable<TData>({
 							</Select>
 						</div>
 						<div className="flex w-fit items-center justify-center text-sm font-medium">
-							Halaman {paginationState.pageIndex + 1} dari{" "}
-							{table.getPageCount()}
+							Halaman {paginationState.pageIndex + 1} dari {table.getPageCount()}
 						</div>
 						<div className="ml-auto flex items-center gap-2 lg:ml-0">
 							<Button
 								variant="outline"
 								className="hidden h-8 w-8 p-0 lg:flex"
 								onClick={() => table.setPageIndex(0)}
-								disabled={!table.getCanPreviousPage()}>
+								disabled={!table.getCanPreviousPage()}
+							>
 								<span className="sr-only">Ke halaman pertama</span>
 								<IconChevronsLeft />
 							</Button>
@@ -590,7 +612,8 @@ export function DataTable<TData>({
 								className="size-8"
 								size="icon"
 								onClick={() => table.previousPage()}
-								disabled={!table.getCanPreviousPage()}>
+								disabled={!table.getCanPreviousPage()}
+							>
 								<span className="sr-only">Ke halaman sebelumnya</span>
 								<IconChevronLeft />
 							</Button>
@@ -599,7 +622,8 @@ export function DataTable<TData>({
 								className="size-8"
 								size="icon"
 								onClick={() => table.nextPage()}
-								disabled={!table.getCanNextPage()}>
+								disabled={!table.getCanNextPage()}
+							>
 								<span className="sr-only">Ke halaman berikutnya</span>
 								<IconChevronRight />
 							</Button>
@@ -608,7 +632,8 @@ export function DataTable<TData>({
 								className="hidden size-8 lg:flex"
 								size="icon"
 								onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-								disabled={!table.getCanNextPage()}>
+								disabled={!table.getCanNextPage()}
+							>
 								<span className="sr-only">Ke halaman terakhir</span>
 								<IconChevronsRight />
 							</Button>

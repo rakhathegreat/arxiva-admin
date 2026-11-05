@@ -23,8 +23,6 @@ import {
 	DropdownMenuContent,
 	DropdownMenuGroup,
 	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu";
 import { cn } from "@/shared/lib/utils";
@@ -169,7 +167,6 @@ export default function LokasiBarangPage() {
 	};
 
 	const sortOption = SORT_OPTIONS.find((option) => option.value === sortBy) ?? SORT_OPTIONS[0];
-	const SortIcon = sortOption.icon;
 	const trimmedQuery = searchQuery.trim();
 	const isFiltered = trimmedQuery !== "" || filterType !== "rak";
 
@@ -312,7 +309,6 @@ export default function LokasiBarangPage() {
 								>
 									<DropdownMenuGroup>
 										{SORT_OPTIONS.map((option) => {
-											const Icon = option.icon;
 											const isSelected = sortBy === option.value;
 											return (
 												<DropdownMenuItem

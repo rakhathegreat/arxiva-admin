@@ -33,9 +33,9 @@ export function RejectDialog({
 		<AlertDialog open={open} onOpenChange={(o) => !o && onOpenChange(false)}>
 			<AlertDialogContent>
 				<AlertDialogHeader>
-					<AlertDialogTitle>Tolak Permintaan {requestNumber}</AlertDialogTitle>
+					<AlertDialogTitle>Tolak permintaan {requestNumber}?</AlertDialogTitle>
 					<AlertDialogDescription>
-						Permintaan akan berstatus Ditolak. Mitra peminta & pemberi akan menerima notifikasi.
+						Permintaan akan berstatus ditolak. Peminta dan pemberi akan menerima notifikasi.
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<div className="flex flex-col gap-2">
@@ -59,7 +59,7 @@ export function RejectDialog({
 						}}
 					>
 						{isBusy && <Loader2 className="size-4 animate-spin mr-1" />}
-						Ya, Tolak
+								Tolak permintaan
 					</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>

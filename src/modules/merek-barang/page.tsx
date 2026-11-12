@@ -417,16 +417,19 @@ export default function MerekBarangPage() {
       <AlertDialog open={deleteAlertData.isOpen} onOpenChange={(open) => !open && !isDeleting && setDeleteAlertData({ ...deleteAlertData, isOpen: false })}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
-            <AlertDialogDescription className="text-muted-foreground">
-              Tindakan ini tidak dapat dibatalkan dan semua data terkait akan dihapus.
+            <AlertDialogTitle className="text-base text-destructive">
+              {deleteAlertData.ids && deleteAlertData.ids.length > 1
+                ? `Hapus ${deleteAlertData.ids.length} merek terpilih?`
+                : `Hapus merek ${deleteAlertData.name}?`}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm">
+              Tindakan ini tidak dapat dibatalkan. Merek yang masih dipakai unit tidak akan terhapus.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
+          <AlertDialogFooter className="pt-2">
             <AlertDialogCancel disabled={isDeleting}>Batal</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} disabled={isDeleting}>
-              {isDeleting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-              Lanjutkan
+            <AlertDialogAction onClick={confirmDelete} disabled={isDeleting} variant="destructive">
+              {isDeleting ? <Loader2 className="size-3.5 animate-spin" /> : "Hapus merek"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

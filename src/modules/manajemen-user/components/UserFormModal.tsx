@@ -143,11 +143,11 @@ export function UserFormModal({
 		<Dialog open={isOpen} onOpenChange={onOpenChange}>
 			<DialogContent className="sm:max-w-md">
 				<DialogHeader>
-					<DialogTitle>{isEdit ? `Edit Akun ${user?.username}` : "Tambah Akun Baru"}</DialogTitle>
+						<DialogTitle>{isEdit ? `Edit akun ${user?.username}` : "Tambah akun"}</DialogTitle>
 					<DialogDescription className="text-xs">
 						{isEdit
 							? "Perbarui detail akun di bawah ini."
-							: "Username & password dibuat otomatis dan ditampilkan setelah akun tersimpan."}
+							: "Username dan password dibuat otomatis setelah akun tersimpan."}
 					</DialogDescription>
 				</DialogHeader>
 
@@ -268,9 +268,9 @@ export function UserFormModal({
 									<Loader2 className="mr-2 size-4 animate-spin motion-reduce:animate-none" /> Menyimpan...
 								</>
 							) : isEdit ? (
-								"Simpan Perubahan"
+									"Simpan perubahan"
 							) : (
-								"Buat Akun"
+									"Buat akun"
 							)}
 						</Button>
 					</DialogFooter>

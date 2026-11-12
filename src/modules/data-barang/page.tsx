@@ -399,12 +399,11 @@ export default function DataBarangPage() {
 					<AlertDialogHeader>
 						<AlertDialogTitle className="text-base text-destructive">
 							{deleteDialog?.type === "single"
-								? `Hapus Unit ${deleteDialog.serialNumber}`
-								: `Hapus ${deleteDialog?.ids.length} Unit Terpilih?`}
+								? `Hapus unit ${deleteDialog.serialNumber}?`
+								: `Hapus ${deleteDialog?.ids.length} unit terpilih?`}
 						</AlertDialogTitle>
 						<AlertDialogDescription className="text-sm">
-							Tindakan ini tidak dapat dibatalkan. Unit material yang dihapus akan
-							terhapus dari sistem inventaris.
+							Tindakan ini tidak dapat dibatalkan. Data unit akan dihapus dari inventaris.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter className="pt-2">
@@ -417,7 +416,7 @@ export default function DataBarangPage() {
 							{isDeleting ? (
 								<Loader2 className="size-3.5 animate-spin" />
 							) : (
-								"Ya, Hapus Data"
+								"Hapus unit"
 							)}
 						</AlertDialogAction>
 					</AlertDialogFooter>

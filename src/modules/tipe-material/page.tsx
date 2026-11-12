@@ -554,15 +554,27 @@ export default function TipeMaterialPage() {
 			>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
-						<AlertDialogDescription className="text-muted-foreground">
-							Tindakan ini tidak dapat dibatalkan.
+						<AlertDialogTitle className="text-base text-destructive">
+							{deleteAlertData.ids && deleteAlertData.ids.length > 1
+								? `Hapus ${deleteAlertData.ids.length} model material terpilih?`
+								: `Hapus model material ${deleteAlertData.name}?`}
+						</AlertDialogTitle>
+						<AlertDialogDescription className="text-sm">
+							Tindakan ini tidak dapat dibatalkan. Model material yang masih
+							dipakai unit tidak akan terhapus.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
-					<AlertDialogFooter>
+					<AlertDialogFooter className="pt-2">
 						<AlertDialogCancel disabled={isDeleting}>Batal</AlertDialogCancel>
-						<AlertDialogAction onClick={confirmDelete} disabled={isDeleting}>
-							Lanjutkan
+						<AlertDialogAction
+							onClick={confirmDelete}
+							disabled={isDeleting}
+							variant="destructive">
+							{isDeleting ? (
+								<Loader2 className="size-3.5 animate-spin" />
+							) : (
+								"Hapus model"
+							)}
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>

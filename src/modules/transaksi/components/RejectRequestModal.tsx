@@ -55,12 +55,12 @@ export function RejectRequestModal({
 					<DialogDescription>{description}</DialogDescription>
 				</DialogHeader>
 				<div className="space-y-1.5">
-					<Label htmlFor="rejection-note">Catatan</Label>
+						<Label htmlFor="rejection-note">Catatan penolakan <span className="font-normal text-muted-foreground">(opsional)</span></Label>
 					<Textarea
 						id="rejection-note"
 						value={note}
 						onChange={(e) => setNote(e.target.value)}
-						placeholder={`Masukkan catatan penolakan untuk ${requestNumber}...`}
+						placeholder={`Tambahkan alasan penolakan untuk ${requestNumber}...`}
 					/>
 				</div>
 				<DialogFooter>

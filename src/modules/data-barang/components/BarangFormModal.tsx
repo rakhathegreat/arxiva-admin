@@ -116,12 +116,12 @@ export function BarangFormModal({
 					<AlertDialogHeader className="shrink-0">
 						<div className="flex flex-col items-center gap-0.5 sm:items-start">
 							<AlertDialogTitle className="text-base font-medium">
-								{formMode === "add" ? "Tambah Unit Baru" : "Edit Data Unit"}
+								{formMode === "add" ? "Tambah unit" : "Edit unit"}
 							</AlertDialogTitle>
 							<AlertDialogDescription className="text-sm text-muted-foreground">
 								{formMode === "add"
-									? "Lengkapi informasi unit yang akan ditambahkan ke dalam inventaris."
-									: "Perbarui informasi unit untuk memastikan data inventaris tetap akurat."}
+									? "Masukkan informasi unit untuk menambahkannya ke inventaris."
+									: "Perbarui informasi unit agar data inventaris tetap akurat."}
 							</AlertDialogDescription>
 						</div>
 					</AlertDialogHeader>

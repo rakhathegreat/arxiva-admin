@@ -88,7 +88,7 @@ export function WarehouseSummary({
 		>
 			<div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 px-4 pt-4 md:px-5">
 				<h2 id="ringkasan-kapasitas" className="text-sm font-medium text-foreground">
-					Kapasitas gudang KP
+					Kapasitas Gudang
 				</h2>
 
 				{isLoading ? (

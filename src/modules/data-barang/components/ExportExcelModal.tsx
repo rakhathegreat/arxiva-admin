@@ -155,8 +155,8 @@ export function ExportExcelModal({
               </>
             ) : (
               <>
-                <Download className="w-3 h-3 mr-1" />
-                Download Excel
+                 <Download className="w-3 h-3 mr-1" />
+                 Unduh Excel
               </>
             )}
           </Button>

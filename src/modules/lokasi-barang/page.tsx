@@ -187,7 +187,7 @@ export default function LokasiBarangPage() {
 							<ChevronDown className="size-4" />
 						</Button>
 					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end" className="w-48">
+					<DropdownMenuContent align="end" className="w-40">
 						<DropdownMenuGroup>
 							{STORAGE_TYPES.map((type) => {
 								const { addMode, icon: Icon } = getTypeConfig(type);

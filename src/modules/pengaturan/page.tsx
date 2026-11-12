@@ -1,76 +1,34 @@
-import { useState } from "react"
 import { useAuth } from "@/modules/auth/auth"
-import { ProfileTab } from "./components/ProfileTab"
-import { SecurityTab } from "./components/SecurityTab"
-import { SignatureTab } from "./components/SignatureTab"
-import { GoogleDriveTab } from "./components/GoogleDriveTab"
-import { SidebarNav } from "./components/SidebarNav"
+import { GoogleDriveSection } from "./components/GoogleDriveSection"
+import { ProfileSection } from "./components/ProfileSection"
+import { SecuritySection } from "./components/SecuritySection"
+import { SignatureSection } from "./components/SignatureSection"
 
 /**
- * Komponen PengaturanPage
- *
- * Halaman pengaturan global aplikasi (Profil, Keamanan, Tanda Tangan Digital,
- * Google Drive — admin only). Integrasi Google/Drive dipakai khusus untuk
- * membuat spreadsheet & QR code lokasi material.
+ * Halaman pengaturan global: profil, keamanan, tanda tangan digital, dan
+ * integrasi Google Drive (admin). Tiap bagian punya card sendiri agar
+ * tugasnya tidak tercampur, kecuali status dan Folder ID Drive yang
+ * merupakan satu integrasi.
  */
 export default function PengaturanPage() {
-  const { user } = useAuth()
-  const isAdmin = user?.role?.toLowerCase() === "admin"
+	const { user } = useAuth()
+	const isAdmin = user?.role?.toLowerCase() === "admin"
 
-  // Active Category State for Sidebar Navigation
-  const [activeCategory, setActiveCategory] = useState("profil")
+	return (
+		<div className="mx-auto w-full max-w-3xl px-4 py-6 md:px-6 md:py-8">
+			<header className="mb-6 flex flex-col gap-1">
+				<h1 className="page-title">Pengaturan</h1>
+				<p className="text-sm text-muted-foreground">
+					Kelola akun, keamanan, tanda tangan, dan integrasi.
+				</p>
+			</header>
 
-  const sidebarGroups = [
-    {
-      groupLabel: "Pengaturan Akun",
-      items: [
-        {
-          title: "Profil",
-          id: "profil"
-        },
-        {
-          title: "Keamanan",
-          id: "keamanan"
-        },
-        {
-          title: "Tanda Tangan Digital",
-          id: "ttd-digital"
-        }
-      ]
-    },
-    {
-      groupLabel: "Integrasi",
-      items: [
-        {
-          title: "Google Drive",
-          id: "google-drive",
-          adminOnly: true
-        }
-      ]
-    }
-  ]
-
-  return (
-    <div className="@container/main flex h-full w-full flex-col overflow-hidden">
-      <div className="flex flex-1 flex-col overflow-hidden lg:flex-row">
-        <aside className="w-full shrink-0 overflow-y-auto border-b border-border lg:w-60 lg:border-r lg:border-b-0">
-          <SidebarNav
-            groups={sidebarGroups}
-            activeId={activeCategory}
-            onSelect={setActiveCategory}
-            isAdmin={isAdmin}
-          />
-        </aside>
-
-        <div className="flex-1 overflow-y-auto px-4 pb-12 md:px-6">
-          <div className="mx-auto w-full max-w-3xl pt-6">
-            {activeCategory === "profil" && <ProfileTab />}
-            {activeCategory === "keamanan" && <SecurityTab />}
-            {activeCategory === "ttd-digital" && <SignatureTab />}
-            {activeCategory === "google-drive" && <GoogleDriveTab />}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+			<div className="flex flex-col gap-4">
+				<ProfileSection />
+				<SecuritySection />
+				<SignatureSection />
+				{isAdmin && <GoogleDriveSection />}
+			</div>
+		</div>
+	)
 }

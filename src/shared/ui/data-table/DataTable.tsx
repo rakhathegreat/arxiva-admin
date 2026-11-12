@@ -110,9 +110,10 @@ function AdaptiveRowActions<TData>({ items, row }: { items: RowAction<TData>[]; 
 							<DropdownMenuItem
 								key={action.label}
 								disabled={action.disabled}
+								variant={action.destructive ? "destructive" : "default"}
 								className={
 									action.destructive
-										? "text-xs text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer font-medium gap-2"
+										? "text-xs cursor-pointer font-medium gap-2"
 										: "cursor-pointer text-xs gap-2"
 								}
 								onClick={() => action.onClick(row)}
@@ -219,7 +220,9 @@ function TableSkeleton({
 							key={`skeleton-${rowIndex}-${colIndex}`}
 							className={cn(
 								"border border-border first:border-l-0 last:border-r-0",
-								enableSelection && colIndex === 0 && "w-10 px-0 text-center border-x-0",
+								enableSelection &&
+									colIndex === 0 &&
+									"w-10 px-0 text-center border-x-0",
 								enableSelection && colIndex === 1 && "border-l-0",
 							)}
 						>
@@ -536,7 +539,8 @@ export function DataTable<TData>({
 													key={cell.id}
 													className={cn(
 														"border border-border dark:border-muted first:border-l-0 last:border-r-0",
-														isSelect && "w-10 px-0 text-center border-x-0",
+														isSelect &&
+															"w-10 px-0 text-center border-x-0",
 														isAfterSelect && "border-l-0",
 														(cell.column.columnDef.meta as any)
 															?.className,

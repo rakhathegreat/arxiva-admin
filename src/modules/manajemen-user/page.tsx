@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ChevronDown, KeyRound, Plus, Search, Users } from "lucide-react";
+import { ChevronDown, KeyRound, Plus, Search, Trash2, Users } from "lucide-react";
 
 import {
 	AlertDialog,
@@ -9,6 +9,7 @@ import {
 	AlertDialogDescription,
 	AlertDialogFooter,
 	AlertDialogHeader,
+	AlertDialogMedia,
 	AlertDialogTitle,
 } from "@/shared/ui/alert-dialog";
 import { Badge } from "@/shared/ui/badge";
@@ -94,6 +95,7 @@ function ConfirmDialog({
 	title,
 	description,
 	confirmLabel,
+	media,
 	onClose,
 	onConfirm,
 }: {
@@ -101,18 +103,20 @@ function ConfirmDialog({
 	title: string;
 	description: React.ReactNode;
 	confirmLabel: string;
+	media?: React.ReactNode;
 	onClose: () => void;
 	onConfirm: () => void;
 }) {
 	return (
 		<AlertDialog open={open} onOpenChange={(v) => !v && onClose()}>
 			<AlertDialogContent>
-				<AlertDialogHeader>
-					<AlertDialogTitle className="text-base">{title}</AlertDialogTitle>
-					<AlertDialogDescription className="text-xs">
-						{description}
-					</AlertDialogDescription>
+				<AlertDialogHeader className="flex flex-row items-center gap-3">
+					{media}
+					<AlertDialogTitle className="min-w-0 text-base leading-5">{title}</AlertDialogTitle>
 				</AlertDialogHeader>
+				<AlertDialogDescription className="text-xs leading-5">
+					{description}
+				</AlertDialogDescription>
 				<AlertDialogFooter className="gap-2">
 					<AlertDialogCancel className="cursor-pointer text-xs">Batal</AlertDialogCancel>
 					<AlertDialogAction
@@ -565,10 +569,10 @@ export default function ManajemenUserPage() {
 				<AlertDialogContent>
 					<AlertDialogHeader>
 						<AlertDialogTitle className="text-base">
-							Reset password akun ini?
+							Reset password akun?
 						</AlertDialogTitle>
 						<AlertDialogDescription className="text-xs">
-							Password <strong>{resetTarget?.username}</strong> akan diubah ke{" "}
+							Password akun <strong>{resetTarget?.username}</strong> akan diubah ke{" "}
 							<strong className="font-mono">{DEFAULT_PASSWORD}</strong>. Berikan
 							kredensial ini kepada yang bersangkutan.
 						</AlertDialogDescription>
@@ -584,7 +588,7 @@ export default function ManajemenUserPage() {
 							}}
 							className="cursor-pointer text-xs"
 						>
-							<KeyRound className="mr-2 size-4" /> Reset Password
+							<KeyRound className="mr-2 size-4" /> Reset password
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>
@@ -599,7 +603,12 @@ export default function ManajemenUserPage() {
 				open={bulkDeleteIds !== null}
 				title={`Hapus ${bulkDeleteIds?.length ?? 0} akun terpilih?`}
 				description="Akun yang dipilih akan dihapus permanen dan tidak dapat digunakan untuk login lagi. Tindakan ini tidak dapat dibatalkan."
-				confirmLabel="Hapus Akun"
+				confirmLabel="Hapus akun"
+				media={
+					<AlertDialogMedia className="mb-0 shrink-0 bg-destructive/10 text-destructive">
+						<Trash2 className="size-5" />
+					</AlertDialogMedia>
+				}
 				onClose={() => setBulkDeleteIds(null)}
 				onConfirm={async () => {
 					if (bulkDeleteIds) {
@@ -612,14 +621,27 @@ export default function ManajemenUserPage() {
 
 			<ConfirmDialog
 				open={deleteTarget !== null}
-				title={`Hapus akun ${deleteTarget?.profile?.nama || deleteTarget?.username || ""}?`}
+				title="Hapus akun ini?"
 				description={
 					<>
-						Akun <strong>{deleteTarget?.username}</strong> akan dihapus permanen dan
-						tidak dapat digunakan untuk login lagi. Tindakan ini tidak dapat dibatalkan.
+						<span className="mb-3 block rounded-md border border-border bg-muted/40 px-3 py-2.5">
+							<span className="block text-xs font-medium text-foreground">
+								{deleteTarget?.profile?.nama || "Nama tidak tersedia"}
+							</span>
+							<span className="mt-0.5 block font-mono text-[11px] text-muted-foreground">
+								{deleteTarget?.username}
+							</span>
+						</span>
+						Akun ini akan dihapus permanen dan tidak dapat digunakan untuk login lagi.
+						Tindakan ini tidak dapat dibatalkan.
 					</>
 				}
-				confirmLabel="Hapus Akun"
+				confirmLabel="Hapus akun"
+				media={
+					<AlertDialogMedia className="mb-0 shrink-0 bg-destructive/10 text-destructive">
+						<Trash2 className="size-5" />
+					</AlertDialogMedia>
+				}
 				onClose={() => setDeleteTarget(null)}
 				onConfirm={() => {
 					if (deleteTarget) handleDelete(deleteTarget);

@@ -103,10 +103,9 @@ export function MigrateDialog({
 		<Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
 			<DialogContent className="sm:max-w-md">
 				<DialogHeader>
-					<DialogTitle>Pindahkan Isi Lokasi</DialogTitle>
+					<DialogTitle>Pindahkan isi lokasi</DialogTitle>
 					<DialogDescription className="text-xs">
-						Seluruh material di lokasi sumber akan dipindahkan ke lokasi tujuan
-						dalam satu transaksi.
+						Semua material dari lokasi sumber akan dipindahkan ke lokasi tujuan dalam satu transaksi.
 					</DialogDescription>
 				</DialogHeader>
 

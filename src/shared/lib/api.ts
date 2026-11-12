@@ -84,6 +84,17 @@ export class APIError extends Error {
 	}
 }
 
+/** Ambil pesan error API/fetch tanpa memaksa `any` di setiap pemanggil. */
+export function getApiErrorMessage(error: unknown, fallback: string): string {
+	if (error instanceof APIError) {
+		const message = error.response?.data?.message;
+		if (typeof message === "string" && message.trim()) return message;
+		return error.message || fallback;
+	}
+	if (error instanceof Error && error.message) return error.message;
+	return fallback;
+}
+
 /**
  * Fetch satu URL absolut: parse json/pdf/text sesuai `content-type`, dan
  * melempar `APIError` bila respons tidak ok.

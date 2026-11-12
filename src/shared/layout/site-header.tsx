@@ -78,6 +78,9 @@ export function SiteHeader({ className }: { className?: string }) {
 	} else if (path === "/data-transaksi") {
 		parent = "Inventori";
 		pageName = "Data Transaksi";
+	} else if (path === "/pengaturan") {
+		parent = "Akun";
+		pageName = "Pengaturan";
 	} else if (path === "/lokasi-barang") {
 		parent = "Inventori";
 		pageName = "Lokasi Material";
@@ -206,9 +209,9 @@ export function SiteHeader({ className }: { className?: string }) {
 			<AlertDialog open={isLogoutDialogOpen} onOpenChange={setIsLogoutDialogOpen}>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>Konfirmasi logout</AlertDialogTitle>
+						<AlertDialogTitle>Keluar dari akun?</AlertDialogTitle>
 						<AlertDialogDescription>
-							Apakah Anda yakin ingin keluar dari akun {user?.displayName}?
+							Anda akan keluar dari akun {user?.displayName} pada perangkat ini.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
@@ -218,7 +221,7 @@ export function SiteHeader({ className }: { className?: string }) {
 							className="cursor-pointer bg-destructive/10 text-destructive hover:bg-destructive/20 hover:text-destructive focus:bg-destructive/20 focus:text-destructive transition-colors"
 							onClick={handleLogout}
 						>
-							Logout
+							Keluar
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>

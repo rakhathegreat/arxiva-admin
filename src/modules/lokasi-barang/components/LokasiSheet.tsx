@@ -8,6 +8,7 @@ export interface LokasiSheetProps {
 	brands: string[];
 	locName: string;
 	setLocName: (v: string) => void;
+	locNamePlaceholder?: string;
 	locCapacity: string;
 	setLocCapacity: (v: string) => void;
 	locBrand: string;
@@ -66,7 +67,7 @@ const BrandRuleSelect = ({ brands, value, onChange }: { brands: string[]; value:
 	</div>
 );
 
-/** Field-form di dalam Sheet lokasi, sesuai mode add/edit rak/kardus/pallet/level. */
+/** Field-form di dalam drawer lokasi, sesuai mode add/edit rak/kardus/pallet/level. */
 export function LokasiSheet(props: LokasiSheetProps) {
 	const { mode, brands } = props;
 
@@ -77,19 +78,12 @@ export function LokasiSheet(props: LokasiSheetProps) {
 					<Label htmlFor="loc-name" className="text-xs font-medium text-foreground">
 						Nama rak
 					</Label>
-					{mode === "add-rak" ? (
-						<>
-							<Input id="loc-name" value={props.locName} readOnly className="cursor-not-allowed bg-muted/50 text-muted-foreground" />
-							<p className="text-[11px] text-muted-foreground">Nama rak dibuat otomatis (Shelf 1, Shelf 2, ...)</p>
-						</>
-					) : (
-						<Input
-							id="loc-name"
-							value={props.locName}
-							onChange={(e) => props.setLocName(e.target.value)}
-							placeholder="Contoh: Shelf 1"
-						/>
-					)}
+					<Input
+						id="loc-name"
+						value={props.locName}
+						onChange={(e) => props.setLocName(e.target.value)}
+						placeholder={mode === "add-rak" ? props.locNamePlaceholder : "Contoh: Shelf 1"}
+					/>
 				</div>
 				{mode === "add-rak" && (
 					<div className="space-y-1.5">
@@ -121,7 +115,7 @@ export function LokasiSheet(props: LokasiSheetProps) {
 						id="loc-name"
 						value={props.locName}
 						onChange={(e) => props.setLocName(e.target.value)}
-						placeholder="Contoh: Kardus K-01"
+						placeholder={mode === "add-kardus" ? props.locNamePlaceholder : "Contoh: Kardus K-01"}
 					/>
 				</div>
 				<CapacityInput value={props.locCapacity} onChange={props.setLocCapacity} />
@@ -140,7 +134,7 @@ export function LokasiSheet(props: LokasiSheetProps) {
 						id="loc-name"
 						value={props.locName}
 						onChange={(e) => props.setLocName(e.target.value)}
-						placeholder="Contoh: Pallet P-01"
+						placeholder={mode === "add-pallet" ? props.locNamePlaceholder : "Contoh: Pallet P-01"}
 					/>
 				</div>
 				<CapacityInput value={props.locCapacity} onChange={props.setLocCapacity} />

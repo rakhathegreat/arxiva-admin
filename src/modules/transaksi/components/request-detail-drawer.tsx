@@ -1,374 +1,859 @@
-import React, { useState, useEffect, useRef } from "react"
-import { useNavigate } from "react-router-dom"
-import { FileText, Loader2 } from "lucide-react"
-import { toast } from "sonner"
-import { api } from "@/shared/lib/api"
-import { Button } from "@/shared/ui/button"
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter, DrawerClose } from "@/shared/ui/drawer"
-import { RejectRequestModal } from "./RejectRequestModal"
+import * as React from "react";
+import { useNavigate } from "react-router-dom";
+import { AlertTriangle, ArrowUpRight, FileText, Loader2, PackageOpen, X } from "lucide-react";
+import { api } from "@/shared/lib/api";
+import { cn } from "@/shared/lib/utils";
+import { Badge } from "@/shared/ui/badge";
+import { Button } from "@/shared/ui/button";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/shared/ui/table"
-import type { DashboardRequest } from "@/modules/transaksi/types"
+	Drawer,
+	DrawerClose,
+	DrawerContent,
+	DrawerDescription,
+	DrawerFooter,
+	DrawerHeader,
+	DrawerTitle,
+} from "@/shared/ui/drawer";
+import { Skeleton } from "@/shared/ui/skeleton";
+import { StatusBadge } from "@/shared/ui/status-badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
+import type { DashboardRequest } from "@/modules/transaksi/types";
+import { RejectRequestModal } from "./RejectRequestModal";
+
+const DATE_FORMAT: Intl.DateTimeFormatOptions = {
+	day: "2-digit",
+	month: "short",
+	year: "numeric",
+	hour: "2-digit",
+	minute: "2-digit",
+};
+
+const formatDate = (value?: string) =>
+	value ? new Date(value).toLocaleString("id-ID", DATE_FORMAT) : "-";
+
+const normalizeKey = (value?: string | null) =>
+	(value || "").trim().toUpperCase().replace(/-/g, "_");
+
+const isRusakType = (type?: string | null) => normalizeKey(type) === "RETURN_RUSAK";
+
+const ALLOCATED_STATUSES = ["SIAP", "SELESAI", "DITERIMA"];
+const REJECTED_STATUSES = ["DITOLAK", "DIBATALKAN"];
 
 const getUnitByCategory = (categoryName?: string) => {
-  if (!categoryName) return "Unit";
-  const name = categoryName.toLowerCase();
-  if (name.includes("kabel") || name.includes("foc") || name.includes("dropwire")) {
-    return "Meter";
-  }
-  return "Unit";
+	if (!categoryName) return "Unit";
+	const name = categoryName.toLowerCase();
+	if (name.includes("kabel") || name.includes("foc") || name.includes("dropwire")) {
+		return "Meter";
+	}
+	return "Unit";
 };
 
 const getCleanCategoryName = (categoryName?: string) => {
-  if (!categoryName) return "-";
-  const name = categoryName.toLowerCase();
-  if (name.includes("ont")) return "ONT";
-  if (name.includes("dropwire") || name.includes("kabel") || name.includes("foc")) return "DropWire";
-  return categoryName;
+	if (!categoryName) return "-";
+	const name = categoryName.toLowerCase();
+	if (name.includes("ont")) return "ONT";
+	if (name.includes("dropwire") || name.includes("kabel") || name.includes("foc"))
+		return "DropWire";
+	return categoryName;
 };
 
-const normalizeKey = (value?: string | null) =>
-  (value || "").trim().toUpperCase().replace(/-/g, "_");
+/** Normalisasi respons `GET /requests/:id` ke bentuk yang dipakai drawer. */
+function mapDetail(data: any): DashboardRequest {
+	return {
+		id: data.id,
+		requestNumber: data.requestNumber,
+		requesterName: data.requester?.profile?.nama || data.requester?.username,
+		partnerCategory: data.requester?.profile?.partnerType || "Mitra",
+		status: data.status,
+		type: data.type,
+		notes: data.notes || "-",
+		rejectionNotes: data.rejectionNotes || undefined,
+		adminRemarks: data.adminRemarks || undefined,
+		requestedAt: data.requestedAt,
+		itemsCount: data.requestItems?.reduce((acc: number, ri: any) => acc + ri.quantity, 0),
+		allocatedCount: data.requestItems?.reduce(
+			(acc: number, ri: any) => acc + (ri.allocations?.length || 0),
+			0,
+		),
+		requestItems: data.requestItems?.map((ri: any) => ({
+			id: ri.id,
+			category: ri.materialCategory?.nama,
+			brand: ri.brand?.nama,
+			model: ri.model?.nama || ri.model?.name || "-",
+			quantity: ri.quantity,
+			serialNumber: ri.serialNumber || null,
+			unit: getUnitByCategory(ri.materialCategory?.nama),
+		})),
+		requestAllocations: data.requestItems?.flatMap(
+			(ri: any) =>
+				ri.allocations?.map((alloc: any) => ({
+					id: alloc.id,
+					materialNumber: alloc.item?.model?.code || "-",
+					materialCategory: ri.materialCategory?.nama,
+					brand: alloc.item?.brand?.nama || ri.brand?.nama,
+					materialName:
+						alloc.item?.model?.deskripsi ||
+						alloc.item?.model?.nama ||
+						ri.model?.nama ||
+						"-",
+					serialNumber: alloc.item?.serialNumber,
+					quantity: 1,
+					unit: getUnitByCategory(ri.materialCategory?.nama),
+				})) || [],
+		),
+		deliveryDocument: data.deliveryDocument
+			? {
+					kpSignedById: data.deliveryDocument.kpSignedById,
+					picSignedById: data.deliveryDocument.picSignedById,
+					driveViewUrl: data.deliveryDocument.driveViewUrl || null,
+				}
+			: null,
+	};
+}
 
-const isRusakRequest = (request?: DashboardRequest | null, detail?: DashboardRequest | null) => {
-  const type = detail?.type || request?.type;
-  return normalizeKey(type) === "RETURN_RUSAK";
+function MetaField({
+	label,
+	value,
+	mono,
+}: {
+	label: string;
+	value?: React.ReactNode;
+	mono?: boolean;
+}) {
+	const isEmpty = value === null || value === undefined || value === "";
+	return (
+		<div className="min-w-0">
+			<dt className="meta-label">{label}</dt>
+			<dd
+				className={cn(
+					"mt-1 truncate text-sm",
+					mono && "font-mono text-xs tabular-nums",
+					isEmpty ? "text-muted-foreground" : "text-foreground",
+				)}
+				title={typeof value === "string" ? value : undefined}
+			>
+				{isEmpty ? "-" : value}
+			</dd>
+		</div>
+	);
+}
+
+function SectionHeading({ title, meta }: { title: string; meta?: string }) {
+	return (
+		<div className="flex items-baseline justify-between gap-3">
+			<h3 className="text-sm font-medium tracking-tight text-foreground">{title}</h3>
+			{meta ? <span className="meta-label tabular-nums">{meta}</span> : null}
+		</div>
+	);
+}
+
+function NoteBlock({
+	label,
+	value,
+	destructive,
+}: {
+	label: string;
+	value: string;
+	destructive?: boolean;
+}) {
+	return (
+		<div className="rounded-md border border-border bg-muted/40 p-3">
+			<p className={cn("meta-label", destructive && "text-destructive")}>{label}</p>
+			<p className="mt-1 text-sm leading-relaxed break-words text-foreground">{value}</p>
+		</div>
+	);
+}
+
+function EmptyTableState({
+	colSpan,
+	title,
+	description,
+}: {
+	colSpan: number;
+	title: string;
+	description?: string;
+}) {
+	return (
+		<TableRow className="hover:bg-transparent">
+			<TableCell colSpan={colSpan} className="p-0">
+				<div className="flex flex-col items-center justify-center gap-2 px-6 py-10 text-center">
+					<PackageOpen className="size-5 text-muted-foreground" aria-hidden="true" />
+					<p className="text-sm font-medium text-foreground">{title}</p>
+					{description ? (
+						<p className="max-w-sm text-xs text-muted-foreground">{description}</p>
+					) : null}
+				</div>
+			</TableCell>
+		</TableRow>
+	);
+}
+
+type MobileItem = {
+	id: string;
+	title: string;
+	subtitle?: string;
+	code?: string;
+	quantity: number;
+	unit?: string;
+	serialNumber?: string | null;
+	showSerial?: boolean;
 };
 
-/**
- * Wrapper for tables to add dynamic top and bottom scroll shadows
- */
-function ScrollShadowWrapper({ children }: { children: React.ReactNode }) {
-  const [canScrollTop, setCanScrollTop] = useState(false)
-  const [canScrollBottom, setCanScrollBottom] = useState(false)
-  const [headerHeight, setHeaderHeight] = useState(40)
-  const scrollRef = useRef<HTMLDivElement>(null)
+/** Ringkasan item untuk layar sempit; tabel berkolom banyak tidak terbaca di ponsel. */
+function MobileItemList({
+	items,
+	emptyTitle,
+	emptyDescription,
+}: {
+	items: MobileItem[];
+	emptyTitle: string;
+	emptyDescription?: string;
+}) {
+	if (items.length === 0) {
+		return (
+			<div className="rounded-md border border-border">
+				<div className="flex flex-col items-center justify-center gap-2 px-6 py-10 text-center">
+					<PackageOpen className="size-5 text-muted-foreground" aria-hidden="true" />
+					<p className="text-sm font-medium text-foreground">{emptyTitle}</p>
+					{emptyDescription ? (
+						<p className="max-w-sm text-xs text-muted-foreground">{emptyDescription}</p>
+					) : null}
+				</div>
+			</div>
+		);
+	}
 
-  const checkScroll = () => {
-    if (scrollRef.current) {
-      const { scrollTop, scrollHeight, clientHeight } = scrollRef.current
-      setCanScrollTop(scrollTop > 0)
-      setCanScrollBottom(Math.ceil(scrollTop + clientHeight) < scrollHeight)
+	return (
+		<ul className="divide-y divide-border rounded-md border border-border">
+			{items.map((item) => (
+				<li key={item.id} className="flex flex-col gap-2 p-3">
+					<div className="flex items-start justify-between gap-3">
+						<div className="min-w-0">
+							<p className="truncate text-sm font-medium text-foreground">
+								{item.title}
+							</p>
+							{item.subtitle ? (
+								<p className="mt-0.5 truncate text-xs text-muted-foreground">
+									{item.subtitle}
+								</p>
+							) : null}
+							{item.code ? (
+								<p className="mt-1 truncate font-mono text-[11px] text-muted-foreground">
+									{item.code}
+								</p>
+							) : null}
+						</div>
+						<p className="shrink-0 font-mono text-xs tabular-nums text-foreground">
+							{item.quantity}
+							<span className="ml-1 text-muted-foreground">
+								{item.unit || "Unit"}
+							</span>
+						</p>
+					</div>
+					{item.showSerial ? (
+						<dl className="grid grid-cols-[auto_1fr] gap-x-3 text-xs">
+							<dt className="meta-label">SN</dt>
+							<dd
+								className="truncate font-mono text-muted-foreground"
+								title={item.serialNumber || undefined}
+							>
+								{item.serialNumber || "-"}
+							</dd>
+						</dl>
+					) : null}
+				</li>
+			))}
+		</ul>
+	);
+}
 
-      const thead = scrollRef.current.querySelector('thead')
-      if (thead) {
-        setHeaderHeight(thead.offsetHeight)
-      }
-    }
-  }
+function DetailSkeleton() {
+	return (
+		<div className="flex flex-col gap-5" aria-busy="true">
+			<span className="sr-only">Memuat detail permintaan…</span>
+			<div className="grid grid-cols-2 gap-4 rounded-md border border-border bg-muted/40 p-4 sm:grid-cols-4">
+				{Array.from({ length: 4 }).map((_, index) => (
+					<div key={index} className="space-y-2">
+						<Skeleton className="h-2.5 w-14" />
+						<Skeleton className="h-4 w-24" />
+					</div>
+				))}
+			</div>
+			<div className="space-y-2">
+				<div className="flex items-baseline justify-between">
+					<Skeleton className="h-4 w-36" />
+					<Skeleton className="h-3 w-16" />
+				</div>
+				<div className="overflow-hidden rounded-md border border-border">
+					<div className="border-b border-border bg-muted/40 px-3 py-2.5">
+						<Skeleton className="h-3 w-full max-w-64" />
+					</div>
+					{Array.from({ length: 5 }).map((_, index) => (
+						<div
+							key={index}
+							className="flex items-center gap-4 border-b border-border/60 px-3 py-2.5 last:border-b-0"
+						>
+							<Skeleton className="h-3 w-5" />
+							<Skeleton className="h-3 flex-1" />
+							<Skeleton className="h-3 w-20" />
+							<Skeleton className="h-3 w-10" />
+						</div>
+					))}
+				</div>
+			</div>
+		</div>
+	);
+}
 
-  useEffect(() => {
-    checkScroll()
-    const el = scrollRef.current
-    if (!el) return
-    const observer = new ResizeObserver(() => checkScroll())
-    observer.observe(el)
-    if (el.firstElementChild) observer.observe(el.firstElementChild)
-    const thead = el.querySelector('thead')
-    if (thead) observer.observe(thead)
-    return () => observer.disconnect()
-  }, [children])
-
-  return (
-    <div className="rounded-md border overflow-hidden relative">
-      <div
-        ref={scrollRef}
-        className="overflow-auto max-h-62 xl:max-h-92 overscroll-contain [&>div]:overflow-visible [&>div]:static"
-        onScroll={checkScroll}
-      >
-        {children}
-      </div>
-      {canScrollTop && (
-        <div
-          className="absolute left-0 right-0 h-6 bg-linear-to-b from-card to-transparent pointer-events-none z-30"
-          style={{ top: `${headerHeight}px` }}
-        />
-      )}
-      {canScrollBottom && (
-        <div className="absolute bottom-0 left-0 right-0 h-8 bg-linear-to-t from-card to-transparent pointer-events-none rounded-b-md z-30" />
-      )}
-    </div>
-  )
+function DetailError({ onRetry }: { onRetry: () => void }) {
+	return (
+		<div className="flex flex-col items-center gap-3 rounded-md border border-border bg-muted/40 px-4 py-8 text-center">
+			<AlertTriangle className="size-5 text-muted-foreground" aria-hidden="true" />
+			<div>
+				<p className="text-sm font-medium text-foreground">
+					Gagal memuat detail permintaan
+				</p>
+				<p className="mt-1 text-xs text-muted-foreground">
+					Periksa koneksi Anda, lalu coba lagi.
+				</p>
+			</div>
+			<Button size="sm" variant="outline" onClick={onRetry}>
+				Coba lagi
+			</Button>
+		</div>
+	);
 }
 
 /**
- * Drawer detail permintaan. Menampilkan informasi lengkap dari sebuah request.
+ * Drawer detail permintaan. Menampilkan ringkasan, material yang diminta atau
+ * sudah dialokasikan, catatan, dan aksi status sesuai tahap permintaan.
  */
 export function RequestDetailDrawer({
-  item,
-  open,
-  onClose,
-  onStatusChange,
+	item,
+	open,
+	onClose,
+	onStatusChange,
 }: {
-  item: DashboardRequest | null
-  open: boolean
-  onClose: () => void
-  onStatusChange?: (id: string, newStatus: string, rejectionNotes?: string) => void
+	item: DashboardRequest | null;
+	open: boolean;
+	onClose: () => void;
+	onStatusChange?: (
+		id: string,
+		newStatus: string,
+		rejectionNotes?: string,
+	) => void | Promise<void>;
 }) {
-  const navigate = useNavigate()
-  const [detailData, setDetailData] = useState<DashboardRequest | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [rejectModalStatus, setRejectModalStatus] = useState<"Ditolak" | "Dibatalkan" | null>(null)
+	const navigate = useNavigate();
+	const [detailData, setDetailData] = React.useState<DashboardRequest | null>(null);
+	const [isLoading, setIsLoading] = React.useState(false);
+	const [loadError, setLoadError] = React.useState(false);
+	const [reloadKey, setReloadKey] = React.useState(0);
+	const [rejectModalStatus, setRejectModalStatus] = React.useState<
+		"Ditolak" | "Dibatalkan" | null
+	>(null);
+	const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  useEffect(() => {
-    if (!open || !item?.id) {
-      setDetailData(null)
-      return
-    }
+	React.useEffect(() => {
+		if (!open || !item?.id) {
+			setDetailData(null);
+			setLoadError(false);
+			setIsLoading(false);
+			return;
+		}
 
-    const fetchDetail = async () => {
-      setIsLoading(true)
-      try {
-        const response = await api.get(`/requests/${item.id}`)
-        const data = response.data
-        const formatted: DashboardRequest = {
-          id: data.id,
-          requestNumber: data.requestNumber,
-          requesterName: data.requester?.profile?.nama || data.requester?.username,
-          partnerCategory: data.requester?.profile?.partnerType || "Mitra",
-          status: data.status,
-          type: data.type,
-          notes: data.notes || "-",
-          requestedAt: data.requestedAt,
-          itemsCount: data.requestItems?.reduce((acc: number, ri: any) => acc + ri.quantity, 0),
-          allocatedCount: data.requestItems?.reduce((acc: number, ri: any) => acc + (ri.allocations?.length || 0), 0),
-          requestItems: data.requestItems?.map((ri: any) => ({
-            id: ri.id,
-            category: ri.materialCategory?.nama,
-            brand: ri.brand?.nama,
-            model: ri.model?.nama || ri.model?.name || "-",
-            quantity: ri.quantity,
-            serialNumber: ri.serialNumber || null,
-            unit: getUnitByCategory(ri.materialCategory?.nama)
-          })),
-          requestAllocations: data.requestItems?.flatMap((ri: any) =>
-            ri.allocations?.map((alloc: any) => ({
-              id: alloc.id,
-              materialNumber: alloc.item?.model?.code || "-",
-              materialCategory: ri.materialCategory?.nama,
-              brand: alloc.item?.brand?.nama || ri.brand?.nama,
-              materialName: alloc.item?.model?.deskripsi || alloc.item?.model?.nama || ri.model?.nama || "-",
-              serialNumber: alloc.item?.serialNumber,
-              quantity: 1,
-              unit: getUnitByCategory(ri.materialCategory?.nama)
-            })) || []
-          ),
-          deliveryDocument: data.deliveryDocument ? {
-            kpSignedById: data.deliveryDocument.kpSignedById,
-            picSignedById: data.deliveryDocument.picSignedById,
-            driveViewUrl: data.deliveryDocument.driveViewUrl || null
-          } : null
-        }
-        setDetailData(formatted)
-      } catch (error) {
-        console.error("Gagal memuat detail request:", error)
-        toast.error("Gagal memuat detail alokasi material")
-      } finally {
-        setIsLoading(false)
-      }
-    }
+		const controller = new AbortController();
+		setDetailData(null);
+		setLoadError(false);
+		setIsLoading(true);
 
-    fetchDetail()
-  }, [open, item?.id])
+		(async () => {
+			try {
+				const response = await api.get(`/requests/${item.id}`, {
+					signal: controller.signal,
+				});
+				if (!controller.signal.aborted) setDetailData(mapDetail(response.data));
+			} catch (error) {
+				if (controller.signal.aborted) return;
+				console.error("Gagal memuat detail request:", error);
+				setLoadError(true);
+			} finally {
+				if (!controller.signal.aborted) setIsLoading(false);
+			}
+		})();
 
-  if (!item) return null
+		return () => controller.abort();
+	}, [open, item?.id, reloadKey]);
 
-  const displayItem = detailData || item
+	if (!item) return null;
 
-  const handleAction = async (newStatus: string) => {
-    if (!displayItem?.id || !onStatusChange) return;
+	const displayItem = detailData || item;
+	const status = normalizeKey(displayItem.status);
+	const rusak = isRusakType(displayItem.type || item.type);
+	const isAllocated = ALLOCATED_STATUSES.includes(status);
+	const isRejected = REJECTED_STATUSES.includes(status);
+	const requestItems = displayItem.requestItems ?? [];
+	const allocations = displayItem.requestAllocations ?? [];
+	const allocationsTotal = allocations.reduce((acc, row) => acc + (row.quantity || 0), 0);
+	const itemsTotal = requestItems.reduce((acc, row) => acc + (row.quantity || 0), 0);
+	const driveViewUrl = displayItem.deliveryDocument?.driveViewUrl;
 
-    // Siapkan: navigate to prepare page instead of changing status directly
-    if (newStatus === "Siap") {
-      onClose()
-      navigate(`/request/${displayItem.id}/prepare`)
-      return;
-    }
+	const mobileItems: MobileItem[] = isAllocated
+		? allocations.map((row) => ({
+				id: String(row.id),
+				title: row.materialName || "-",
+				subtitle: [row.materialCategory, row.brand].filter(Boolean).join(" · "),
+				code: row.materialNumber || undefined,
+				quantity: row.quantity ?? 1,
+				unit: row.unit || "Unit",
+				serialNumber: row.serialNumber,
+				showSerial: status === "SELESAI",
+			}))
+		: requestItems.map((row) => ({
+				id: String(row.id),
+				title: getCleanCategoryName(row.category),
+				subtitle: row.brand || undefined,
+				quantity: row.quantity,
+				unit: row.unit || "Unit",
+				serialNumber: row.serialNumber,
+				showSerial: rusak,
+			}));
 
-    if (newStatus === "Ditolak" || newStatus === "Dibatalkan") {
-      setRejectModalStatus(newStatus);
-      return;
-    }
+	const notes = (displayItem.notes || "").trim();
+	const rejectionNotes = (displayItem.rejectionNotes || "").trim();
+	const adminRemarks = (displayItem.adminRemarks || "").trim();
+	const hasNotes = (notes && notes !== "-") || (isRejected && rejectionNotes) || adminRemarks;
 
-    onStatusChange(displayItem.id, newStatus);
-    onClose();
-  };
+	const handleAction = async (newStatus: string) => {
+		if (!displayItem?.id || !onStatusChange || isSubmitting) return;
 
-  const handleRejectConfirm = (note: string) => {
-    if (!displayItem?.id || !onStatusChange || !rejectModalStatus) return;
-    onStatusChange(displayItem.id, rejectModalStatus, note);
-    setRejectModalStatus(null);
-    onClose();
-  };
+		// Siapkan: lanjut ke halaman penyiapan alokasi, bukan ubah status langsung.
+		if (newStatus === "Siap") {
+			onClose();
+			navigate(`/request/${displayItem.id}/prepare`);
+			return;
+		}
 
-  const isSelesai = displayItem.status?.toUpperCase() === 'SELESAI';
-  const rusak = isRusakRequest(item, detailData);
+		if (newStatus === "Ditolak" || newStatus === "Dibatalkan") {
+			setRejectModalStatus(newStatus);
+			return;
+		}
 
-  return (
-    <>
-      <Drawer direction={"bottom"} open={open} onOpenChange={(o) => !o && onClose()}>
-      <DrawerContent>
-        <DrawerHeader className="gap-1">
-          <DrawerTitle>{displayItem.requestNumber.toUpperCase()}</DrawerTitle>
-          <DrawerDescription>
-            Detail Permintaan
-          </DrawerDescription>
-        </DrawerHeader>
-        <div className="flex flex-col gap-4 overflow-y-auto px-4 pb-4 text-sm min-h-37.5 justify-center">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-8 text-muted-foreground gap-2">
-              <Loader2 className="h-5 w-5 animate-spin" />
-              <span>Memuat detail alokasi...</span>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-3">
-              {isSelesai && displayItem.deliveryDocument?.driveViewUrl && (
-                <a
-                  href={displayItem.deliveryDocument.driveViewUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center justify-center gap-2 rounded-md border bg-muted/40 px-3 py-2 text-xs font-medium text-primary transition-colors hover:bg-muted"
-                >
-                  <FileText className="size-4" /> Lihat dokumen BAST di Google Drive
-                </a>
-              )}
-              {['SIAP', 'SELESAI', 'DITERIMA'].includes(displayItem.status?.toUpperCase() || "") ? (
-                <ScrollShadowWrapper>
-                  <Table className="whitespace-nowrap">
-                    <TableHeader className="sticky top-0 z-20 bg-muted ">
-                      <TableRow className="hover:bg-transparent">
-                        <TableHead className="w-12">No</TableHead>
-                        <TableHead>Kategori</TableHead>
-                        <TableHead>No. Material</TableHead>
-                        <TableHead>Nama Material</TableHead>
-                        <TableHead>Merek</TableHead>
-                        {isSelesai && <TableHead>SN</TableHead>}
-                        <TableHead className="text-right">Jumlah</TableHead>
-                        <TableHead className="text-right">Satuan</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {displayItem.requestAllocations && displayItem.requestAllocations.length > 0 ? (
-                        displayItem.requestAllocations.map((ra, idx) => (
-                          <TableRow key={ra.id}>
-                            <TableCell className="text-muted-foreground">{idx + 1}</TableCell>
-                            <TableCell className="font-medium">{ra.materialCategory}</TableCell>
-                            <TableCell className="font-medium text-muted-foreground" title={ra.materialNumber}>{ra.materialNumber}</TableCell>
-                            <TableCell className="truncate max-w-50" title={ra.materialName}>{ra.materialName}</TableCell>
-                            <TableCell>{ra.brand}</TableCell>
-                            {isSelesai && (
-                              <TableCell>
-                                {ra.serialNumber || "-"}
-                              </TableCell>
-                            )}
-                            <TableCell className="text-right font-medium">{ra.quantity}</TableCell>
-                            <TableCell className="text-right font-medium">{ra.unit || "Unit"}</TableCell>
-                          </TableRow>
-                        ))
-                      ) : (
-                        <TableRow>
-                          <TableCell colSpan={7} className="text-center h-24 text-muted-foreground">
-                            Belum ada alokasi material spesifik.
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </ScrollShadowWrapper>
-              ) : displayItem.requestItems && displayItem.requestItems.length > 0 ? (
-                <>
-                  <ScrollShadowWrapper>
-                    <Table>
-                      <TableHeader className="sticky top-0 z-20 bg-muted ">
-                        <TableRow className="hover:bg-transparent">
-                          <TableHead className="w-12 px-4">No</TableHead>
-                          <TableHead>Kategori</TableHead>
-                          <TableHead>Merek</TableHead>
-                          {rusak && <TableHead>Serial No</TableHead>}
-                          <TableHead className="text-right">Jumlah</TableHead>
-                          <TableHead className="text-right px-4">Satuan</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {displayItem.requestItems.map((ri, idx) => (
-                          <TableRow key={ri.id}>
-                            <TableCell className="text-muted-foreground px-4">{idx + 1}</TableCell>
-                            <TableCell className="font-medium">{getCleanCategoryName(ri.category)}</TableCell>
-                            <TableCell>{ri.brand}</TableCell>
-                            {rusak && (
-                              <TableCell className="text-muted-foreground">{ri.serialNumber || "-"}</TableCell>
-                            )}
-                            <TableCell className="text-right font-medium">{ri.quantity}</TableCell>
-                            <TableCell className="text-right font-medium px-4">Unit</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </ScrollShadowWrapper>
-                  {'DITOLAK'.includes(displayItem.status?.toUpperCase() || "") ? (
-                    <p className="text-muted-foreground italic">Catatan : {displayItem.notes || "-"}</p>
-                  ) : (
-                    <p className="text-muted-foreground italic">Tidak ada catatan.</p>
-                  )}
-                </>
-              ) : (
-                <p className="text-muted-foreground italic">Tidak ada item.</p>
-              )}
-            </div>
-          )}
-        </div>
-        <DrawerFooter className="w-full pt-2">
-          <div className="flex w-full gap-2">
-            {['MENUNGGU'].includes(displayItem.status?.toUpperCase() || "") && (
-              <>
-                {rusak ? (
-                  <Button variant="default" className="flex-1 cursor-pointer" onClick={() => handleAction("DISETUJUI")}>Setujui Pengajuan</Button>
-                ) : (
-                  <Button variant="default" className="flex-1 cursor-pointer" onClick={() => navigate(`/request/${displayItem.id}/prepare`)}>Siapkan Material</Button>
-                )}
-                <Button variant="destructive" className="flex-1 cursor-pointer" onClick={() => handleAction("Ditolak")}>Tolak Permintaan</Button>
-              </>
-            )}
-            {
-              ['SIAP'].includes(displayItem.status?.toUpperCase() || "") && (
-                <>
-                  <Button variant="default" className="flex-1 cursor-pointer" onClick={() => navigate(`/request/${displayItem.id}/prepare`)}>Edit</Button>
-                  <Button variant="destructive" className="flex-1 cursor-pointer" onClick={() => handleAction("Dibatalkan")}>Batalkan</Button>
-                </>
-              )
-            }
-            {
-              rusak && ['SERAH'].includes(displayItem.status?.toUpperCase() || "") && (
-                <Button variant="default" className="flex-1 cursor-pointer" onClick={() => handleAction("SELESAI")}>Selesaikan Pengajuan</Button>
-              )
-            }
-            <DrawerClose asChild>
-              <Button variant="outline" className="flex-1 cursor-pointer">Tutup</Button>
-            </DrawerClose>
-          </div>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
+		setIsSubmitting(true);
+		try {
+			await onStatusChange(displayItem.id, newStatus);
+			onClose();
+		} finally {
+			setIsSubmitting(false);
+		}
+	};
 
-      <RejectRequestModal
-        open={rejectModalStatus !== null}
-        onOpenChange={(open) => !open && setRejectModalStatus(null)}
-        requestNumber={displayItem.requestNumber}
-        title={rejectModalStatus === "Ditolak" ? "Tolak Permintaan" : "Batalkan Permintaan"}
-        description={
-          rejectModalStatus === "Ditolak"
-            ? "Permintaan akan berstatus Ditolak dan alokasi material akan dilepas."
-            : "Permintaan akan berstatus Dibatalkan dan alokasi material akan dilepas."
-        }
-        confirmLabel={rejectModalStatus === "Ditolak" ? "Tolak Permintaan" : "Batalkan Permintaan"}
-        onConfirm={handleRejectConfirm}
-      />
-    </>
-  )
+	const handleRejectConfirm = async (note: string) => {
+		if (!displayItem?.id || !onStatusChange || !rejectModalStatus) return;
+		const nextStatus = rejectModalStatus;
+		setRejectModalStatus(null);
+		setIsSubmitting(true);
+		try {
+			await onStatusChange(displayItem.id, nextStatus, note);
+			onClose();
+		} finally {
+			setIsSubmitting(false);
+		}
+	};
+
+	return (
+		<>
+			<Drawer direction="bottom" open={open} onOpenChange={(next) => !next && onClose()}>
+				<DrawerContent className="max-h-[88vh] gap-0 p-0">
+					<DrawerHeader className="shrink-0 gap-2 border-b border-border px-4 pb-4 text-left sm:px-6">
+						<div className="flex items-start justify-between gap-3 text-left">
+							<div className="flex min-w-0 flex-col gap-1.5">
+								<div className="flex min-w-0 flex-wrap items-center gap-2">
+									<DrawerTitle className="font-mono text-base font-medium tracking-tight text-foreground">
+										{displayItem.requestNumber.toUpperCase()}
+									</DrawerTitle>
+									<StatusBadge status={displayItem.status} />
+									<Badge tone={rusak ? "orange" : "indigo"}>
+										{rusak ? "Material Rusak" : "Permintaan"}
+									</Badge>
+								</div>
+							</div>
+							<DrawerClose asChild>
+								<Button
+									size="icon-sm"
+									variant="ghost"
+									className="-mr-1 shrink-0 text-muted-foreground hover:text-foreground"
+									aria-label="Tutup detail permintaan"
+								>
+									<X className="size-4" />
+								</Button>
+							</DrawerClose>
+						</div>
+					</DrawerHeader>
+
+					<div className="min-h-0 flex-1 overflow-y-auto">
+						<div className="flex flex-col gap-5 px-4 py-4 text-sm sm:px-6">
+							{isLoading ? (
+								<DetailSkeleton />
+							) : loadError ? (
+								<DetailError onRetry={() => setReloadKey((key) => key + 1)} />
+							) : (
+								<>
+									<dl className="grid grid-cols-2 gap-x-4 gap-y-3 rounded-md border border-border bg-muted/40 p-4 sm:grid-cols-4">
+										<MetaField
+											label="Mitra"
+											value={displayItem.requesterName}
+										/>
+										<MetaField
+											label="Kategori"
+											value={displayItem.partnerCategory}
+										/>
+										<MetaField
+											label="Diajukan"
+											value={formatDate(displayItem.requestedAt)}
+											mono
+										/>
+										<MetaField
+											label="Jumlah"
+											value={`${displayItem.itemsCount ?? itemsTotal} unit`}
+											mono
+										/>
+									</dl>
+
+									<section className="space-y-2">
+										<SectionHeading
+											title={
+												isAllocated
+													? "Material Dialokasikan"
+													: "Material Diminta"
+											}
+											meta={
+												isAllocated
+													? `${allocationsTotal} unit`
+													: `${requestItems.length} jenis`
+											}
+										/>
+										<div className="sm:hidden">
+											<MobileItemList
+												items={mobileItems}
+												emptyTitle={
+													isAllocated
+														? "Belum ada alokasi material"
+														: "Tidak ada item"
+												}
+												emptyDescription={
+													isAllocated
+														? "Alokasi unit akan tampil di sini setelah material disiapkan."
+														: "Permintaan ini tidak memuat rincian material."
+												}
+											/>
+										</div>
+										<div className="hidden overflow-hidden rounded-md border border-border sm:block">
+											{isAllocated ? (
+												<Table className="text-xs">
+													<TableHeader className="bg-muted/40">
+														<TableRow className="hover:bg-transparent">
+															<TableHead className="h-9 w-10">
+																No
+															</TableHead>
+															<TableHead className="h-9">
+																Kategori
+															</TableHead>
+															<TableHead className="h-9">
+																No. Material
+															</TableHead>
+															<TableHead className="h-9">
+																Nama Material
+															</TableHead>
+															<TableHead className="h-9">
+																Merek
+															</TableHead>
+															{status === "SELESAI" && (
+																<TableHead className="h-9">
+																	SN
+																</TableHead>
+															)}
+															<TableHead className="h-9 w-28 text-right">
+																Jumlah
+															</TableHead>
+														</TableRow>
+													</TableHeader>
+													<TableBody>
+														{allocations.length > 0 ? (
+															allocations.map((row, index) => (
+																<TableRow key={row.id}>
+																	<TableCell className="py-2 text-center text-muted-foreground">
+																		{index + 1}
+																	</TableCell>
+																	<TableCell className="py-2 whitespace-nowrap">
+																		{row.materialCategory ||
+																			"-"}
+																	</TableCell>
+																	<TableCell
+																		className="max-w-40 truncate py-2 font-mono text-muted-foreground"
+																		title={row.materialNumber}
+																	>
+																		{row.materialNumber || "-"}
+																	</TableCell>
+																	<TableCell
+																		className="max-w-64 truncate py-2"
+																		title={row.materialName}
+																	>
+																		{row.materialName || "-"}
+																	</TableCell>
+																	<TableCell className="py-2 whitespace-nowrap">
+																		{row.brand || "-"}
+																	</TableCell>
+																	{status === "SELESAI" && (
+																		<TableCell
+																			className="max-w-44 truncate py-2 font-mono text-muted-foreground"
+																			title={
+																				row.serialNumber ||
+																				undefined
+																			}
+																		>
+																			{row.serialNumber ||
+																				"-"}
+																		</TableCell>
+																	)}
+																	<TableCell className="py-2 text-right font-medium tabular-nums whitespace-nowrap">
+																		{row.quantity ?? 1}
+																		<span className="ml-1 text-muted-foreground">
+																			{row.unit || "Unit"}
+																		</span>
+																	</TableCell>
+																</TableRow>
+															))
+														) : (
+															<EmptyTableState
+																colSpan={
+																	status === "SELESAI" ? 7 : 6
+																}
+																title="Belum ada alokasi material"
+																description="Alokasi unit akan tampil di sini setelah material disiapkan."
+															/>
+														)}
+													</TableBody>
+												</Table>
+											) : (
+												<Table className="text-xs">
+													<TableHeader className="bg-muted/40">
+														<TableRow className="hover:bg-transparent">
+															<TableHead className="h-9 w-10">
+																No
+															</TableHead>
+															<TableHead className="h-9">
+																Kategori
+															</TableHead>
+															<TableHead className="h-9">
+																Merek
+															</TableHead>
+															{rusak && (
+																<TableHead className="h-9">
+																	Serial No
+																</TableHead>
+															)}
+															<TableHead className="h-9 w-28 text-right">
+																Jumlah
+															</TableHead>
+														</TableRow>
+													</TableHeader>
+													<TableBody>
+														{requestItems.length > 0 ? (
+															requestItems.map((row, index) => (
+																<TableRow key={row.id}>
+																	<TableCell className="py-2 text-center text-muted-foreground">
+																		{index + 1}
+																	</TableCell>
+																	<TableCell className="py-2 font-medium whitespace-nowrap">
+																		{getCleanCategoryName(
+																			row.category,
+																		)}
+																	</TableCell>
+																	<TableCell className="py-2 whitespace-nowrap">
+																		{row.brand || "-"}
+																	</TableCell>
+																	{rusak && (
+																		<TableCell
+																			className="max-w-44 truncate py-2 font-mono text-muted-foreground"
+																			title={
+																				row.serialNumber ||
+																				undefined
+																			}
+																		>
+																			{row.serialNumber ||
+																				"-"}
+																		</TableCell>
+																	)}
+																	<TableCell className="py-2 text-right font-medium tabular-nums whitespace-nowrap">
+																		{row.quantity}
+																		<span className="ml-1 text-muted-foreground">
+																			{row.unit || "Unit"}
+																		</span>
+																	</TableCell>
+																</TableRow>
+															))
+														) : (
+															<EmptyTableState
+																colSpan={rusak ? 5 : 4}
+																title="Tidak ada item"
+																description="Permintaan ini tidak memuat rincian material."
+															/>
+														)}
+													</TableBody>
+												</Table>
+											)}
+										</div>
+									</section>
+
+									{hasNotes ? (
+										<section className="space-y-2">
+											<SectionHeading title="Catatan" />
+											<div className="flex flex-col gap-2">
+												{notes && notes !== "-" ? (
+													<NoteBlock
+														label="Catatan Mitra"
+														value={notes}
+													/>
+												) : null}
+												{isRejected && rejectionNotes ? (
+													<NoteBlock
+														label="Catatan Penolakan"
+														value={rejectionNotes}
+														destructive
+													/>
+												) : null}
+												{adminRemarks ? (
+													<NoteBlock
+														label="Catatan Admin"
+														value={adminRemarks}
+													/>
+												) : null}
+											</div>
+										</section>
+									) : null}
+
+									{driveViewUrl ? (
+										<section className="space-y-2">
+											<SectionHeading title="Dokumen" />
+											<a
+												href={driveViewUrl}
+												target="_blank"
+												rel="noreferrer"
+												className="group flex items-center justify-between gap-3 rounded-md border border-border px-3 py-2.5 transition-colors hover:bg-muted/40"
+											>
+												<span className="flex min-w-0 items-center gap-2 text-xs font-medium text-foreground">
+													<FileText
+														className="size-4 shrink-0 text-muted-foreground"
+														aria-hidden="true"
+													/>
+													<span className="truncate">
+														BAST Pengambilan Material
+													</span>
+												</span>
+												<span className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground transition-colors group-hover:text-foreground">
+													Buka di Drive
+													<ArrowUpRight
+														className="size-3.5"
+														aria-hidden="true"
+													/>
+												</span>
+											</a>
+										</section>
+									) : null}
+								</>
+							)}
+						</div>
+					</div>
+
+					<DrawerFooter className="shrink-0 border-t border-border px-4 py-3 sm:px-6">
+						<div className="flex w-full flex-col-reverse gap-2 sm:flex-row sm:items-center">
+							<DrawerClose asChild>
+								<Button variant="outline" className="sm:mr-auto">
+									Tutup
+								</Button>
+							</DrawerClose>
+
+							{status === "MENUNGGU" && (
+								<>
+									<Button
+										variant="destructive"
+										disabled={isSubmitting}
+										onClick={() => handleAction("Ditolak")}
+									>
+										Tolak Permintaan
+									</Button>
+									{rusak ? (
+										<Button
+											disabled={isSubmitting}
+											onClick={() => handleAction("DISETUJUI")}
+										>
+											{isSubmitting ? (
+												<Loader2 className="size-4 animate-spin" />
+											) : null}
+											Setujui Pengajuan
+										</Button>
+									) : (
+										<Button
+											onClick={() =>
+												navigate(`/request/${displayItem.id}/prepare`)
+											}
+										>
+											Siapkan Material
+										</Button>
+									)}
+								</>
+							)}
+
+							{status === "SIAP" && (
+								<>
+									<Button
+										variant="destructive"
+										disabled={isSubmitting}
+										onClick={() => handleAction("Dibatalkan")}
+									>
+										Batalkan
+									</Button>
+									<Button
+										onClick={() =>
+											navigate(`/request/${displayItem.id}/prepare`)
+										}
+									>
+										Edit Alokasi
+									</Button>
+								</>
+							)}
+
+							{rusak && status === "SERAH" && (
+								<Button
+									disabled={isSubmitting}
+									onClick={() => handleAction("SELESAI")}
+								>
+									{isSubmitting ? (
+										<Loader2 className="size-4 animate-spin" />
+									) : null}
+									Selesaikan Pengajuan
+								</Button>
+							)}
+						</div>
+					</DrawerFooter>
+				</DrawerContent>
+			</Drawer>
+
+			<RejectRequestModal
+				open={rejectModalStatus !== null}
+				onOpenChange={(next) => !next && setRejectModalStatus(null)}
+				requestNumber={displayItem.requestNumber}
+				title={rejectModalStatus === "Ditolak" ? "Tolak Permintaan" : "Batalkan Permintaan"}
+				description={
+					rejectModalStatus === "Ditolak"
+						? "Permintaan akan berstatus Ditolak dan alokasi material akan dilepas."
+						: "Permintaan akan berstatus Dibatalkan dan alokasi material akan dilepas."
+				}
+				confirmLabel={
+					rejectModalStatus === "Ditolak" ? "Tolak Permintaan" : "Batalkan Permintaan"
+				}
+				onConfirm={handleRejectConfirm}
+			/>
+		</>
+	);
 }

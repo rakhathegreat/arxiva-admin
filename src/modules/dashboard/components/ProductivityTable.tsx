@@ -208,6 +208,12 @@ function ProductivityTableBase({
 									Nama Mitra {renderSortIcon("name")}
 								</TableHead>
 								<TableHead
+									onClick={() => handleSort("requestCount")}
+									className="cursor-pointer select-none hover:text-foreground font-medium text-xs"
+								>
+									Total Request {renderSortIcon("requestCount")}
+								</TableHead>
+								<TableHead
 									onClick={() => handleSort("totalItems")}
 									className="cursor-pointer select-none hover:text-foreground font-medium text-xs"
 								>
@@ -221,13 +227,13 @@ function ProductivityTableBase({
 								</TableHead>
 								<TableHead
 									onClick={() => handleSort("daysSinceLastRequest")}
-									className="cursor-pointer select-none hover:text-foreground font-medium text-xs"
+									className="cursor-pointer select-none hover:text-foreground font-medium text-center text-xs"
 								>
 									Days Idle {renderSortIcon("daysSinceLastRequest")}
 								</TableHead>
 								<TableHead
 									onClick={() => handleSort("status")}
-									className="cursor-pointer select-none hover:text-foreground font-medium text-xs border-r-0"
+									className="cursor-pointer select-none hover:text-foreground font-medium  text-center text-xs border-r-0"
 								>
 									Status {renderSortIcon("status")}
 								</TableHead>
@@ -333,8 +339,8 @@ function ProductivityTableBase({
 
 											<TableCell className="text-center">
 												<Badge
-													variant="glass"
-													size="sm"
+													variant="quiet"
+													size="md"
 													tone={getBadgeTone(mitra.status)}
 												>
 													{mitra.status}

@@ -112,7 +112,9 @@ function ConfirmDialog({
 			<AlertDialogContent>
 				<AlertDialogHeader className="flex flex-row items-center gap-3">
 					{media}
-					<AlertDialogTitle className="min-w-0 text-base leading-5">{title}</AlertDialogTitle>
+					<AlertDialogTitle className="min-w-0 text-base leading-5">
+						{title}
+					</AlertDialogTitle>
 				</AlertDialogHeader>
 				<AlertDialogDescription className="text-xs leading-5">
 					{description}
@@ -519,7 +521,8 @@ export default function ManajemenUserPage() {
 				columns={columns}
 				isLoading={isLoading}
 				pagination="client"
-				className="pb-10"
+				autoPageSize
+				className="space-y-3"
 				emptyState={{
 					icon: Users,
 					title: hasActiveFilter

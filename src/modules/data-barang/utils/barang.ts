@@ -53,17 +53,38 @@ export function formatTanggal(tgl: string): string {
 export const RECON_STATUSES: StatusUnit[] = ["Terdistribusi", "Digunakan"];
 
 /**
- * True jika unit berstatus terdistribusi/digunakan dan belum ada rekon
- * pada hari ini (rekon terakhir harus dilakukan tiap hari). PURE.
+ * Keadaan rekon harian sebuah unit.
+ * - `ok`    : sudah direkon hari ini, atau statusnya tidak butuh rekon
+ * - `telat` : ada tanggal rekon tapi sebelum hari ini
+ * - `belum` : belum pernah rekon sama sekali (termasuk tanggal tak terbaca)
+ */
+export type ReconState = "ok" | "telat" | "belum";
+
+/**
+ * Tentukan keadaan rekon dari status + tanggal rekon terakhir. PURE.
+ */
+export function getReconState(
+	item: Pick<BarangUnit, "status" | "lastReconDate">,
+	now: Date = new Date(),
+): ReconState {
+	if (!RECON_STATUSES.includes(item.status)) return "ok";
+	if (!item.lastReconDate) return "belum";
+
+	const last = new Date(item.lastReconDate);
+	if (Number.isNaN(last.getTime())) return "belum";
+
+	const today = new Date(now);
+	today.setHours(0, 0, 0, 0);
+	last.setHours(0, 0, 0, 0);
+
+	return last.getTime() < today.getTime() ? "telat" : "ok";
+}
+
+/**
+ * True jika unit butuh rekon dan belum dilakukan hari ini. PURE.
  */
 export function isReconTelat(item: Pick<BarangUnit, "status" | "lastReconDate">): boolean {
-	if (!RECON_STATUSES.includes(item.status)) return false;
-	const last = item.lastReconDate ? new Date(item.lastReconDate) : null;
-	const today = new Date();
-	today.setHours(0, 0, 0, 0);
-	if (!last) return true;
-	last.setHours(0, 0, 0, 0);
-	return last.getTime() < today.getTime();
+	return getReconState(item) !== "ok";
 }
 
 const EXPORT_COLUMN_LABELS: Record<string, (item: BarangUnit) => any> = {

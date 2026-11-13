@@ -16,7 +16,7 @@ import { PackageCheck, Edit, Pencil, Send } from "lucide-react";
 import { PengambilanQrModal } from "./PengambilanQrModal";
 import { RejectRequestModal } from "./RejectRequestModal";
 import { DigitalSignatureDialog } from "./DigitalSignatureDialog";
-import { RoundedDataTable } from "@/shared/ui/data-table/RoundedDataTable";
+import { DataTable } from "@/shared/ui/data-table/DataTable";
 import type { DataTableEmptyState } from "@/shared/ui/data-table/DataTable";
 
 /** Meta yang dapat diakses oleh kolom tabel. Bukan `any` — fully typed. */
@@ -33,6 +33,7 @@ export type TableMeta = {
 export type DataTableProps = {
 	data: DashboardRequest[];
 	className?: string;
+	isLoading?: boolean;
 	onRowClick?: (item: DashboardRequest) => void;
 	onStatusChange?: (id: string, status: string, rejectionNotes?: string) => void;
 	hiddenColumns?: string[];
@@ -40,6 +41,8 @@ export type DataTableProps = {
 	countMode?: "requested" | "allocated";
 	/** Dipanggil setelah tindakan yang tidak mengubah status (mis. tanda tangan) untuk merefresh data. */
 	onRefetch?: () => void;
+	/** Berubah → tabel kembali ke halaman pertama (tab/pencarian/filter). */
+	resetPageKey?: unknown;
 };
 
 // ─────────────────────────────────────────────
@@ -63,11 +66,11 @@ const DATE_FORMAT_OPTIONS: Intl.DateTimeFormatOptions = {
 	year: "numeric",
 	hour: "2-digit",
 	minute: "2-digit",
-	second: "2-digit",
 };
 
 const REQUEST_EMPTY_STATE: DataTableEmptyState = {
 	title: "Belum ada daftar permintaan.",
+	description: "Permintaan dari mitra muncul di sini setelah diajukan.",
 };
 
 // ─────────────────────────────────────────────
@@ -293,7 +296,7 @@ function ActionMenu({
 			)}
 
 			{status === "SIAP" && (
-				<div>
+				<div className="flex items-center gap-1 justify-center">
 					<Button
 						variant="ghost"
 						size="icon-lg"
@@ -331,7 +334,12 @@ function createColumns(
 		{
 			id: "nomor",
 			header: () => <div className="">No.</div>,
-			cell: ({ row }) => <div className="text-muted-foreground">{row.index + 1}</div>,
+			meta: { className: "hidden xl:table-cell w-12" },
+			cell: ({ row }) => (
+				// `row.index` sudah absolut terhadap data halaman-luar (model
+				// paginasi hanya mengiris baris), jadi nomor berlanjut antar halaman.
+				<div className="text-muted-foreground text-center">{row.index + 1}</div>
+			),
 		},
 		{
 			accessorKey: "requestNumber",
@@ -344,8 +352,8 @@ function createColumns(
 			cell: ({ row }) => {
 				const rusak = isRusak(row.original);
 				return (
-					<div className="flex items-center justify-center">
-						<Badge variant="glass" size="sm" tone={rusak ? "orange" : "indigo"}>
+					<div className="flex items-center">
+						<Badge tone={rusak ? "orange" : "indigo"}>
 							{rusak ? "Material Rusak" : "Permintaan"}
 						</Badge>
 					</div>
@@ -354,12 +362,12 @@ function createColumns(
 		},
 		{
 			accessorKey: "requestedAt",
-			header: "Tanggal Masuk",
+			header: "Diajukan",
 			enableSorting: false,
 			cell: ({ row }) => (
 				<div className="text-muted-foreground whitespace-nowrap">
-					{new Date(row.original.requestedAt).toLocaleDateString(
-						"en-GB",
+					{new Date(row.original.requestedAt).toLocaleString(
+						"id-ID",
 						DATE_FORMAT_OPTIONS,
 					)}
 				</div>
@@ -369,22 +377,23 @@ function createColumns(
 			accessorKey: "requesterName",
 			header: "Mitra",
 			cell: ({ row }) => (
-				<div className="text-foreground font-medium">{row.original.requesterName}</div>
+				<div className="text-foreground">{row.original.requesterName || "-"}</div>
 			),
 		},
 		{
 			accessorKey: "partnerCategory",
 			header: "Kategori",
-			cell: ({ row }) => (
-				<Badge
-					variant="quiet"
-					size="sm"
-					tone={toneFromLabel(row.original.partnerCategory)}
-					className="capitalize"
-				>
-					{row.original.partnerCategory?.toLocaleLowerCase()}
-				</Badge>
-			),
+			cell: ({ row }) => {
+				const category = row.original.partnerCategory;
+				if (!category) {
+					return <span className="text-muted-foreground">-</span>;
+				}
+				return (
+					<Badge tone={toneFromLabel(category)} className="capitalize">
+						{category.toLocaleLowerCase()}
+					</Badge>
+				);
+			},
 		},
 		{
 			accessorKey: "itemsCount",
@@ -435,6 +444,7 @@ function createColumns(
 		},
 		{
 			id: "actions",
+			header: () => <span className="sr-only">Aksi</span>,
 			cell: ({ row, table }) => (
 				<div className="flex items-center justify-center">
 					<ActionMenu row={row} table={table} />
@@ -451,11 +461,13 @@ function createColumns(
 export const RequestTable = React.memo(function RequestTable({
 	data,
 	className,
+	isLoading,
 	onRowClick,
 	onStatusChange,
 	hiddenColumns = [],
 	countMode = "requested",
 	onRefetch,
+	resetPageKey,
 }: DataTableProps) {
 	const [rejectTarget, setRejectTarget] = React.useState<{
 		row: DashboardRequest;
@@ -544,15 +556,17 @@ export const RequestTable = React.memo(function RequestTable({
 
 	return (
 		<>
-			<RoundedDataTable<DashboardRequest>
+			<DataTable<DashboardRequest>
 				data={data}
-				enableSelection
-				getRowId={(row) => row.id}
+				isLoading={isLoading}
+				pagination="client"
+				autoPageSize
 				columns={visibleColumns}
 				meta={tableMeta}
 				onRowClick={onRowClick}
 				className={className}
 				emptyState={REQUEST_EMPTY_STATE}
+				resetPageKey={resetPageKey}
 			/>
 
 			{/* Reject/Batalkan modal — rendered di luar TableRow agar klik di dalam

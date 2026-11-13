@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import {
-  Plus, Edit, Trash2, Search, CircleStar, MoreVertical, Loader2, LayoutGrid, List
+  Plus, Edit, Trash2, Search, CircleStar, MoreVertical, Loader2, LayoutGrid, List, X
 } from "lucide-react";
 import { Card, CardContent } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
@@ -10,7 +10,9 @@ import { Input } from "@/shared/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 import { Kbd } from "@/shared/ui/kbd";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/shared/ui/dropdown-menu";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetFooter } from "@/shared/ui/sheet";
+import {
+  Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle
+} from "@/shared/ui/drawer";
 import { Label } from "@/shared/ui/label";
 import {
   AlertDialog,
@@ -22,7 +24,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/shared/ui/alert-dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
+import { Combobox } from "@/shared/ui/combobox";
 import { DataTable, createRowActionsColumn } from "@/shared/ui/data-table/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Merek } from "@/shared/types/inventory";
@@ -133,15 +135,18 @@ export default function MerekBarangPage() {
 					<span className="text-foreground font-medium">{row.original.totalItems} Unit</span>
 				),
 			},
-			createRowActionsColumn<Merek>([
-				{ label: "Edit Merek", icon: Edit, onClick: (brand) => handleOpenSheet(brand.id) },
-				{
-					label: "Hapus Merek",
-					icon: Trash2,
-					destructive: true,
-					onClick: (brand) => requestDelete(brand.id, brand.nama),
-				},
-			]),
+			createRowActionsColumn<Merek>(
+				[
+					{ label: "Edit Merek", icon: Edit, onClick: (brand) => handleOpenSheet(brand.id) },
+					{
+						label: "Hapus Merek",
+						icon: Trash2,
+						destructive: true,
+						onClick: (brand) => requestDelete(brand.id, brand.nama),
+					},
+				],
+				{ menuOnly: true },
+			),
 		],
 		[handleOpenSheet, requestDelete],
 	);
@@ -322,6 +327,7 @@ export default function MerekBarangPage() {
           	},
           ]}
           columns={columns}
+          autoPageSize
           emptyState={{
             icon: Search,
             title: searchQuery ? "Merek Tidak Ditemukan" : "Belum Ada Data",
@@ -337,15 +343,24 @@ export default function MerekBarangPage() {
         />
       )}
 
-      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-        <SheetContent className="sm:max-w-md border-border bg-card p-0 flex flex-col text-foreground">
-          <SheetHeader className="p-6 border-b border-border/60 bg-muted/20">
-            <SheetTitle>{editId ? "Edit Merek" : "Tambah Merek Baru"}</SheetTitle>
-            <SheetDescription className="text-muted-foreground">
-              Isi formulir di bawah ini untuk mengelola informasi merek material.
-            </SheetDescription>
-          </SheetHeader>
-          <div className="p-6 flex-1 overflow-y-auto">
+      <Drawer open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+        <DrawerContent className="border-border bg-card p-0 text-foreground data-[vaul-drawer-direction=right]:sm:max-w-md">
+          <DrawerHeader className="border-b border-border/60 bg-muted/20 p-6 text-left">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex min-w-0 flex-col gap-1.5">
+                <DrawerTitle>{editId ? "Edit Merek" : "Tambah Merek Baru"}</DrawerTitle>
+                <DrawerDescription className="text-muted-foreground">
+                  Isi formulir di bawah ini untuk mengelola informasi merek material.
+                </DrawerDescription>
+              </div>
+              <DrawerClose asChild>
+                <Button variant="ghost" size="icon-sm" aria-label="Tutup" className="cursor-pointer text-muted-foreground hover:text-foreground">
+                  <X className="size-4" />
+                </Button>
+              </DrawerClose>
+            </div>
+          </DrawerHeader>
+          <div className="min-h-0 flex-1 overflow-y-auto p-6">
             <div className="grid gap-5">
               <div className="space-y-2">
                 <Label>Nama Merek</Label>
@@ -379,24 +394,17 @@ export default function MerekBarangPage() {
               </div>
               <div className="space-y-2">
                 <Label>Kategori</Label>
-                <Select
+                <Combobox
                   value={categoryId}
-                  onValueChange={(value) => {
+                  onChange={(value) => {
                     setCategoryId(value)
                     setFormErrors(current => ({ ...current, category: "" }))
                   }}
-                >
-                  <SelectTrigger className="bg-card border-border">
-                    <SelectValue placeholder="Pilih Kategori" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-card border-border">
-                    {categories.map(category => (
-                      <SelectItem key={category.id} value={category.id}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  items={categories.map(category => ({ value: String(category.id), label: category.name }))}
+                  placeholder="Pilih Kategori"
+                  searchPlaceholder="Cari kategori..."
+                  emptyText="Kategori tidak ditemukan"
+                />
               </div>
               <div className="space-y-2">
                 <Label>Asal</Label>
@@ -404,15 +412,15 @@ export default function MerekBarangPage() {
               </div>
             </div>
           </div>
-          <SheetFooter className="p-6 border-t border-border/60 bg-muted/20 flex sm:justify-end gap-3 sm:gap-2">
+          <DrawerFooter className="flex-row gap-2 border-t border-border/60 bg-muted/20 p-6 sm:justify-end sm:gap-3">
             <Button variant="outline" onClick={() => setIsSheetOpen(false)} className="hover:bg-muted text-foreground" disabled={isSaving}>Batal</Button>
             <Button onClick={handleSave} disabled={isSaving}>
               {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
               Simpan Perubahan
             </Button>
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
 
       <AlertDialog open={deleteAlertData.isOpen} onOpenChange={(open) => !open && !isDeleting && setDeleteAlertData({ ...deleteAlertData, isOpen: false })}>
         <AlertDialogContent>

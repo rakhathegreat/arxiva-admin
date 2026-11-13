@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
 import { Skeleton } from "@/shared/ui/skeleton";
-import { StatusBadge } from "@/shared/ui/status-badge";
 import { cn } from "@/shared/lib/utils";
 import type { DistributionSlice } from "../utils/materialStats";
 
@@ -46,9 +45,9 @@ function DistributionList({
 				<li key={row.name} className="py-1.5 first:pt-0 last:pb-0">
 					<div className="flex items-baseline justify-between gap-3">
 						{showStatus ? (
-							<StatusBadge size="sm" status={row.name} />
+							<span className="text-xs">{row.name}</span>
 						) : (
-							<span className="min-w-0 truncate text-xs text-foreground/80" title={row.name}>
+							<span className="min-w-0 text-xs text-foreground" title={row.name}>
 								{row.name}
 							</span>
 						)}
@@ -58,10 +57,13 @@ function DistributionList({
 					</div>
 					<div
 						aria-hidden
-						className="mt-1.5 h-px w-full overflow-hidden rounded-full bg-border">
+						className="mt-1.5 h-px w-full overflow-hidden rounded-full bg-border"
+					>
 						<div
 							className="h-full rounded-full bg-foreground/35"
-							style={{ width: `${Math.max(3, Math.round((row.jumlah / max) * 100))}%` }}
+							style={{
+								width: `${Math.max(3, Math.round((row.jumlah / max) * 100))}%`,
+							}}
 						/>
 					</div>
 				</li>
@@ -70,13 +72,7 @@ function DistributionList({
 	);
 }
 
-function Column({
-	title,
-	children,
-}: {
-	title: string;
-	children: React.ReactNode;
-}) {
+function Column({ title, children }: { title: string; children: React.ReactNode }) {
 	return (
 		<div className="flex min-w-0 flex-col gap-2.5 px-4 py-4 first:pl-4 md:px-5 md:first:pl-5">
 			<h3 className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
@@ -134,7 +130,8 @@ export function MaterialSummary({ data, isLoading, error, onRetry }: MaterialSum
 							variant="ghost"
 							size="sm"
 							onClick={onRetry}
-							className="cursor-pointer gap-1.5 text-xs text-muted-foreground hover:text-foreground">
+							className="cursor-pointer gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+						>
 							<RefreshCw className="size-3.5" /> Coba lagi
 						</Button>
 					)}
@@ -142,7 +139,8 @@ export function MaterialSummary({ data, isLoading, error, onRetry }: MaterialSum
 						variant="ghost"
 						size="sm"
 						asChild
-						className="cursor-pointer gap-1 text-xs font-normal text-muted-foreground hover:text-foreground">
+						className="cursor-pointer gap-1 text-xs font-normal text-muted-foreground hover:text-foreground"
+					>
 						<Link to="/data-barang">
 							Data Material <ArrowUpRight className="size-3.5" />
 						</Link>
@@ -154,7 +152,8 @@ export function MaterialSummary({ data, isLoading, error, onRetry }: MaterialSum
 				className={cn(
 					"grid gap-0 divide-y divide-border py-0 md:grid-cols-3 md:divide-x md:divide-y-0",
 					error && !isLoading && "opacity-60",
-				)}>
+				)}
+			>
 				<Column title="Status material">
 					{isLoading ? (
 						<ColumnSkeleton />

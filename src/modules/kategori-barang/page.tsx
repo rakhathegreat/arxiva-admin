@@ -11,19 +11,14 @@ import {
 	Loader2,
 	LayoutGrid,
 	List,
+	X,
 } from "lucide-react";
 import { Card, CardContent } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 import { Kbd } from "@/shared/ui/kbd";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/shared/ui/select";
+import { Combobox } from "@/shared/ui/combobox";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -31,13 +26,14 @@ import {
 	DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu";
 import {
-	Sheet,
-	SheetContent,
-	SheetDescription,
-	SheetHeader,
-	SheetTitle,
-	SheetFooter,
-} from "@/shared/ui/sheet";
+	Drawer,
+	DrawerClose,
+	DrawerContent,
+	DrawerDescription,
+	DrawerFooter,
+	DrawerHeader,
+	DrawerTitle,
+} from "@/shared/ui/drawer";
 import { Label } from "@/shared/ui/label";
 import {
 	AlertDialog,
@@ -149,19 +145,22 @@ export default function KategoriBarangPage() {
 					</span>
 				),
 			},
-			createRowActionsColumn<Kategori>([
-				{
-					label: "Edit Kategori",
-					icon: Edit,
-					onClick: (cat) => handleOpenSheet(cat.id),
-				},
-				{
-					label: "Hapus Kategori",
-					icon: Trash2,
-					destructive: true,
-					onClick: (cat) => requestDelete(cat.id, cat.name),
-				},
-			]),
+			createRowActionsColumn<Kategori>(
+				[
+					{
+						label: "Edit Kategori",
+						icon: Edit,
+						onClick: (cat) => handleOpenSheet(cat.id),
+					},
+					{
+						label: "Hapus Kategori",
+						icon: Trash2,
+						destructive: true,
+						onClick: (cat) => requestDelete(cat.id, cat.name),
+					},
+				],
+				{ menuOnly: true },
+			),
 		],
 		[handleOpenSheet, requestDelete],
 	);
@@ -362,6 +361,7 @@ export default function KategoriBarangPage() {
 						},
 					]}
 					columns={columns}
+					autoPageSize
 					emptyState={{
 						icon: Search,
 						title: searchQuery ? "Kategori Tidak Ditemukan" : "Belum Ada Data",
@@ -381,17 +381,30 @@ export default function KategoriBarangPage() {
 				/>
 			)}
 
-			<Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-				<SheetContent className="sm:max-w-md border-border bg-card p-0 flex flex-col text-foreground">
-					<SheetHeader className="p-6 border-b border-border/60 bg-muted/20">
-						<SheetTitle>
-							{editId ? "Edit Kategori" : "Tambah Kategori Baru"}
-						</SheetTitle>
-						<SheetDescription className="text-muted-foreground">
-							Isi formulir di bawah ini untuk mengelola informasi kategori.
-						</SheetDescription>
-					</SheetHeader>
-					<div className="p-6 flex-1 overflow-y-auto">
+			<Drawer open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+				<DrawerContent className="border-border bg-card p-0 text-foreground data-[vaul-drawer-direction=right]:sm:max-w-md">
+					<DrawerHeader className="border-b border-border/60 bg-muted/20 p-6 text-left">
+						<div className="flex items-start justify-between gap-3">
+							<div className="flex min-w-0 flex-col gap-1.5">
+								<DrawerTitle>
+									{editId ? "Edit Kategori" : "Tambah Kategori Baru"}
+								</DrawerTitle>
+								<DrawerDescription className="text-muted-foreground">
+									Isi formulir di bawah ini untuk mengelola informasi kategori.
+								</DrawerDescription>
+							</div>
+							<DrawerClose asChild>
+								<Button
+									size="icon-sm"
+									variant="ghost"
+									aria-label="Tutup"
+									className="cursor-pointer text-muted-foreground hover:text-foreground">
+									<X className="size-4" />
+								</Button>
+							</DrawerClose>
+						</div>
+					</DrawerHeader>
+					<div className="min-h-0 flex-1 overflow-y-auto p-6">
 						<div className="grid gap-5">
 							<div className="space-y-2">
 								<Label>Nama Kategori</Label>
@@ -410,22 +423,21 @@ export default function KategoriBarangPage() {
 							</div>
 							<div className="space-y-2">
 								<Label>Model Material</Label>
-								<Select value={typeId} onValueChange={setTypeId}>
-									<SelectTrigger className="bg-card border-border">
-										<SelectValue placeholder="Pilih Model Material" />
-									</SelectTrigger>
-									<SelectContent className="bg-card border-border">
-										{materialTypes.map((mt) => (
-											<SelectItem key={mt.id} value={String(mt.id)}>
-												{mt.nama}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
+								<Combobox
+									value={typeId}
+									onChange={setTypeId}
+									items={materialTypes.map((mt) => ({
+										value: String(mt.id),
+										label: mt.nama,
+									}))}
+									placeholder="Pilih Model Material"
+									searchPlaceholder="Cari model material..."
+									emptyText="Model material tidak ditemukan"
+								/>
 							</div>
 						</div>
 					</div>
-					<SheetFooter className="p-6 border-t border-border/60 bg-muted/20 flex sm:justify-end gap-3 sm:gap-2">
+					<DrawerFooter className="flex-row gap-2 border-t border-border/60 bg-muted/20 p-6 sm:justify-end sm:gap-3">
 						<Button
 							variant="outline"
 							onClick={() => setIsSheetOpen(false)}
@@ -439,9 +451,9 @@ export default function KategoriBarangPage() {
 							) : null}
 							Simpan Perubahan
 						</Button>
-					</SheetFooter>
-				</SheetContent>
-			</Sheet>
+					</DrawerFooter>
+				</DrawerContent>
+			</Drawer>
 
 			<AlertDialog
 				open={deleteAlertData.isOpen}

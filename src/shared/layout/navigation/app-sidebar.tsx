@@ -25,6 +25,7 @@ import {
 	Users,
 	ArrowLeftRight,
 	Zap,
+	ScrollText,
 } from "lucide-react";
 
 const data = {
@@ -80,6 +81,18 @@ const data = {
 				},
 			],
 		},
+		{
+			title: "Sistem",
+			items: [
+				{
+					title: "Log Aktivitas",
+					url: "/log-aktivitas",
+					icon: <ScrollText />,
+					isActive: false,
+					adminOnly: true,
+				},
+			],
+		},
 	],
 	main: [
 		{
@@ -109,6 +122,15 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const { user } = useAuth();
 	const mainItems = data.main.filter((item) => !item.adminOnly || user?.role === "admin");
+	const navGroups = data.navMain
+		.map((group) => ({
+			...group,
+			items: group.items.filter(
+				(item) =>
+					!("adminOnly" in item) || item.adminOnly !== true || user?.role === "admin",
+			),
+		}))
+		.filter((group) => group.items.length > 0);
 
 	return (
 		<Sidebar collapsible="icon" {...props}>
@@ -132,7 +154,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 								<span className="truncate font-medium text-foreground">
 									PT ICON PLUS
 								</span>
-								<span className="truncate text-xs text-muted-foreground">Tasikmalaya</span>
+								<span className="truncate text-xs text-muted-foreground">
+									Tasikmalaya
+								</span>
 							</div>
 						</SidebarMenuButton>
 					</SidebarMenuItem>
@@ -140,7 +164,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			</SidebarHeader>
 			<SidebarContent>
 				<NavProjects main={mainItems} />
-				<NavMain items={data.navMain} />
+				<NavMain items={navGroups} />
 			</SidebarContent>
 			<SidebarRail />
 		</Sidebar>

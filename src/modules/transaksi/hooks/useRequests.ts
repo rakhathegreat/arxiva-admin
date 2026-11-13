@@ -53,6 +53,7 @@ const sortByRequestedAt = (
 
 export function useRequests(activeTab: RequestTab = "Menunggu") {
   const [requests, setRequests] = useState<DashboardRequest[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategories, setFilterCategories] = useState<string[]>([]);
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
@@ -92,13 +93,16 @@ export function useRequests(activeTab: RequestTab = "Menunggu") {
   }, [filterCategories, dateRange]);
 
   const fetchRequests = useCallback(async () => {
+    setIsLoading(true);
     try {
       const res = await api.get("/requests");
       const data: DashboardRequest[] = res.data;
-      setRequests(data);
+      setRequests(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Gagal mengambil data permintaan:", error);
       toast.error("Gagal memuat data permintaan.");
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
@@ -150,6 +154,7 @@ export function useRequests(activeTab: RequestTab = "Menunggu") {
       const status = normalizeStatus(req.status);
       if (status === "DITOLAK" || status === "DIBATALKAN") {
         result.Ditolak = (result.Ditolak ?? 0) + 1;
+        continue;
       }
       const tab =
         REQUEST_TABS.find((t) => normalizeStatus(t) === status) ?? null;
@@ -217,6 +222,7 @@ export function useRequests(activeTab: RequestTab = "Menunggu") {
 
   return {
     requests,
+    isLoading,
     searchTerm,
     setSearchTerm,
     filterCategories,

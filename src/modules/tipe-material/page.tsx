@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Plus, Edit, Trash2, Search, MoreVertical, Loader2, LayoutGrid, List } from "lucide-react";
+import { Plus, Edit, Trash2, Search, MoreVertical, Loader2, LayoutGrid, List, X } from "lucide-react";
 import { Card, CardContent } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
@@ -14,15 +14,16 @@ import {
 	DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu";
 import {
-	Sheet,
-	SheetContent,
-	SheetDescription,
-	SheetHeader,
-	SheetTitle,
-	SheetFooter,
-} from "@/shared/ui/sheet";
+	Drawer,
+	DrawerClose,
+	DrawerContent,
+	DrawerDescription,
+	DrawerFooter,
+	DrawerHeader,
+	DrawerTitle,
+} from "@/shared/ui/drawer";
 import { Label } from "@/shared/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
+import { Combobox } from "@/shared/ui/combobox";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -172,24 +173,27 @@ export default function TipeMaterialPage() {
 					</span>
 				),
 			},
-			createRowActionsColumn<ModelRow>([
-				{
-					label: "Edit Model Material",
-					icon: Edit,
-					onClick: (t) => handleOpenSheet(String(t.id)),
-				},
-				{
-					label: "Hapus Model Material",
-					icon: Trash2,
-					destructive: true,
-					onClick: (t) =>
-						setDeleteAlertData({
-							isOpen: true,
-							id: String(t.id),
-							name: t.nama,
-						}),
-				},
-			]),
+			createRowActionsColumn<ModelRow>(
+				[
+					{
+						label: "Edit Model Material",
+						icon: Edit,
+						onClick: (t) => handleOpenSheet(String(t.id)),
+					},
+					{
+						label: "Hapus Model Material",
+						icon: Trash2,
+						destructive: true,
+						onClick: (t) =>
+							setDeleteAlertData({
+								isOpen: true,
+								id: String(t.id),
+								name: t.nama,
+							}),
+					},
+				],
+				{ menuOnly: true },
+			),
 		],
 		[handleOpenSheet, setDeleteAlertData],
 	);
@@ -400,6 +404,7 @@ export default function TipeMaterialPage() {
 						},
 					]}
 					columns={columns}
+					autoPageSize
 					emptyState={{
 						icon: Search,
 						title: searchQuery ? "Model Material Tidak Ditemukan" : "Belum Ada Data",
@@ -419,17 +424,30 @@ export default function TipeMaterialPage() {
 				/>
 			)}
 
-			<Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-				<SheetContent className="sm:max-w-md border-border bg-card p-0 flex flex-col text-foreground">
-					<SheetHeader className="p-6 border-b border-border/60 bg-muted/20">
-						<SheetTitle>
-							{editId ? "Edit Model Material" : "Tambah Model Material"}
-						</SheetTitle>
-						<SheetDescription className="text-muted-foreground">
-							Kelola informasi referensi model material utama.
-						</SheetDescription>
-					</SheetHeader>
-					<div className="p-6 flex-1 overflow-y-auto">
+			<Drawer open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+				<DrawerContent className="border-border bg-card p-0 text-foreground data-[vaul-drawer-direction=right]:sm:max-w-md">
+					<DrawerHeader className="border-b border-border/60 bg-muted/20 p-6 text-left">
+						<div className="flex items-start justify-between gap-3">
+							<div className="flex min-w-0 flex-col gap-1.5">
+								<DrawerTitle>
+									{editId ? "Edit Model Material" : "Tambah Model Material"}
+								</DrawerTitle>
+								<DrawerDescription className="text-muted-foreground">
+									Kelola informasi referensi model material utama.
+								</DrawerDescription>
+							</div>
+							<DrawerClose asChild>
+								<Button
+									size="icon-sm"
+									variant="ghost"
+									aria-label="Tutup"
+									className="cursor-pointer text-muted-foreground hover:text-foreground">
+									<X className="size-4" />
+								</Button>
+							</DrawerClose>
+						</div>
+					</DrawerHeader>
+					<div className="min-h-0 flex-1 overflow-y-auto p-6">
 						<div className="grid gap-5">
 							<div className="space-y-2">
 								<Label>Kode Material</Label>
@@ -475,26 +493,21 @@ export default function TipeMaterialPage() {
 
 							<div className="space-y-2">
 								<Label>Brand</Label>
-								<Select
+								<Combobox
 									value={brandId}
-									onValueChange={(val) => {
+									onChange={(val) => {
 										setBrandId(val);
 										setBrandError("");
 									}}
-								>
-									<SelectTrigger
-										className={`bg-card ${brandError ? "border-destructive" : "border-border"}`}
-									>
-										<SelectValue placeholder="Pilih Merek Material" />
-									</SelectTrigger>
-									<SelectContent className="bg-card border-border">
-										{brands.map((b) => (
-											<SelectItem key={b.id} value={String(b.id)}>
-												{b.nama}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
+									items={brands.map((b) => ({
+										value: String(b.id),
+										label: b.nama,
+									}))}
+									placeholder="Pilih Merek Material"
+									searchPlaceholder="Cari merek..."
+									emptyText="Merek tidak ditemukan"
+									invalid={!!brandError}
+								/>
 								{brandError && (
 									<p className="text-xs text-destructive">{brandError}</p>
 								)}
@@ -502,33 +515,28 @@ export default function TipeMaterialPage() {
 
 							<div className="space-y-2">
 								<Label>Kategori Material</Label>
-								<Select
+								<Combobox
 									value={materialCategoryId}
-									onValueChange={(val) => {
+									onChange={(val) => {
 										setMaterialCategoryId(val);
 										setCategoryError("");
 									}}
-								>
-									<SelectTrigger
-										className={`bg-card ${categoryError ? "border-destructive" : "border-border"}`}
-									>
-										<SelectValue placeholder="Pilih Kategori Material" />
-									</SelectTrigger>
-									<SelectContent className="bg-card border-border">
-										{categories.map((c) => (
-											<SelectItem key={c.id} value={String(c.id)}>
-												{c.nama}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
+									items={categories.map((c) => ({
+										value: String(c.id),
+										label: c.nama,
+									}))}
+									placeholder="Pilih Kategori Material"
+									searchPlaceholder="Cari kategori material..."
+									emptyText="Kategori material tidak ditemukan"
+									invalid={!!categoryError}
+								/>
 								{categoryError && (
 									<p className="text-xs text-destructive">{categoryError}</p>
 								)}
 							</div>
 						</div>
 					</div>
-					<SheetFooter className="p-6 border-t border-border/60 bg-muted/20 flex sm:justify-end gap-3 sm:gap-2">
+					<DrawerFooter className="flex-row gap-2 border-t border-border/60 bg-muted/20 p-6 sm:justify-end sm:gap-3">
 						<Button
 							variant="outline"
 							onClick={() => setIsSheetOpen(false)}
@@ -540,9 +548,9 @@ export default function TipeMaterialPage() {
 							{isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
 							Simpan
 						</Button>
-					</SheetFooter>
-				</SheetContent>
-			</Sheet>
+					</DrawerFooter>
+				</DrawerContent>
+			</Drawer>
 
 			<AlertDialog
 				open={deleteAlertData.isOpen}

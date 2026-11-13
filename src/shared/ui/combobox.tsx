@@ -27,6 +27,7 @@ interface ComboboxProps {
 	emptyText?: string;
 	idleHint?: string;
 	disabled?: boolean;
+	invalid?: boolean;
 	className?: string;
 	onOpenChange?: (open: boolean) => void;
 	onSearch?: (query: string) => Promise<ComboboxItem[]>;
@@ -87,6 +88,7 @@ export function Combobox({
 	emptyText = "Tidak ditemukan",
 	idleHint = "Ketik untuk mencari...",
 	disabled = false,
+	invalid = false,
 	className,
 	onOpenChange: onOpenChangeProp,
 	onSearch,
@@ -414,6 +416,7 @@ export function Combobox({
 				onKeyDown={handleInputKeyDown}
 				placeholder={inputPlaceholder}
 				disabled={disabled}
+				aria-invalid={invalid || undefined}
 				className="pr-8 pl-8"
 			/>
 			{!disabled && (value !== "" || query !== "") && (
@@ -436,7 +439,7 @@ export function Combobox({
 						ref={panelRef}
 						id={listboxId}
 						role="listbox"
-						className="animate-in fade-in-0 zoom-in-95 duration-100 fixed z-50 overflow-y-auto rounded-md border border-border bg-popover p-1 text-sm text-popover-foreground shadow-none mt-1 motion-reduce:animate-none"
+						className="animate-in fade-in-0 zoom-in-95 duration-100 fixed z-50 overflow-y-auto rounded-md border border-border bg-popover p-1 text-sm text-popover-foreground shadow-none mt-1 pointer-events-auto motion-reduce:animate-none"
 						style={{
 							top: pos.top,
 							bottom: pos.bottom,

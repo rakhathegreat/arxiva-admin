@@ -39,10 +39,18 @@ function getStatusTone(status: string): BadgeTone {
 }
 
 // Chip status ringkas: tone dari status, tanpa ikon.
-function StatusBadge({ status }: { status: string }) {
+function StatusBadge({
+	status,
+	variant,
+	size,
+}: {
+	status: string;
+	variant?: "glass" | "quiet" | "ink" | "secondary" | "default" | null | undefined;
+	size?: "sm" | "md" | "lg" | null | undefined;
+}) {
 	const label = getStatusLabel(status);
 	return (
-		<Badge variant="glass" size="sm" tone={getStatusTone(status)}>
+		<Badge variant={variant} size={size} tone={getStatusTone(status)}>
 			{label}
 		</Badge>
 	);
@@ -135,7 +143,9 @@ function RequestSectionBase({ requests, counts, isLoading, className }: RequestS
 							<Table>
 								<TableHeader className="bg-muted">
 									<TableRow className="hover:bg-transparent">
-										<TableHead className="w-[50px] text-xs h-9">No</TableHead>
+										<TableHead className="w-12.5 text-xs text-center h-9">
+											No
+										</TableHead>
 										<TableHead className="text-xs h-9">
 											No. Permintaan
 										</TableHead>
@@ -158,26 +168,30 @@ function RequestSectionBase({ requests, counts, isLoading, className }: RequestS
 												)
 											}
 										>
-											<TableCell className="text-[13px] text-muted-foreground py-2.5">
+											<TableCell className="text-sm text-center text-muted-foreground py-2.5">
 												{index + 1}
 											</TableCell>
-											<TableCell className="text-[13px] font-medium py-2.5 group-hover:text-primary transition-colors">
+											<TableCell className="text-sm font-medium py-2.5 group-hover:text-primary transition-colors">
 												{req.requestNumber}
 											</TableCell>
-											<TableCell className="text-[13px] text-muted-foreground py-2.5 whitespace-nowrap">
+											<TableCell className="text-sm text-muted-foreground py-2.5 whitespace-nowrap">
 												{formatDate(req.requestedAt)}
 											</TableCell>
 											<TableCell
-												className="text-[13px] py-2.5 truncate max-w-[150px]"
+												className="text-sm py-2.5 truncate max-w-37.5"
 												title={req.requesterName}
 											>
 												{req.requesterName}
 											</TableCell>
-											<TableCell className="text-[13px] py-2.5 text-muted-foreground">
+											<TableCell className="text-sm py-2.5 text-muted-foreground">
 												{req.partnerCategory || "-"}
 											</TableCell>
 											<TableCell className="text-right py-2.5">
-												<StatusBadge status={req.status} />
+												<StatusBadge
+													size="md"
+													variant="quiet"
+													status={req.status}
+												/>
 											</TableCell>
 										</TableRow>
 									))}

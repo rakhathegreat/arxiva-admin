@@ -1,164 +1,213 @@
 import { ArrowUpRight } from "lucide-react";
 import { useState, useRef, useEffect, memo } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { cn } from "@/shared/lib/utils";
-import type { ActivityItem } from "@/modules/transaksi/types";
-import { useNavigate } from "react-router-dom";
+import type { SystemEvent } from "@/modules/log-aktivitas/types";
+import {
+	actionLabel,
+	formatLogDateParts,
+	roleLabel,
+	statusLabel,
+} from "@/modules/log-aktivitas/utils/log";
 
 interface ActivityFeedCardProps {
-	activities: ActivityItem[];
+	events: SystemEvent[];
 	isLoading: boolean;
+	error?: string | null;
+	canView?: boolean;
 	className?: string;
 }
 
-function formatRelativeTime(dateStr: string): string {
-	try {
-		const diff = Date.now() - new Date(dateStr).getTime();
-		const minutes = Math.floor(diff / 60_000);
-		const hours = Math.floor(diff / 3_600_000);
-		const days = Math.floor(diff / 86_400_000);
+const STATUS_DOT: Record<SystemEvent["status"], string> = {
+	SUCCESS: "bg-success",
+	FAILED: "bg-rose-600 dark:bg-rose-400",
+};
 
-		if (minutes < 1) return "Baru saja";
-		if (minutes < 60) return `${minutes}m lalu`;
-		if (hours < 24) return `${hours}j lalu`;
-		return `${days}h lalu`;
-	} catch {
-		return "-";
-	}
+function actorName(event: SystemEvent): string {
+	return event.actorName || event.actorUsername || "Sistem";
 }
 
-function getActionDescription(type: string, sn: string): string {
-	switch (type.toUpperCase()) {
-		case "MASUK":
-			return `melakukan inbound aset ${sn}`;
-		case "KELUAR":
-			return `melakukan outbound aset ${sn}`;
-		case "RUSAK":
-			return `melaporkan aset rusak ${sn}`;
-		case "HILANG":
-			return `melaporkan aset hilang ${sn}`;
-		default:
-			return `melakukan aktivitas pada aset ${sn}`;
-	}
-}
-
-function ActivityFeedCardBase({ activities, isLoading, className }: ActivityFeedCardProps) {
+function ActivityFeedCardBase({
+	events,
+	isLoading,
+	error,
+	canView = true,
+	className,
+}: ActivityFeedCardProps) {
 	const navigate = useNavigate();
 	const [showTopGradient, setShowTopGradient] = useState(false);
 	const [showBottomGradient, setShowBottomGradient] = useState(false);
 	const scrollRef = useRef<HTMLDivElement>(null);
+
+	const openLogPage = () => navigate("/log-aktivitas");
 
 	const checkScroll = () => {
 		const el = scrollRef.current;
 		if (!el) return;
 		const { scrollTop, scrollHeight, clientHeight } = el;
 		setShowTopGradient(scrollTop > 0);
-		// Add small buffer to prevent sub-pixel issues on high DPI displays
 		setShowBottomGradient(scrollTop + clientHeight < scrollHeight - 1.5);
 	};
 
 	useEffect(() => {
-		// Beri jeda sedikit agar DOM selesai menggambar list item baru sebelum menghitung tinggi
 		const timer = setTimeout(() => checkScroll(), 50);
 		window.addEventListener("resize", checkScroll);
 		return () => {
 			clearTimeout(timer);
 			window.removeEventListener("resize", checkScroll);
 		};
-	}, [activities]);
+	}, [events]);
 
 	return (
-		<Card className={cn("flex flex-col h-full ", className)}>
-			<CardHeader className="flex flex-row justify-between">
-				<div className="flex flex-col gap-1">
-					<CardTitle className="text-base">Aktivitas Terkini</CardTitle>
-					<CardDescription>Menampilkan aktivitas terakhir dalam sistem</CardDescription>
+		<Card className={cn("flex h-full flex-col", className)}>
+			<CardHeader className="flex flex-row items-start justify-between gap-3">
+				<div className="flex min-w-0 flex-col gap-1">
+					<CardTitle className="text-base">Log Aktivitas</CardTitle>
+					<CardDescription>Event terbaru dari seluruh sistem</CardDescription>
 				</div>
-				<div
-					onClick={() => navigate("/")}
-					className="rounded-full p-1.5 cursor-pointer bg-muted transition-colors hover:bg-muted/80"
+				<button
+					type="button"
+					onClick={openLogPage}
+					aria-label="Buka halaman log aktivitas"
+					title="Buka halaman log aktivitas"
+					className={cn(
+						"cursor-pointer rounded-full bg-muted p-1.5 transition-colors hover:bg-muted/80 focus-visible:ring-2 focus-visible:ring-ring/25 focus-visible:outline-none",
+						!canView && "hidden",
+					)}
 				>
-					<ArrowUpRight size={14} className="text-muted-foreground" />
-				</div>
+					<ArrowUpRight className="size-3.5 text-muted-foreground" />
+				</button>
 			</CardHeader>
-			<div className="relative flex-1 min-h-0 max-h-[368px]">
-				{/* Top Gradient Overlay */}
+
+			<div className="relative min-h-0 max-h-92 flex-1">
 				<div
 					className={cn(
-						"absolute -top-px left-0 right-0 h-12 bg-linear-to-b from-card to-transparent pointer-events-none z-10 transition-opacity duration-300",
+						"pointer-events-none absolute -top-px right-0 left-0 z-10 h-12 bg-linear-to-b from-card to-transparent transition-opacity duration-300",
 						showTopGradient ? "opacity-100" : "opacity-0",
 					)}
 				/>
 
-				<div
-					data-slot="card-content"
-					ref={scrollRef}
-					onScroll={checkScroll}
-					className="p-0 h-full overflow-y-auto items-center justify-center"
-				>
-					{isLoading ? (
-						<div className="flex flex-col gap-0 px-4 py-4">
-							{[1, 2, 3, 4, 5].map((i) => (
-								<div key={i} className="flex items-start gap-3 py-2">
-									<div className="flex flex-col items-center">
-										<div className="size-2 rounded-full bg-muted mt-1.5 shrink-0" />
-										{i < 5 && <div className="w-px h-6 bg-border mt-1" />}
-									</div>
-									<div className="flex flex-col gap-1.5 flex-1 pt-0.5">
-										<Skeleton className="h-3 w-28" />
-										<Skeleton className="h-2 w-16" />
+				<div ref={scrollRef} onScroll={checkScroll} className="h-full overflow-y-auto">
+					{!canView ? (
+						<div className="flex h-full flex-col items-center justify-center gap-1 px-4 py-10 text-center">
+							<p className="text-xs font-medium text-foreground">Khusus admin</p>
+							<p className="text-xs text-muted-foreground">
+								Log aktivitas hanya dapat dilihat oleh admin.
+							</p>
+						</div>
+					) : isLoading && events.length === 0 ? (
+						<div className="flex flex-col px-4 py-2">
+							{[1, 2, 3, 4, 5].map((index) => (
+								<div key={index} className="flex items-start gap-3 py-2.5">
+									<Skeleton className="mt-1.5 size-1.5 shrink-0 rounded-full" />
+									<div className="flex flex-1 flex-col gap-1.5">
+										<div className="flex items-center justify-between gap-3">
+											<Skeleton className="h-3 w-24" />
+											<Skeleton className="h-2.5 w-12" />
+										</div>
+										<Skeleton className="h-2.5 w-40" />
+										<Skeleton className="h-2 w-24" />
 									</div>
 								</div>
 							))}
 						</div>
-					) : activities.length === 0 ? (
-						<div className="flex flex-col items-center justify-center gap-1 py-10 text-center px-4">
-							<p className="text-primary font-medium">Tidak Ada Data</p>
-							<p className="text-muted-foreground">Belum ada aktivitas</p>
+					) : error && events.length === 0 ? (
+						<div className="flex h-full flex-col items-center justify-center gap-1 px-4 py-10 text-center">
+							<p className="text-xs font-medium text-foreground">Gagal memuat log</p>
+							<p className="max-w-56 text-xs text-muted-foreground">{error}</p>
+							<button
+								type="button"
+								onClick={openLogPage}
+								className="mt-2 cursor-pointer text-xs text-foreground underline decoration-1 underline-offset-4 hover:text-charcoal"
+							>
+								Buka halaman log
+							</button>
+						</div>
+					) : events.length === 0 ? (
+						<div className="flex h-full flex-col items-center justify-center gap-1 px-4 py-10 text-center">
+							<p className="text-xs font-medium text-foreground">
+								Belum ada log aktivitas
+							</p>
+							<p className="max-w-56 text-xs text-muted-foreground">
+								Event akan muncul di sini setelah ada perubahan data atau login.
+							</p>
 						</div>
 					) : (
-						<div className="flex flex-col px-4">
-							{activities.map((activity) => {
+						<div className="flex flex-col divide-y divide-border/60">
+							{events.map((event) => {
+								const { time, full } = formatLogDateParts(event.occurredAt);
 								return (
-									<div key={activity.id} className="flex items-center gap-4 pb-4">
-										<div className="flex size-8 shrink-0 items-center justify-center rounded-full border border-border bg-muted font-mono text-[10px] tracking-[0.04em] text-muted-foreground uppercase">
-											{activity.mitra?.slice(0, 2)}
-										</div>
-
-										<div className="flex-1 min-w-0">
-											<div className="flex items-start justify-between gap-2">
-												<div className="flex flex-col min-w-0">
-													<span className="text-xs font-medium text-foreground leading-tight truncate">
-														{activity.mitra}
-													</span>
-													<span className="text-xs text-muted-foreground mt-2">
-														{getActionDescription(
-															activity.type,
-															activity.serialNumber,
-														)}
-													</span>
-												</div>
-												<span className="text-[10px] text-muted-foreground whitespace-nowrap shrink-0 pt-0.5">
-													{formatRelativeTime(activity.createdAt)}
+									<button
+										key={event.id}
+										type="button"
+										onClick={openLogPage}
+										title="Buka log aktivitas"
+										className="flex w-full cursor-pointer items-start gap-3 px-4 py-2.5 text-left transition-colors hover:bg-muted/40 focus-visible:ring-2 focus-visible:ring-ring/25 focus-visible:outline-none focus-visible:ring-inset"
+									>
+										<span
+											aria-hidden="true"
+											className={cn(
+												"mt-1.5 size-1.5 shrink-0 rounded-full",
+												STATUS_DOT[event.status],
+											)}
+										/>
+										<span className="sr-only">{statusLabel(event.status)}</span>
+										<span className="min-w-0 flex-1">
+											<span className="flex items-baseline justify-between gap-2">
+												<span className="truncate text-xs font-medium text-foreground">
+													{actionLabel(event.action)}
 												</span>
-											</div>
-										</div>
-									</div>
+												<span className="flex shrink-0 items-center gap-1.5">
+													{event.status === "FAILED" ? (
+														<span className="text-[10px] font-medium text-rose-600 dark:text-rose-400">
+															Gagal
+														</span>
+													) : null}
+													<time
+														dateTime={event.occurredAt}
+														title={full}
+														className="font-mono text-[10px] tabular-nums text-muted-foreground"
+													>
+														{time}
+													</time>
+												</span>
+											</span>
+											<span className="mt-0.5 line-clamp-2 block text-xs leading-snug text-muted-foreground">
+												{event.summary}
+											</span>
+											<span className="mt-1 block truncate text-[10px] text-muted-foreground">
+												{actorName(event)} · {roleLabel(event.actorRole)}
+											</span>
+										</span>
+									</button>
 								);
 							})}
 						</div>
 					)}
 				</div>
 
-				{/* Bottom Gradient Overlay */}
 				<div
 					className={cn(
-						"absolute -bottom-px left-0 right-0 h-12 bg-linear-to-t from-card to-transparent pointer-events-none z-10 transition-opacity duration-300",
+						"pointer-events-none absolute -bottom-px right-0 left-0 z-10 h-12 bg-linear-to-t from-card to-transparent transition-opacity duration-300",
 						showBottomGradient ? "opacity-100" : "opacity-0",
 					)}
 				/>
 			</div>
+
+			{canView ? (
+				<div className="border-t border-border">
+					<button
+						type="button"
+						onClick={openLogPage}
+						className="flex w-full cursor-pointer items-center justify-between px-4 py-2.5 text-xs font-medium text-charcoal transition-colors hover:bg-muted/40 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/25 focus-visible:outline-none focus-visible:ring-inset"
+					>
+						<span>Lihat semua log</span>
+						<ArrowUpRight className="size-3.5" />
+					</button>
+				</div>
+			) : null}
 		</Card>
 	);
 }

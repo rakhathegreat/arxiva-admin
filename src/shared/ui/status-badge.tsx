@@ -11,6 +11,7 @@ interface StatusBadgeProps {
 	label?: string;
 	size?: StatusSize;
 	className?: string;
+	variant?: "glass" | "quiet" | "ink" | "secondary" | "default";
 }
 
 interface StatusStyle {
@@ -80,6 +81,7 @@ export function StatusBadge({
 	status,
 	label,
 	size = "md",
+	variant = "glass",
 	className,
 }: StatusBadgeProps) {
 	const config = STATUS_CONFIG[normalize(status)] ?? {
@@ -88,13 +90,8 @@ export function StatusBadge({
 	};
 
 	return (
-		<Badge
-			variant={config.quiet ? "quiet" : "glass"}
-			size={size}
-			tone={config.tone}
-			className={className}>
+		<Badge tone={config.tone} className={className}>
 			{label ?? config.label}
 		</Badge>
 	);
 }
-

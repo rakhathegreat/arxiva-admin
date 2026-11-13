@@ -5,6 +5,8 @@ import {
 	formatTanggal,
 	mapItemsToExportRows,
 	buildExportFileName,
+	getReconState,
+	isReconTelat,
 } from "../barang";
 import { flattenLocations } from "../../api/barangApi";
 
@@ -86,6 +88,44 @@ describe("buildExportFileName", () => {
 		expect(buildExportFileName(new Date("2026-08-25T10:00:00Z"))).toBe(
 			"Data_Barang_Arxiva_2026-08-25.xlsx",
 		);
+	});
+});
+
+describe("getReconState", () => {
+	const now = new Date("2026-02-14T09:30:00");
+
+	it("status tanpa kewajiban rekon selalu ok", () => {
+		expect(getReconState({ status: "Tersedia", lastReconDate: undefined }, now)).toBe("ok");
+		expect(getReconState({ status: "Rusak", lastReconDate: "2026-01-01" }, now)).toBe("ok");
+	});
+
+	it("belum pernah rekon", () => {
+		expect(getReconState({ status: "Terdistribusi" }, now)).toBe("belum");
+		expect(getReconState({ status: "Digunakan", lastReconDate: "" }, now)).toBe("belum");
+		expect(getReconState({ status: "Digunakan", lastReconDate: "bukan-tanggal" }, now)).toBe(
+			"belum",
+		);
+	});
+
+	it("rekon hari ini dianggap ok, bukan telat", () => {
+		expect(getReconState({ status: "Terdistribusi", lastReconDate: "2026-02-14" }, now)).toBe(
+			"ok",
+		);
+		expect(getReconState({ status: "Digunakan", lastReconDate: "2026-02-14T23:59:00" }, now)).toBe(
+			"ok",
+		);
+	});
+
+	it("rekon sebelum hari ini dianggap telat", () => {
+		expect(getReconState({ status: "Terdistribusi", lastReconDate: "2026-02-13" }, now)).toBe(
+			"telat",
+		);
+		expect(getReconState({ status: "Digunakan", lastReconDate: "2025-12-31" }, now)).toBe("telat");
+	});
+
+	it("isReconTelat sepakat dengan getReconState", () => {
+		expect(isReconTelat({ status: "Terdistribusi", lastReconDate: undefined })).toBe(true);
+		expect(isReconTelat({ status: "Tersedia", lastReconDate: undefined })).toBe(false);
 	});
 });
 

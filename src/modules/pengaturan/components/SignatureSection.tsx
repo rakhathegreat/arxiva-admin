@@ -139,7 +139,7 @@ export function SignatureSection() {
 			}
 		>
 			{hasSignature && signatureUrl ? (
-				<div className="flex h-36 items-center justify-center rounded-md border border-border bg-[radial-gradient(var(--border)_1px,transparent_1px)] p-4 bg-size-[16px_16px]">
+				<div className="flex h-36 items-center justify-center rounded-md border border-border bg-white p-4">
 					<img
 						src={signatureUrl}
 						alt="Tanda tangan default"

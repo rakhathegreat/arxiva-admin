@@ -116,7 +116,7 @@ export function getBadgeToneClasses(
 }
 
 const badgeVariants = cva(
-	"group/badge inline-flex shrink-0 items-center justify-center gap-1 rounded-full whitespace-nowrap tabular-nums transition-[background-color,border-color,color] duration-150 ease-out select-none focus-visible:ring-2 focus-visible:ring-ring/10 focus-visible:outline-none border",
+	"group/badge inline-flex shrink-0 items-center justify-center gap-1 rounded-md whitespace-nowrap tabular-nums transition-[background-color,border-color,color] duration-150 ease-out select-none focus-visible:ring-2 focus-visible:ring-ring/10 focus-visible:outline-none border",
 	{
 		variants: {
 			/**
@@ -166,8 +166,8 @@ export interface BadgeProps
 
 function Badge({
 	className,
-	variant = "glass",
-	size = "sm",
+	variant = "quiet",
+	size = "md",
 	tone,
 	asChild = false,
 	...props

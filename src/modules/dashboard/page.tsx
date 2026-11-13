@@ -4,9 +4,19 @@ import { ChartInboundOutbound } from "@/modules/dashboard/components/chart-inbou
 import { RequestSection } from "@/modules/dashboard/components/RequestSection";
 import { ActivityFeedCard } from "@/modules/dashboard/components/ActivityFeedCard";
 import { MitraPerformanceSection } from "@/modules/dashboard/components/MitraPerformanceSection";
+import { useRecentLogs } from "@/modules/log-aktivitas/hooks/useRecentLogs";
+import { useAuth } from "@/modules/auth/auth";
 import { useDashboard } from "./use-dashboard";
 
 export default function DashboardPage() {
+	const { user } = useAuth();
+	const canViewLogs = user?.role === "admin";
+	const {
+		events: recentLogs,
+		isLoading: isLoadingLogs,
+		error: logsError,
+	} = useRecentLogs(6, canViewLogs);
+
 	const {
 		inventoryStats,
 		mitraDistribution,
@@ -15,10 +25,8 @@ export default function DashboardPage() {
 		setTimeRange,
 		requestCounts,
 		recentRequests,
-		recentTransactions,
 		mitraPerformanceMetrics,
 		isLoadingRequests,
-		isLoadingActivity,
 		isLoading,
 	} = useDashboard();
 
@@ -50,8 +58,10 @@ export default function DashboardPage() {
 					className="lg:col-span-2"
 				/>
 				<ActivityFeedCard
-					activities={recentTransactions}
-					isLoading={isLoadingActivity}
+					events={recentLogs}
+					isLoading={isLoadingLogs}
+					error={logsError}
+					canView={canViewLogs}
 					className="lg:col-span-1"
 				/>
 			</div>

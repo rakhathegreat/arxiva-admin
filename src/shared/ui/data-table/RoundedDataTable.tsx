@@ -4,13 +4,16 @@ import * as React from "react";
 import {
 	flexRender,
 	getCoreRowModel,
+	getPaginationRowModel,
 	getSortedRowModel,
 	useReactTable,
 	type ColumnDef,
+	type PaginationState,
 	type SortingState,
 } from "@tanstack/react-table";
-import { ArrowUpDown, Inbox } from "lucide-react";
+import { ArrowUpDown, ChevronLeft, ChevronRight, Inbox } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
+import { Button } from "@/shared/ui/button";
 import { ScrollShadowWrapper } from "@/shared/ui/scroll-shadow";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Checkbox } from "@/shared/ui/checkbox";
@@ -40,6 +43,10 @@ export interface RoundedDataTableProps<TData> {
 	onRowSelectionChange?: React.Dispatch<React.SetStateAction<RowSelectionState>>;
 	/** Aktifkan sorting pada header kolom (default: false). */
 	enableSorting?: boolean;
+	/** Aktifkan pagination client-side (default: false untuk daftar ringkas). */
+	pagination?: boolean;
+	/** Jumlah baris per halaman saat pagination aktif. */
+	pageSize?: number;
 }
 
 const DEFAULT_EMPTY: DataTableEmptyState = {
@@ -121,8 +128,21 @@ export function RoundedDataTable<TData>({
 	rowSelection: controlledRowSelection,
 	onRowSelectionChange: controlledOnRowSelectionChange,
 	enableSorting = false,
+	pagination = false,
+	pageSize = 10,
 }: RoundedDataTableProps<TData>) {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
+	const [paginationState, setPaginationState] = React.useState<PaginationState>({
+		pageIndex: 0,
+		pageSize,
+	});
+
+	React.useEffect(() => {
+		if (!pagination) return;
+		setPaginationState((prev) =>
+			prev.pageIndex === 0 ? prev : { ...prev, pageIndex: 0 },
+		);
+	}, [data, pagination]);
 
 	const [internalRowSelection, setInternalRowSelection] = React.useState<RowSelectionState>({});
 	const rowSelection = controlledRowSelection ?? internalRowSelection;
@@ -174,33 +194,43 @@ export function RoundedDataTable<TData>({
 		getRowId: enableSelection ? resolvedGetRowId : undefined,
 		onRowSelectionChange: enableSelection ? setRowSelection : undefined,
 		getCoreRowModel: getCoreRowModel(),
+		...(pagination ? { getPaginationRowModel: getPaginationRowModel() } : {}),
 		...(enableSorting ? { getSortedRowModel: getSortedRowModel() } : {}),
 		onSortingChange: enableSorting ? setSorting : undefined,
+		onPaginationChange: pagination ? setPaginationState : undefined,
 		enableSorting,
 		state: {
 			sorting: enableSorting ? sorting : [],
 			rowSelection: enableSelection ? rowSelection : {},
+			...(pagination ? { pagination: paginationState } : {}),
 		},
 		meta,
 	});
+
+	const pageCount = Math.max(1, table.getPageCount());
+	const currentPageIndex = table.getState().pagination?.pageIndex ?? 0;
+	const firstRow = data.length === 0 ? 0 : currentPageIndex * pageSize + 1;
+	const lastRow = Math.min((currentPageIndex + 1) * pageSize, data.length);
 
 	return (
 		<div className={cn("@container flex flex-col gap-3", className)}>
 			{toolbar}
 			<div className="overflow-hidden rounded-md border border-border/50 bg-card">
-				<ScrollShadowWrapper>
+				<ScrollShadowWrapper fadeClassName="from-card">
 					<Table>
 						<TableHeader className="sticky top-0 z-20 backdrop-blur-sm">
 							{table.getHeaderGroups().map((headerGroup) => (
 								<TableRow key={headerGroup.id} className="hover:bg-transparent">
 									{headerGroup.headers.map((header) => {
 										const isSelect = header.column.id === "__select";
+										const metaClassName = (header.column.columnDef.meta as any)?.className;
 										return (
 											<TableHead
 												key={header.id}
 												className={cn(
-													"h-10 border-0 border-b border-border text-sm text-muted-foreground px-0",
-													isSelect && "w-10",
+													"h-10 border-0 border-b border-border text-sm text-muted-foreground px-3",
+													isSelect && "w-10 px-0",
+													metaClassName,
 												)}
 											>
 												{header.isPlaceholder ? null : typeof header.column
@@ -208,23 +238,14 @@ export function RoundedDataTable<TData>({
 												  header.column.getCanSort() ? (
 													<button
 														type="button"
-														className={cn(
-															"flex items-center gap-1 cursor-pointer select-none hover:text-foreground",
-															(header.column.columnDef.meta as any)
-																?.className,
-														)}
+														className="flex items-center gap-1 cursor-pointer select-none hover:text-foreground"
 														onClick={header.column.getToggleSortingHandler()}
 													>
 														{header.column.columnDef.header}
 														<ArrowUpDown className="size-3 opacity-50" />
 													</button>
 												) : (
-													<div
-														className={
-															(header.column.columnDef.meta as any)
-																?.className
-														}
-													>
+													<div>
 														{flexRender(
 															header.column.columnDef.header,
 															header.getContext(),
@@ -278,6 +299,40 @@ export function RoundedDataTable<TData>({
 						</TableBody>
 					</Table>
 				</ScrollShadowWrapper>
+				{pagination && data.length > 0 ? (
+					<div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/60 px-3 py-2">
+						<p className="text-xs text-muted-foreground">
+							Menampilkan {firstRow}–{lastRow} dari {data.length} data
+						</p>
+						<div className="flex items-center gap-2">
+							<p className="text-xs font-medium text-foreground">
+								Halaman {currentPageIndex + 1} dari {pageCount}
+							</p>
+							<div className="flex items-center gap-1.5">
+								<Button
+									variant="outline"
+									size="icon-sm"
+									onClick={() => table.previousPage()}
+									disabled={!table.getCanPreviousPage()}
+									aria-label="Halaman sebelumnya"
+									className="cursor-pointer"
+								>
+									<ChevronLeft className="size-4" />
+								</Button>
+								<Button
+									variant="outline"
+									size="icon-sm"
+									onClick={() => table.nextPage()}
+									disabled={!table.getCanNextPage()}
+									aria-label="Halaman berikutnya"
+									className="cursor-pointer"
+								>
+									<ChevronRight className="size-4" />
+								</Button>
+							</div>
+						</div>
+					</div>
+				) : null}
 			</div>
 		</div>
 	);

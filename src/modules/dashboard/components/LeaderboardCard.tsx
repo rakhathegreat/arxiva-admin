@@ -99,7 +99,7 @@ function LeaderboardCardBase({
 			<CardHeader>
 				<div className="flex items-center justify-between">
 					<div className="flex items-center gap-2">
-						<CardTitle className="text-base font-medium">Top Velocity Mitra</CardTitle>
+						<CardTitle className="text-base font-medium">Velocity Mitra</CardTitle>
 					</div>
 				</div>
 				{/* <CardDescription>Mitra dengan perputaran BAST tercepat</CardDescription> */}
@@ -154,7 +154,7 @@ function LeaderboardCardBase({
 												</div>
 											</div>
 											<div className="flex flex-col items-end gap-0.5">
-												<Badge variant="glass" size="sm" tone="emerald">
+												<Badge variant="quiet" size="md" tone="emerald">
 													{mitra.averageLifespanDays} Hari
 												</Badge>
 												<Tooltip>

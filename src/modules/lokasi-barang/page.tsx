@@ -32,7 +32,7 @@ import { useMaterialStats } from "./hooks/useMaterialStats";
 import { LokasiCard, type LokasiCardActions } from "./components/LokasiCard";
 import { WarehouseSummary } from "./components/WarehouseSummary";
 import { MaterialSummary } from "./components/MaterialSummary";
-import { LokasiEditorSheet } from "./components/LokasiEditorSheet";
+import { LokasiEditorDrawer } from "./components/LokasiEditorDrawer";
 import { DeleteLokasiDialog } from "./components/DeleteLokasiDialog";
 import { MigrateDialog, flattenMigrateTargets } from "./components/MigrateDialog";
 import { STORAGE_TYPES, getTypeConfig } from "./components/type-config";
@@ -441,7 +441,7 @@ export default function LokasiBarangPage() {
 				onRetry={material.reload}
 			/>
 
-			<LokasiEditorSheet lokasi={lokasi} />
+			<LokasiEditorDrawer lokasi={lokasi} />
 			<DeleteLokasiDialog lokasi={lokasi} />
 
 			<MigrateDialog

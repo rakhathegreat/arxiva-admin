@@ -35,7 +35,7 @@ const DialogOverlay = React.forwardRef<
 		ref={ref}
 		data-slot="dialog-overlay"
 		className={cn(
-			"fixed inset-0 z-50 bg-foreground/10 backdrop-blur-[3px] transition-all duration-200 ease-out data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
+			"fixed inset-0 z-50 bg-foreground/5 backdrop-blur-[3px] transition-all duration-200 ease-out data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
 			className,
 		)}
 		{...props}

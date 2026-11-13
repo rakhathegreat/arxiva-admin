@@ -74,11 +74,25 @@ export default function DataTransaksiPage() {
 		categoryOptions,
 		counts,
 		activeTabData,
+		isLoading,
 		fetchRequests,
 		handleStatusChange,
 	} = useRequests(activeTab as RequestTab);
 
 	const searchInputRef = React.useRef<HTMLInputElement>(null);
+
+	// Perubahan tab/pencarian/filter → tabel kembali ke halaman pertama.
+	const resetPageKey = React.useMemo(
+		() =>
+			[
+				activeTab,
+				searchTerm,
+				filterCategories.join(","),
+				dateRange?.from?.toISOString() ?? "",
+				dateRange?.to?.toISOString() ?? "",
+			].join("|"),
+		[activeTab, searchTerm, filterCategories, dateRange],
+	);
 
 	// Keyboard shortcuts: "/" to focus search, "Escape" to clear search
 	React.useEffect(() => {
@@ -111,15 +125,19 @@ export default function DataTransaksiPage() {
 	}, [searchTerm, setSearchTerm]);
 
 	return (
-		<div className="flex flex-col gap-5 p-4 md:p-6">
+		<div className="flex h-full min-h-0 w-full min-w-0 flex-col gap-5 p-4 md:p-6">
 			<header className="flex flex-col gap-1">
 				<h1 className="page-title">Request Material</h1>
 			</header>
 
-			<Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+			<Tabs
+				value={activeTab}
+				onValueChange={handleTabChange}
+				className="flex h-full min-h-0 w-full flex-col"
+			>
 				<div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-					<div className="flex items-center w-full overflow-x-auto pb-1">
-						<TabsList className="inline-flex h-auto w-full lg:w-auto bg-accent/50 rounded-md">
+					<div className="flex min-w-0 items-center w-full overflow-x-auto pb-1">
+						<TabsList className="inline-flex h-auto w-full justify-start bg-accent/50 rounded-md lg:w-auto">
 							{NAV_TABS.map((tab) => {
 								const count = counts[tab] ?? 0;
 								return (
@@ -129,7 +147,15 @@ export default function DataTransaksiPage() {
 										className="cursor-pointer rounded-md dark:data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-sm data-[state=active]:shadow-accent/50 flex items-center gap-2 px-3 py-1.5 text-sm transition-colors hover:text-accent-foreground"
 									>
 										{tab === "Ditolak" ? "Ditolak / Batal" : tab}
-										{count > 0 && <Badge variant="quiet">{count}</Badge>}
+										{count > 0 && (
+											<Badge
+												variant="quiet"
+												size="sm"
+												className="rounded-full"
+											>
+												{count}
+											</Badge>
+										)}
 									</TabsTrigger>
 								);
 							})}
@@ -182,14 +208,20 @@ export default function DataTransaksiPage() {
 					</div>
 				</div>
 
-				<TabsContent value={activeTab} className="mt-0 flex flex-col gap-4 min-h-0">
+				<TabsContent
+					value={activeTab}
+					className="mt-0 flex min-h-0 min-w-0 flex-1 flex-col gap-4"
+				>
 					<RequestTable
 						data={activeTabData}
+						isLoading={isLoading}
 						onRowClick={setSelectedRequest}
 						onStatusChange={handleStatusChange}
 						onRefetch={fetchRequests}
 						hiddenColumns={getHiddenColumns(activeTab)}
 						countMode={getCountMode(activeTab)}
+						className="flex min-h-0 w-full flex-1 flex-col gap-4"
+						resetPageKey={resetPageKey}
 					/>
 				</TabsContent>
 			</Tabs>

@@ -5,6 +5,7 @@ import * as XLSX from "xlsx";
 import type { BarangUnit } from "@/shared/types/inventory";
 import type { DeleteDialogState } from "@/shared/types/ui";
 import { saveExportFile } from "@/shared/lib/export-file";
+import { readCachedAutoPageSize } from "@/shared/ui/data-table/useAutoPageSize";
 import {
 	ADMIN_LOCATION,
 	createItem,
@@ -57,14 +58,15 @@ export function useDataBarang() {
 	const [filterBrand, setFilterBrand] = useState("all");
 	const [filterLocation, setFilterLocation] = useState("all");
 	const [currentPage, setCurrentPage] = useState(1);
-	const [pageSize, setPageSize] = useState(10);
+	// Ukuran halaman ditentukan otomatis dari tinggi pixel tabel (lihat useAutoPageSize).
+	// Nilai cache dipakai agar permintaan pertama tidak memakai default lalu berubah.
+	const [pageSize, setPageSize] = useState(() => readCachedAutoPageSize(10));
 
 	const prevFiltersRef = useRef({
 		status: filterStatus,
 		category: filterCategory,
 		brand: filterBrand,
 		location: filterLocation,
-		pageSize,
 		search: debouncedSearch,
 	});
 	const lastRequestRef = useRef<{
@@ -149,7 +151,6 @@ export function useDataBarang() {
 			prev.category !== filterCategory ||
 			prev.brand !== filterBrand ||
 			prev.location !== filterLocation ||
-			prev.pageSize !== pageSize ||
 			prev.search !== debouncedSearch;
 
 		if (filtersChanged) {
@@ -158,7 +159,6 @@ export function useDataBarang() {
 				category: filterCategory,
 				brand: filterBrand,
 				location: filterLocation,
-				pageSize,
 				search: debouncedSearch,
 			};
 		}
@@ -209,6 +209,12 @@ export function useDataBarang() {
 		filterBrand,
 		filterLocation,
 	]);
+
+	// Ukuran halaman berubah (resize) → tetap di halaman yang sama,
+	// hanya clamp jika halaman sekarang melebihi total halaman baru.
+	useEffect(() => {
+		if (currentPage > totalPages && totalPages > 0) setCurrentPage(totalPages);
+	}, [currentPage, totalPages]);
 
 	const handleOpenDetail = (barang: BarangUnit) => {
 		setDetailBarang(barang);

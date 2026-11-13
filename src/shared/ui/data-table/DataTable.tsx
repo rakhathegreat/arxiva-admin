@@ -20,8 +20,6 @@ import {
 import { ArrowUpDown, Inbox } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
 import { Button } from "@/shared/ui/button";
-import { Label } from "@/shared/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -29,14 +27,15 @@ import {
 	DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu";
 import { ScrollShadowWrapper } from "@/shared/ui/scroll-shadow";
+import { useAutoPageSize } from "@/shared/ui/data-table/useAutoPageSize";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Checkbox } from "@/shared/ui/checkbox";
 import { cn } from "@/shared/lib/utils";
-import { MoreVertical, X } from "lucide-react";
+import { MoreHorizontal, X } from "lucide-react";
 import type { RowSelectionState } from "@tanstack/react-table";
 import type { LucideIcon } from "lucide-react";
 
-export const PAGE_SIZE_OPTIONS = [10, 20, 30, 40, 50];
+export const PAGE_SIZE_OPTIONS = [9, 20, 30, 40, 50];
 
 export interface RowAction<TData> {
 	label: string;
@@ -66,16 +65,25 @@ function getInlineBreakpoint(actionCount: number) {
  * Aksi baris adaptif: tiap aksi jadi tombol ikon saat kontainer tabel
  * cukup lebar; jika sempit, runtuh menjadi DropdownMenu (popover).
  */
-function AdaptiveRowActions<TData>({ items, row }: { items: RowAction<TData>[]; row: TData }) {
+function AdaptiveRowActions<TData>({
+	items,
+	row,
+	forceMenu = false,
+}: {
+	items: RowAction<TData>[];
+	row: TData;
+	forceMenu?: boolean;
+}) {
 	const moreThan3 = items.length > 3;
 	const bp = getInlineBreakpoint(items.length);
+	const inlineVisible = !forceMenu && !moreThan3;
 
 	return (
 		<>
 			<div
 				className={cn(
 					"hidden items-center justify-center gap-1",
-					moreThan3 ? "hidden" : bp.show,
+					inlineVisible ? bp.show : "hidden",
 				)}
 			>
 				{items.map((action) => (
@@ -97,11 +105,17 @@ function AdaptiveRowActions<TData>({ items, row }: { items: RowAction<TData>[]; 
 				))}
 			</div>
 
-			<div className={cn("flex items-center justify-center", moreThan3 ? "flex" : bp.hide)}>
+			<div
+				className={cn("flex items-center justify-center", inlineVisible ? bp.hide : "flex")}
+			>
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
-						<Button variant="outline" size="icon" className="size-6 cursor-pointer">
-							<MoreVertical className="size-3.5" />
+						<Button
+							variant="ghost"
+							size="icon"
+							className="size-7 cursor-pointer text-muted-foreground hover:text-foreground data-[state=open]:bg-accent data-[state=open]:text-foreground"
+						>
+							<MoreHorizontal className="size-4" />
 							<span className="sr-only">Buka menu aksi</span>
 						</Button>
 					</DropdownMenuTrigger>
@@ -131,11 +145,12 @@ function AdaptiveRowActions<TData>({ items, row }: { items: RowAction<TData>[]; 
 
 /**
  * Kolom aksi baris seragam: tombol ikon terpisah bila ada ruang,
- * popover MoreVertical jika sempit.
+ * popover elipsis (…) jika sempit — atau selalu, dengan `menuOnly`.
  * `actions` bisa berupa daftar statis atau fungsi yang menentukan aksi per baris.
  */
 export function createRowActionsColumn<TData>(
 	actions: RowAction<TData>[] | ((row: TData) => RowAction<TData>[]),
+	options?: { menuOnly?: boolean },
 ): ColumnDef<TData> {
 	return {
 		id: "actions",
@@ -145,7 +160,11 @@ export function createRowActionsColumn<TData>(
 			if (items.length === 0) return null;
 			return (
 				<div className="flex items-center" onClick={(e) => e.stopPropagation()}>
-					<AdaptiveRowActions items={items} row={row.original} />
+					<AdaptiveRowActions
+						items={items}
+						row={row.original}
+						forceMenu={options?.menuOnly}
+					/>
 				</div>
 			);
 		},
@@ -198,6 +217,19 @@ export interface DataTableProps<TData> {
 	bulkActions?: DataTableBulkAction[];
 	/** Aktifkan sorting pada header kolom (default: false). */
 	enableSorting?: boolean;
+	/**
+	 * Ukuran halaman dihitung otomatis dari tinggi pixel area tabel sehingga
+	 * tabel selalu terisi penuh (user tidak perlu memilih). Dropdown ukuran disembunyikan.
+	 */
+	autoPageSize?: boolean;
+	/** Tinggi baris seragam (px) saat autoPageSize aktif. Default 40. */
+	rowHeight?: number;
+	/**
+	 * Nilai apa pun (biasanya string gabungan filter) — saat berubah, tabel
+	 * client-side kembali ke halaman pertama. Dipakai halaman yang punya
+	 * tab/pencarian/filter di luar tabel.
+	 */
+	resetPageKey?: unknown;
 }
 
 const DEFAULT_EMPTY: DataTableEmptyState = {
@@ -207,14 +239,22 @@ const DEFAULT_EMPTY: DataTableEmptyState = {
 function TableSkeleton({
 	columns,
 	enableSelection,
+	rows = 5,
+	rowHeight,
 }: {
 	columns: number;
 	enableSelection?: boolean;
+	rows?: number;
+	rowHeight?: number;
 }) {
 	return (
 		<>
-			{Array.from({ length: 5 }).map((_, rowIndex) => (
-				<TableRow key={`skeleton-${rowIndex}`} className="hover:bg-transparent">
+			{Array.from({ length: rows }).map((_, rowIndex) => (
+				<TableRow
+					key={`skeleton-${rowIndex}`}
+					className="hover:bg-transparent"
+					style={rowHeight ? { height: rowHeight } : undefined}
+				>
 					{Array.from({ length: columns }).map((_, colIndex) => (
 						<TableCell
 							key={`skeleton-${rowIndex}-${colIndex}`}
@@ -287,6 +327,9 @@ export function DataTable<TData>({
 	onRowSelectionChange: controlledOnRowSelectionChange,
 	bulkActions,
 	enableSorting = false,
+	autoPageSize = false,
+	rowHeight = 40,
+	resetPageKey,
 }: DataTableProps<TData>) {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -297,7 +340,39 @@ export function DataTable<TData>({
 		pageSize: PAGE_SIZE_OPTIONS[0],
 	});
 
-	const effectivePageSize = isServer ? (pageSize ?? 10) : internalPagination.pageSize;
+	// --- Ukuran halaman otomatis mengikuti tinggi pixel -------------------
+	const rootRef = React.useRef<HTMLDivElement>(null);
+	const tableAreaRef = React.useRef<HTMLDivElement>(null);
+	const paginationRef = React.useRef<HTMLDivElement>(null);
+	const headerRef = React.useRef<HTMLTableSectionElement>(null);
+
+	// Ukuran halaman yang sedang diminta (server dikendalikan pemilik state).
+	const requestedPageSize = isServer ? (pageSize ?? 8) : internalPagination.pageSize;
+
+	const auto = useAutoPageSize({
+		rootRef,
+		areaRef: tableAreaRef,
+		paginationRef,
+		headerRef,
+		rowHeight,
+		currentPageSize: requestedPageSize,
+		enabled: autoPageSize,
+	});
+
+	const effectivePageSize = autoPageSize ? auto.pageSize || (pageSize ?? 10) : requestedPageSize;
+
+	// Teruskan ukuran hasil hitung ke pemilik state (server fetch / state lokal).
+	const lastAutoSizeRef = React.useRef(0);
+	React.useEffect(() => {
+		if (!autoPageSize || !auto.isMeasured || auto.pageSize <= 0) return;
+		if (lastAutoSizeRef.current === auto.pageSize) return;
+		lastAutoSizeRef.current = auto.pageSize;
+		if (isServer) onPageSizeChange?.(auto.pageSize);
+		else
+			setInternalPagination((prev) =>
+				prev.pageSize === auto.pageSize ? prev : { ...prev, pageSize: auto.pageSize },
+			);
+	}, [autoPageSize, auto.isMeasured, auto.pageSize, isServer, onPageSizeChange]);
 
 	const paginationState = isServer
 		? { pageIndex: Math.max(0, (page ?? 1) - 1), pageSize: effectivePageSize }
@@ -416,8 +491,28 @@ export function DataTable<TData>({
 
 	const totalRows = isServer ? (totalItems ?? 0) : table.getFilteredRowModel().rows.length;
 
+	// Client-side: kembali ke halaman pertama saat tab/pencarian/filter berubah.
+	React.useEffect(() => {
+		if (isServer) return;
+		setInternalPagination((prev) => (prev.pageIndex === 0 ? prev : { ...prev, pageIndex: 0 }));
+	}, [isServer, resetPageKey]);
+
+	// Client-side: jaga halaman tetap valid saat data menyusut (mis. baris
+	// terakhir dipindah status) agar tidak menampilkan halaman kosong.
+	const clientPageCount = Math.max(1, Math.ceil(totalRows / effectivePageSize));
+	React.useEffect(() => {
+		if (isServer) return;
+		setInternalPagination((prev) => {
+			const lastIndex = clientPageCount - 1;
+			return prev.pageIndex > lastIndex ? { ...prev, pageIndex: lastIndex } : prev;
+		});
+	}, [isServer, clientPageCount]);
+
 	return (
-		<div className={cn("@container", className ?? "flex flex-col w-full h-full min-h-0 gap-4")}>
+		<div
+			ref={rootRef}
+			className={cn("@container", className ?? "flex flex-col w-full h-full min-h-0 gap-4")}
+		>
 			{toolbar}
 			{enableSelection && !!bulkActions?.length && selectedIds.length > 0 && (
 				<div
@@ -460,12 +555,30 @@ export function DataTable<TData>({
 					</Button>
 				</div>
 			)}
-			<div>
-				<ScrollShadowWrapper>
-					<Table>
-						<TableHeader className="sticky top-0 z-20 bg-transparent">
+			{/* Area tabel mengisi sisa tinggi; paginasi tetap terlihat tanpa scroll halaman. */}
+			<div
+				ref={tableAreaRef}
+				className={cn("flex min-h-0 flex-1 flex-col", autoPageSize && "flex-none")}
+			>
+				<ScrollShadowWrapper
+					style={
+						autoPageSize ? { maxHeight: auto.maxHeight, flex: "0 0 auto" } : undefined
+					}
+				>
+					<Table
+						style={
+							autoPageSize
+								? ({ "--dt-row-height": `${rowHeight}px` } as React.CSSProperties)
+								: undefined
+						}
+						className={cn(
+							autoPageSize &&
+								"[&_tbody_tr]:h-[var(--dt-row-height)] [&_tbody_td]:py-0 [&_tbody_td]:align-middle",
+						)}
+					>
+						<TableHeader ref={headerRef} className="sticky top-0 z-20 bg-background">
 							{table.getHeaderGroups().map((headerGroup) => (
-								<TableRow key={headerGroup.id} className="hover:bg-transparent">
+								<TableRow key={headerGroup.id} className="">
 									{headerGroup.headers.map((header, index) => {
 										const isSelect = header.column.id === "__select";
 										const isAfterSelect = enableSelection && index === 1;
@@ -520,6 +633,8 @@ export function DataTable<TData>({
 								<TableSkeleton
 									columns={columnsWithSelection.length}
 									enableSelection={enableSelection}
+									rows={autoPageSize ? effectivePageSize : 5}
+									rowHeight={autoPageSize ? rowHeight : undefined}
 								/>
 							) : table.getRowModel().rows.length > 0 ? (
 								table.getRowModel().rows.map((row) => (
@@ -527,6 +642,7 @@ export function DataTable<TData>({
 										key={row.id}
 										data-state={row.getIsSelected() && "selected"}
 										className="cursor-pointer transition-colors hover:bg-muted/40"
+										style={autoPageSize ? { height: rowHeight } : undefined}
 										onClick={() => onRowClick?.(row.original)}
 									>
 										{row.getVisibleCells().map((cell, cellIndex) => {
@@ -566,9 +682,10 @@ export function DataTable<TData>({
 				</ScrollShadowWrapper>
 			</div>
 
-			{/* Pagination Controls */}
-			{(totalRows > 0 || isServer) && !isLoading && (
-				<div className="flex items-center justify-between px-4 py-4">
+			{/* Pagination Controls — tetap ter-mount saat loading agar pengukuran
+			    tinggi (autoPageSize) tidak berubah-ubah dan memicu fetch ulang. */}
+			{(totalRows > 0) && (!isLoading || autoPageSize) && (
+				<div ref={paginationRef} className="flex items-center justify-between px-4">
 					<div className="hidden flex-1 text-sm text-muted-foreground lg:flex">
 						Menampilkan{" "}
 						{Math.min(paginationState.pageIndex * effectivePageSize + 1, totalRows)}–
@@ -576,28 +693,6 @@ export function DataTable<TData>({
 						dari {totalRows} data
 					</div>
 					<div className="flex w-full items-center gap-8 lg:w-fit">
-						<div className="hidden items-center gap-2 lg:flex">
-							<Label htmlFor="rows-per-page" className="text-sm font-medium">
-								Baris per halaman
-							</Label>
-							<Select
-								value={`${effectivePageSize}`}
-								onValueChange={(value) => {
-									table.setPageSize(Number(value));
-								}}
-							>
-								<SelectTrigger size="sm" className="w-20" id="rows-per-page">
-									<SelectValue placeholder={`${effectivePageSize}`} />
-								</SelectTrigger>
-								<SelectContent side="top">
-									{PAGE_SIZE_OPTIONS.map((size) => (
-										<SelectItem key={size} value={`${size}`}>
-											{size}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-						</div>
 						<div className="flex w-fit items-center justify-center text-sm font-medium">
 							Halaman {paginationState.pageIndex + 1} dari {table.getPageCount()}
 						</div>

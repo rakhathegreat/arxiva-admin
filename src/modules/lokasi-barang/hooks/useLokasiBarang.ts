@@ -95,7 +95,7 @@ export function useLokasiBarang() {
 		setSheetMode(mode);
 		setActiveItem(item || null);
 
-		setLocName(mode === "add-rak" ? getNextShelfName(locations) : "");
+		setLocName("");
 		setLocCapacity("1");
 		setLocBrand("Campuran");
 		setLocLevelsCount("3");

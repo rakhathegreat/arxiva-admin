@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Shell(rm:*)",
+      "Shell(ls:*)",
+      "Shell(npm:*)",
+      "Shell(npx eslint src/modules/data-barang/components/BarangDetailDialog.tsx src/modules/data-barang/page.tsx)",
+      "Shell(google-chrome:*)",
+      "Shell(npx eslint src/modules/data-barang/components/BarangDetailDialog.tsx 2 >& 1)",
+      "Shell(npx prisma validate)",
+      "Shell(npx prisma generate)",
+      "Shell(npx vitest run tests/unit/audit.describe.test.js)",
+      "Shell(npx eslint src/modules/audit src/shared/middlewares/audit.middleware.js src/server.js tests/unit/audit.describe.test.js)",
+      "Shell(npx eslint src/modules/log-aktivitas 2 >& 1)"
+    ],
+    "deny": [],
+    "defaultMode": "default"
+  }
+}

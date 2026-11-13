@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Plus, Search, Edit, Trash2, Boxes, Loader2, Download, ExternalLink } from "lucide-react";
+import { Plus, Search, Edit, Trash2, Boxes, Loader2, Download } from "lucide-react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/shared/ui/button";
@@ -18,18 +18,18 @@ import {
 	AlertDialogTitle,
 } from "@/shared/ui/alert-dialog";
 import { StatusBadge } from "@/shared/ui/status-badge";
-import { Badge } from "@/shared/ui/badge";
 import { DataTable, createRowActionsColumn } from "@/shared/ui/data-table/DataTable";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 
-import { BarangDetailDrawer } from "@/modules/data-barang/components/BarangDetailDrawer";
+import { BarangDetailDialog } from "@/modules/data-barang/components/BarangDetailDialog";
 import { BarangFormModal } from "@/modules/data-barang/components/BarangFormModal";
 import { ExportExcelModal } from "@/modules/data-barang/components/ExportExcelModal";
 import { BarangFilterPopover } from "@/modules/data-barang/components/BarangFilterPopover";
+import { RekonStatus } from "@/modules/data-barang/components/RekonStatus";
 import { formatItemLocation } from "@/shared/lib/status-helper";
 
 import { useDataBarang } from "./hooks/useDataBarang";
-import { STATUS_OPTIONS, formatTanggal, isReconTelat } from "./utils/barang";
+import { STATUS_OPTIONS, formatTanggal } from "./utils/barang";
 import {
 	ADMIN_LOCATION,
 	searchBrands,
@@ -150,8 +150,12 @@ export default function DataBarangPage() {
 				accessorKey: "kondisi",
 				header: "Kondisi",
 				cell: ({ row }) => (
-					<div className="flex justify-center">
-						<StatusBadge size="sm" status={row.original.kondisi || "Baru"} />
+					<div className="flex">
+						<StatusBadge
+							size="md"
+							variant="quiet"
+							status={row.original.kondisi || "Baru"}
+						/>
 					</div>
 				),
 			},
@@ -159,8 +163,8 @@ export default function DataBarangPage() {
 				accessorKey: "status",
 				header: "Status",
 				cell: ({ row }) => (
-					<div className="flex justify-center">
-						<StatusBadge size="sm" status={row.original.status} />
+					<div className="flex">
+						<StatusBadge size="md" variant="quiet" status={row.original.status} />
 					</div>
 				),
 			},
@@ -177,56 +181,30 @@ export default function DataBarangPage() {
 				? [
 						{
 							id: "lastReconDate",
-							header: () => <span className="flex">Rekon Terakhir</span>,
-							cell: ({ row }: { row: any }) => {
-								const item: BarangUnit = row.original;
-								const telat = isReconTelat(item);
-								return (
-									<div className="flex flex-col gap-1">
-										<span
-											className={
-												item.lastReconDate ? "" : "text-muted-foreground"
-											}
-										>
-											{item.lastReconDate
-												? formatTanggal(item.lastReconDate)
-												: "-"}
-										</span>
-										{item.lastPhotoUrl ? (
-											<a
-												href={item.lastPhotoUrl}
-												target="_blank"
-												rel="noopener noreferrer"
-												className="inline-flex items-center gap-1 text-[11px] text-primary underline underline-offset-4 hover:text-primary/80"
-											>
-												<ExternalLink className="size-3" />
-												Lihat Foto
-											</a>
-										) : null}
-										{telat && (
-											<Badge variant="glass" tone="orange" size="sm">
-												Telat
-											</Badge>
-										)}
-									</div>
-								);
-							},
+							header: "Rekon Terakhir",
+							meta: { className: "w-[168px] whitespace-nowrap" },
+							cell: ({ row }: { row: any }) => (
+								<RekonStatus item={row.original} />
+							),
 						},
 					]
 				: []),
-			createRowActionsColumn<BarangUnit>((item) => [
-				{
-					label: "Edit Material",
-					icon: Edit,
-					onClick: () => handleOpenEdit(item),
-				},
-				{
-					label: "Hapus Material",
-					icon: Trash2,
-					destructive: true,
-					onClick: () => handleDelete(item.id, item.serialNumber),
-				},
-			]),
+			createRowActionsColumn<BarangUnit>(
+				(item) => [
+					{
+						label: "Edit Material",
+						icon: Edit,
+						onClick: () => handleOpenEdit(item),
+					},
+					{
+						label: "Hapus Material",
+						icon: Trash2,
+						destructive: true,
+						onClick: () => handleDelete(item.id, item.serialNumber),
+					},
+				],
+				{ menuOnly: true },
+			),
 		],
 		[currentPage, pageSize, handleOpenEdit, handleDelete, filterStatus],
 	);
@@ -244,7 +222,7 @@ export default function DataBarangPage() {
 				</Button>
 			</header>
 
-			<Tabs value={filterStatus} onValueChange={setFilterStatus} className="w-full">
+			<Tabs value={filterStatus} onValueChange={setFilterStatus} className="w-full shrink-0">
 				<div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 					<div className="flex items-center w-full overflow-x-auto pb-1">
 						<TabsList className="inline-flex h-auto w-full lg:w-auto bg-accent/50 rounded-md">
@@ -339,7 +317,8 @@ export default function DataBarangPage() {
 				onPageChange={setCurrentPage}
 				pageSize={pageSize}
 				onPageSizeChange={setPageSize}
-				className="flex flex-col gap-4 w-full min-h-0"
+				autoPageSize
+				className="flex flex-1 flex-col gap-4 w-full min-h-0"
 				emptyState={{
 					icon: Boxes,
 					title: "Belum ada data material",
@@ -358,7 +337,7 @@ export default function DataBarangPage() {
 				}}
 			/>
 
-			<BarangDetailDrawer
+			<BarangDetailDialog
 				isOpen={isDetailOpen}
 				onOpenChange={setIsDetailOpen}
 				detailBarang={detailBarang}
@@ -403,7 +382,8 @@ export default function DataBarangPage() {
 								: `Hapus ${deleteDialog?.ids.length} unit terpilih?`}
 						</AlertDialogTitle>
 						<AlertDialogDescription className="text-sm">
-							Tindakan ini tidak dapat dibatalkan. Data unit akan dihapus dari inventaris.
+							Tindakan ini tidak dapat dibatalkan. Data unit akan dihapus dari
+							inventaris.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter className="pt-2">

@@ -93,6 +93,9 @@ export function SiteHeader({ className }: { className?: string }) {
 	} else if (path === "/manajemen-data/merek") {
 		parent = "Manajemen Data";
 		pageName = "Merek Material";
+	} else if (path === "/log-aktivitas") {
+		parent = "Sistem";
+		pageName = "Log Aktivitas";
 	}
 
 	return (

@@ -42,7 +42,7 @@ const CARD_DEFS: {
 	},
 	{
 		key: "diluar",
-		label: "Diluar",
+		label: "Terdistribusi",
 		valueKey: "diluar",
 		icon: ArrowsUpFromLine,
 		direction: "down",

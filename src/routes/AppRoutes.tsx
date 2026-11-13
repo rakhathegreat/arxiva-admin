@@ -28,6 +28,7 @@ const TipeMaterialPage = lazy(() => import("@/modules/tipe-material/page"));
 const MerekBarangPage = lazy(() => import("@/modules/merek-barang/page"));
 const PengaturanPage = lazy(() => import("@/modules/pengaturan/page"));
 const ManajemenUserPage = lazy(() => import("@/modules/manajemen-user/page"));
+const LogAktivitasPage = lazy(() => import("@/modules/log-aktivitas/page"));
 const PeminjamanMitraPage = lazy(() => import("@/modules/peminjaman-mitra/page"));
 
 export function AppRoutes() {
@@ -41,7 +42,8 @@ export function AppRoutes() {
 						<ProtectedRoute>
 							<Layout />
 						</ProtectedRoute>
-					}>
+					}
+				>
 					<Route index element={<DashboardPage />} />
 					<Route path="barang-masuk" element={<BarangMasukPage />} />
 					<Route path="barang-keluar" element={<BarangKeluarPage />} />
@@ -86,6 +88,14 @@ export function AppRoutes() {
 						element={
 							<AdminRoute>
 								<PeminjamanMitraPage />
+							</AdminRoute>
+						}
+					/>
+					<Route
+						path="log-aktivitas"
+						element={
+							<AdminRoute>
+								<LogAktivitasPage />
 							</AdminRoute>
 						}
 					/>

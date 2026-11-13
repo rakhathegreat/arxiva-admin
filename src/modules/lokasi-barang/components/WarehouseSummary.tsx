@@ -148,9 +148,7 @@ export function WarehouseSummary({
 											"truncate px-2 text-xs font-medium tabular-nums",
 											segment.text,
 										)}
-									>
-										{segment.key} {segment.pct}%
-									</span>
+									></span>
 								)}
 							</div>
 						))}

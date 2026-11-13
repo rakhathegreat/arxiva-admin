@@ -77,13 +77,7 @@ const toTitleCase = (value: string) =>
 		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 		.join(" ");
 
-export function StatusBadge({
-	status,
-	label,
-	size = "md",
-	variant = "glass",
-	className,
-}: StatusBadgeProps) {
+export function StatusBadge({ status, label, className }: StatusBadgeProps) {
 	const config = STATUS_CONFIG[normalize(status)] ?? {
 		...NEUTRAL,
 		label: toTitleCase(status),
